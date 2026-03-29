@@ -1,0 +1,15 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+
+# Development
+node_modules/
+vendor/
+.env
+
+# WordPress specific
+core/
