@@ -1,0 +1,216 @@
+/**
+ * PhotoProof - Styles de la page de réglages (Adapté)
+ */
+
+.pp-settings-container {
+    display: flex;
+    margin-top: 20px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    overflow: hidden;
+    min-height: 600px;
+    max-width: 1200px;
+}
+
+/* Sidebar Navigation */
+.pp-settings-sidebar {
+    width: 240px;
+    background: #f8f9fa;
+    border-right: 1px solid #e2e8f0;
+    padding: 20px 0;
+    flex-shrink: 0;
+}
+
+.pp-nav-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 25px;
+    cursor: pointer;
+    color: #64748b;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+}
+
+.pp-nav-item:hover {
+    background: #f1f5f9;
+    color: #2271b1;
+}
+
+.pp-nav-item.active {
+    background: #fff;
+    color: #2271b1;
+    border-left-color: #2271b1;
+    font-weight: 600;
+}
+
+.pp-nav-item .dashicons {
+    margin-right: 12px;
+}
+
+/* Zone de Contenu */
+.pp-settings-content {
+    flex: 1;
+    padding: 40px;
+    position: relative;
+    background: #fff;
+}
+
+.pp-section-content {
+    display: none;
+}
+
+.pp-section-content.active {
+    display: block;
+}
+
+/* Cartes d'options */
+.pp-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 30px;
+    margin-bottom: 25px;
+}
+
+/* --- CORRECTION DU RYTHME & ESPACEMENTS --- */
+
+/* On resserre le titre sur son option */
+.pp-card h3 {
+    margin: 0 0 12px 0 !important; /* Espace réduit sous le titre */
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e293b;
+    border: none; /* On enlève la bordure inutile ici */
+    padding: 0;
+}
+
+/* Le séparateur doit créer une vraie pause entre les groupes */
+.pp-separator {
+    margin: 35px 0 !important; /* Plus d'espace avant le prochain titre */
+    border: 0;
+    border-top: 1px solid #f1f5f9;
+}
+
+/* Alignement des textes d'explication sous le texte du label */
+.pp-explanation {
+    margin: 6px 0 0 52px !important; /* Switch(40px) + Gap(12px) = 52px */
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+/* Sous-panels (quand le toggle est actif) */
+.pp-sub-panel {
+    margin: 15px 0 0 52px !important;
+    padding: 20px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+/* --- FIN DES CORRECTIONS --- */
+
+.pp-save-bar {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+/* Custom Toggle Switch (iOS Style) */
+.pp-switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+    flex-shrink: 0; /* Empêche le switch de s'écraser */
+}
+
+.pp-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.pp-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #cbd5e1;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.pp-slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .pp-slider {
+    background-color: #2271b1;
+}
+
+input:checked + .pp-slider:before {
+    transform: translateX(18px);
+}
+
+/* Formulaires */
+.pp-option-row {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Espace constant entre switch et label */
+}
+
+.pp-label-text {
+    font-weight: 600;
+    color: #334155;
+    font-size: 14px;
+}
+
+.pp-main-label { 
+    display: block; 
+    margin-bottom: 10px; 
+    font-weight: 600; 
+    font-size: 13px;
+}
+
+/* Help Box */
+.pp-help-box {
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    padding: 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    width: 100%;
+}
+
+/* Couleur & Branding */
+.pp-color-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.pp-color-item label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+/* Preview Grille (Galerie admin) */
+.pp-gallery-preview-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
+    gap: 15px; 
+    margin-top: 30px; 
+}
