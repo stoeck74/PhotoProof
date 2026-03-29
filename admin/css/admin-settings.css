@@ -1,130 +1,250 @@
 /**
- * PhotoProof - Styles de la page de réglages (Adapté)
+ * PhotoProof — Admin CSS
+ * Couvre : page de réglages + metabox d'édition de galerie
  */
 
-.pp-settings-container {
+/* ============================================================
+   1. VARIABLES & RESET
+   ============================================================ */
+.pp-settings-page *,
+.pp-meta * {
+    box-sizing: border-box;
+}
+
+/* ============================================================
+   2. PAGE DE RÉGLAGES — LAYOUT
+   ============================================================ */
+.pp-settings-page .pp-settings-container {
     display: flex;
     margin-top: 20px;
     background: #fff;
     border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
     overflow: hidden;
     min-height: 600px;
-    max-width: 1200px;
+    max-width: 1100px;
 }
 
-/* Sidebar Navigation */
-.pp-settings-sidebar {
-    width: 240px;
+/* Sidebar */
+.pp-settings-page .pp-settings-sidebar {
+    width: 220px;
     background: #f8f9fa;
-    border-right: 1px solid #e2e8f0;
-    padding: 20px 0;
+    border-right: 1px solid #e8ecef;
+    padding: 24px 0;
     flex-shrink: 0;
 }
 
-.pp-nav-item {
+.pp-settings-page .pp-nav-item {
     display: flex;
     align-items: center;
-    padding: 15px 25px;
+    gap: 10px;
+    padding: 13px 22px;
     cursor: pointer;
     color: #64748b;
+    font-size: 13px;
     font-weight: 500;
-    transition: all 0.3s ease;
-    border-left: 3px solid transparent;
+    border-left: 2px solid transparent;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
 
-.pp-nav-item:hover {
+.pp-settings-page .pp-nav-item:hover {
     background: #f1f5f9;
     color: #2271b1;
 }
 
-.pp-nav-item.active {
+.pp-settings-page .pp-nav-item.active {
     background: #fff;
     color: #2271b1;
     border-left-color: #2271b1;
     font-weight: 600;
 }
 
-.pp-nav-item .dashicons {
-    margin-right: 12px;
+.pp-settings-page .pp-nav-item .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
 }
 
-/* Zone de Contenu */
-.pp-settings-content {
+/* Contenu */
+.pp-settings-page .pp-settings-content {
     flex: 1;
-    padding: 40px;
-    position: relative;
+    padding: 36px 40px;
     background: #fff;
+    position: relative;
 }
 
-.pp-section-content {
+.pp-settings-page .pp-section-content {
     display: none;
 }
 
-.pp-section-content.active {
+.pp-settings-page .pp-section-content.active {
     display: block;
 }
 
-/* Cartes d'options */
-.pp-card {
-    background: #fff;
-    border: 1px solid #e2e8f0;
+/* ============================================================
+   3. PAGE DE RÉGLAGES — COMPOSANTS
+   ============================================================ */
+
+/* Card */
+.pp-settings-page .pp-card {
+    background: #fafafa;
+    border: 1px solid #e8ecef;
     border-radius: 10px;
-    padding: 30px;
-    margin-bottom: 25px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
 }
 
-/* --- CORRECTION DU RYTHME & ESPACEMENTS --- */
-
-/* On resserre le titre sur son option */
-.pp-card h3 {
-    margin: 0 0 12px 0 !important; /* Espace réduit sous le titre */
-    font-size: 16px;
+.pp-settings-page .pp-card h3 {
+    margin: 0 0 18px;
+    font-size: 15px;
     font-weight: 600;
     color: #1e293b;
-    border: none; /* On enlève la bordure inutile ici */
-    padding: 0;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #eef0f3;
 }
 
-/* Le séparateur doit créer une vraie pause entre les groupes */
-.pp-separator {
-    margin: 35px 0 !important; /* Plus d'espace avant le prochain titre */
-    border: 0;
-    border-top: 1px solid #f1f5f9;
+/* Séparateur */
+.pp-settings-page .pp-separator {
+    border: none;
+    border-top: 1px solid #eef0f3;
+    margin: 22px 0;
 }
 
-/* Alignement des textes d'explication sous le texte du label */
-.pp-explanation {
-    margin: 6px 0 0 52px !important; /* Switch(40px) + Gap(12px) = 52px */
+/* Ligne d'option */
+.pp-settings-page .pp-option-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pp-settings-page .pp-label-text {
     font-size: 13px;
-    color: #64748b;
-    line-height: 1.5;
+    font-weight: 600;
+    color: #334155;
 }
 
-/* Sous-panels (quand le toggle est actif) */
-.pp-sub-panel {
-    margin: 15px 0 0 52px !important;
-    padding: 20px;
+.pp-settings-page .pp-explanation {
+    font-size: 12px;
+    color: #64748b;
+    margin: 8px 0 0 52px;
+    line-height: 1.6;
+}
+
+/* Sous-panel (dépliable) */
+.pp-settings-page .pp-sub-panel {
+    margin: 14px 0 0 52px;
+    padding: 18px 20px;
     background: #f8fafc;
     border-radius: 8px;
     border: 1px solid #e2e8f0;
 }
 
-/* --- FIN DES CORRECTIONS --- */
-
-.pp-save-bar {
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #eee;
+.pp-settings-page .pp-main-label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
 }
 
-/* Custom Toggle Switch (iOS Style) */
+/* Grille branding (logo + preview) */
+.pp-settings-page .pp-branding-grid {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+}
+
+.pp-settings-page .pp-branding-controls {
+    flex: 1;
+}
+
+.pp-settings-page .pp-branding-preview {
+    flex: 1;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 24px;
+    text-align: center;
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Preview watermark */
+#wm-preview-container {
+    width: 100%;
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0f0f0;
+    border: 1px dashed #ccc;
+    padding: 10px;
+    border-radius: 6px;
+}
+
+#wm-placeholder {
+    color: #94a3b8;
+    font-style: italic;
+    font-size: 13px;
+}
+
+/* CORRECTION : suppression de transition CSS sur #wm-live-preview
+   (GSAP gère l'opacité — conflit évité) */
+#wm-live-preview {
+    max-width: 200px;
+    height: auto;
+}
+
+/* Range slider */
+.pp-settings-page .pp-range-group {
+    margin-top: 20px;
+}
+
+.pp-settings-page .pp-range-group label {
+    display: block;
+    font-size: 12px;
+    color: #64748b;
+    margin-bottom: 8px;
+}
+
+/* Couleurs */
+.pp-settings-page .pp-color-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 24px;
+    margin-top: 16px;
+}
+
+.pp-settings-page .pp-color-item label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+/* Barre de sauvegarde */
+.pp-settings-page .pp-save-bar {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #eef0f3;
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* ============================================================
+   4. TOGGLE SWITCH iOS — COMMUN aux deux contextes
+      CORRECTION : une seule définition, scopée proprement
+   ============================================================ */
 .pp-switch {
     position: relative;
     display: inline-block;
-    width: 40px;
-    height: 22px;
-    flex-shrink: 0; /* Empêche le switch de s'écraser */
+    width: 38px;
+    height: 21px;
+    flex-shrink: 0;
+    vertical-align: middle;
 }
 
 .pp-switch input {
@@ -136,21 +256,21 @@
 .pp-slider {
     position: absolute;
     cursor: pointer;
-    top: 0; left: 0; right: 0; bottom: 0;
+    inset: 0;
     background-color: #cbd5e1;
-    transition: .4s;
-    border-radius: 34px;
+    transition: background-color 0.3s;
+    border-radius: 21px;
 }
 
 .pp-slider:before {
     position: absolute;
     content: "";
-    height: 16px;
-    width: 16px;
+    height: 15px;
+    width: 15px;
     left: 3px;
     bottom: 3px;
-    background-color: white;
-    transition: .4s;
+    background-color: #fff;
+    transition: transform 0.3s;
     border-radius: 50%;
 }
 
@@ -159,58 +279,518 @@ input:checked + .pp-slider {
 }
 
 input:checked + .pp-slider:before {
-    transform: translateX(18px);
+    transform: translateX(17px);
 }
 
-/* Formulaires */
-.pp-option-row {
+/* ============================================================
+   5. METABOX — LAYOUT GÉNÉRAL
+   ============================================================ */
+.pp-meta {
+padding: 4px 0 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #2c3338;
+    /* ↓ ajouter ces deux lignes */
+    background: #f8f9fa;
+    border-radius: 0 0 4px 4px; /* arrondi bas uniquement, le haut appartient au titre WP */
+
+}
+
+/* Label de section (micro-titre) */
+.pp-meta .pp-section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: #94a3b8;
+    text-transform: uppercase;
+    margin: 0 0 10px;
+}
+
+/* Séparateur metabox */
+.pp-meta .pp-divider {
+    border: none;
+    border-top: 1px solid #f0f2f5;
+    margin: 20px 0;
+}
+
+/* ============================================================
+   6. METABOX — BANNIÈRE LIEN CLIENT
+   ============================================================ */
+.pp-meta .pp-share {
     display: flex;
     align-items: center;
-    gap: 12px; /* Espace constant entre switch et label */
+    gap: 10px;
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border: 1px solid #e8ecef;
+    border-radius: 8px;
+    margin-bottom: 0;
 }
 
-.pp-label-text {
+.pp-meta .pp-share-label {
+    font-size: 11px;
     font-weight: 600;
-    color: #334155;
-    font-size: 14px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
 }
 
-.pp-main-label { 
-    display: block; 
-    margin-bottom: 10px; 
-    font-weight: 600; 
-    font-size: 13px;
-}
-
-/* Help Box */
-.pp-help-box {
-    background: #fff;
-    border: 1px solid #cbd5e1;
-    padding: 12px;
-    border-radius: 4px;
+.pp-meta .pp-share-url {
+    flex: 1;
+    font-family: monospace;
     font-size: 12px;
-    width: 100%;
+    color: #475569;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 5px;
+    padding: 6px 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-/* Couleur & Branding */
-.pp-color-grid {
+/* ============================================================
+   7. METABOX — BOUTONS
+   ============================================================ */
+.pp-meta .pp-btn {
+    font-size: 12px;
+    padding: 7px 14px;
+    border-radius: 6px;
+    border: 1px solid #c3c4c7;
+    background: #fff;
+    color: #2c3338;
+    cursor: pointer;
+    white-space: nowrap;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: background 0.15s, border-color 0.15s;
+    line-height: 1;
+}
+
+.pp-meta .pp-btn:hover {
+    background: #f6f7f7;
+    border-color: #8c8f94;
+}
+
+.pp-meta .pp-btn-sm {
+    font-size: 11px;
+    padding: 5px 11px;
+}
+
+.pp-meta .pp-btn-primary {
+    background: #1e293b;
+    color: #fff;
+    border-color: #1e293b;
+}
+
+.pp-meta .pp-btn-primary:hover {
+    background: #334155;
+    border-color: #334155;
+    color: #fff;
+}
+
+.pp-meta .pp-btn-success {
+    background: #166534;
+    color: #fff;
+    border-color: #166534;
+}
+
+/* ============================================================
+   8. METABOX — GRILLE DE CHAMPS
+   ============================================================ */
+.pp-meta .pp-fields-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 30px;
-    margin-top: 20px;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
 }
 
-.pp-color-item label {
-    display: block;
-    margin-bottom: 10px;
+.pp-meta .pp-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.pp-meta .pp-field label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.pp-meta .pp-field select,
+.pp-meta .pp-field input[type="text"] {
+    font-size: 13px;
+    padding: 8px 10px;
+    border: 1px solid #dde1e6;
+    border-radius: 6px;
+    background: #fff;
+    color: #2c3338;
+    width: 100%;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.pp-meta .pp-field select:focus,
+.pp-meta .pp-field input[type="text"]:focus {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 2px rgba(34, 113, 177, 0.15);
+    outline: none;
+}
+
+/* ============================================================
+   9. METABOX — CARTE SÉLECTION
+   ============================================================ */
+.pp-meta .pp-sel-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border: 1px solid #e8ecef;
+    border-left: 3px solid #2271b1;
+    border-radius: 8px;
+    background: #fff;
+    margin-bottom: 0;
+}
+
+.pp-meta .pp-sel-count {
+    font-size: 13px;
+    color: #64748b;
+}
+
+.pp-meta .pp-sel-count strong {
+    font-size: 22px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-right: 4px;
+    line-height: 1;
+}
+
+/* ============================================================
+   10. METABOX — TOGGLE ROW
+   ============================================================ */
+.pp-meta .pp-toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border: 1px solid #e8ecef;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.pp-meta .pp-toggle-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.pp-meta .pp-toggle-title {
+    font-size: 13px;
     font-weight: 600;
     color: #1e293b;
 }
 
-/* Preview Grille (Galerie admin) */
-.pp-gallery-preview-grid { 
-    display: grid; 
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
-    gap: 15px; 
-    margin-top: 30px; 
+.pp-meta .pp-toggle-sub {
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+/* ============================================================
+   11. METABOX — ZONE D'UPLOAD
+   ============================================================ */
+.pp-meta .pp-upload-zone {
+    border: 1.5px dashed #dde1e6;
+    border-radius: 10px;
+    padding: 30px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    background: #fafafa;
+}
+
+.pp-meta .pp-upload-zone:hover {
+    border-color: #2271b1;
+    background: #f0f6fb;
+}
+
+.pp-meta .pp-upload-icon {
+    width: 34px;
+    height: 34px;
+    margin: 0 auto 10px;
+    display: block;
+    color: #94a3b8;
+    transition: color 0.2s;
+}
+
+.pp-meta .pp-upload-zone:hover .pp-upload-icon {
+    color: #2271b1;
+}
+
+.pp-meta .pp-upload-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 4px;
+}
+
+.pp-meta .pp-upload-sub {
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+/* ============================================================
+   12. METABOX — GRILLE DE PHOTOS
+   ============================================================ */
+.pp-meta .pp-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.pp-meta .pp-thumb {
+    position: relative;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #e8ecef;
+    background: #f8f9fa;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.pp-meta .pp-thumb img {
+    width: 100%;
+    height: 110px;
+    object-fit: cover;
+    display: block;
+}
+
+.pp-meta .pp-thumb-info {
+    padding: 6px 8px;
+    font-size: 10px;
+    color: #64748b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: #fff;
+}
+
+.pp-meta .pp-thumb-delete {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    font-size: 13px;
+    line-height: 20px;
+    text-align: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+    border: none;
+    padding: 0;
+}
+
+.pp-meta .pp-thumb:hover .pp-thumb-delete {
+    opacity: 1;
+}
+
+/* ============================================================
+   13. METABOX — ALERTE
+   ============================================================ */
+.pp-meta .pp-alert {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 12px 14px;
+    background: #fffbeb;
+    border: 1px solid #fcd34d;
+    border-radius: 6px;
+    margin-top: 16px;
+}
+
+.pp-meta .pp-alert-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #d97706;
+    margin-top: 5px;
+    flex-shrink: 0;
+}
+
+.pp-meta .pp-alert-text {
+    font-size: 12px;
+    color: #92400e;
+    line-height: 1.6;
+}
+
+/* ============================================================
+   14. RESPONSIVE — metabox colonne unique sur petit écran
+   ============================================================ */
+@media (max-width: 900px) {
+    .pp-meta .pp-fields-row {
+        grid-template-columns: 1fr;
+    }
+
+    .pp-settings-page .pp-settings-container {
+        flex-direction: column;
+    }
+
+    .pp-settings-page .pp-settings-sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #e8ecef;
+        display: flex;
+        overflow-x: auto;
+        padding: 0;
+    }
+
+    .pp-settings-page .pp-nav-item {
+        flex-shrink: 0;
+        border-left: none;
+        border-bottom: 2px solid transparent;
+    }
+
+    .pp-settings-page .pp-nav-item.active {
+        border-left-color: transparent;
+        border-bottom-color: #2271b1;
+    }
+}
+
+/* ============================================================
+   15. METABOX — ÉTAT VALIDÉ
+   ============================================================ */
+.pp-meta .pp-validated-banner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-left: 3px solid #22c55e;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.pp-meta .pp-validated-icon {
+    font-size: 18px;
+    color: #22c55e;
+    flex-shrink: 0;
+}
+
+.pp-meta .pp-validated-banner div {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.pp-meta .pp-validated-banner strong {
+    font-size: 13px;
+    color: #166534;
+}
+
+.pp-meta .pp-validated-banner span {
+    font-size: 11px;
+    color: #15803d;
+}
+
+/* ── Récap miniatures sélection ── */
+.pp-meta .pp-selection-recap {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+    margin-bottom: 16px;
+    padding: 14px;
+    background: #f8f9fa;
+    border: 1px solid #e8ecef;
+    border-radius: 8px;
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+.pp-meta .pp-recap-thumb {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
+}
+
+.pp-meta .pp-recap-img {
+    width: 100%;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #e8ecef;
+    display: block;
+}
+
+.pp-meta .pp-recap-name {
+    font-size: 9px;
+    color: #64748b;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    letter-spacing: 0.02em;
+}
+
+/* ── Boutons réouverture ── */
+.pp-meta .pp-reopen-actions {
+    margin-top: 14px;
+}
+
+.pp-meta .pp-reopen-btns {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.pp-meta .pp-btn-danger {
+    border-color: #fca5a5;
+    color: #991b1b;
+}
+
+.pp-meta .pp-btn-danger:hover {
+    background: #fef2f2;
+    border-color: #f87171;
+}
+
+/* ============================================================
+   16. FRONT-END — ÉTAT VERROUILLÉ (injecté dans admin CSS
+       pour le bandeau visible côté admin dans template_redirect)
+   ============================================================ */
+.pp-photo-dimmed {
+    opacity: 0.35;
+    pointer-events: none;
+}
+
+.pp-locked-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: #166534;
+}
+
+.pp-locked-icon {
+    font-size: 16px;
+    color: #22c55e;
+    flex-shrink: 0;
+}
+
+.pp-bar-locked .pp-btn-validate.pp-btn-confirmed {
+    background: #22c55e;
+    cursor: default;
 }

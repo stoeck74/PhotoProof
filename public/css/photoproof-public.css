@@ -1,0 +1,466 @@
+/**
+ * PhotoProof — photoproof-public.css
+ * Styles front-end galerie client
+ *
+ * Couleurs dynamiques injectées via wp_add_inline_style() dans class-photoproof-public.php :
+ *   --pp-bg     : couleur de fond globale
+ *   --pp-active : couleur d'accentuation (check, bouton valider, border sélection)
+ *   --pp-text   : couleur de texte principal
+ *
+ * Option : --pp-img-radius (0px = carré, 8px = arrondi) injectée selon le réglage settings
+ */
+
+/* ============================================================
+   1. RESET & BASE
+   ============================================================ */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--pp-bg, #ffffff);
+    color: var(--pp-text, #1e293b);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================================
+   2. WRAPPER PRINCIPAL
+   ============================================================ */
+.pp-gallery-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 24px 120px; /* padding-bottom pour la barre sticky */
+}
+
+/* ============================================================
+   3. EN-TÊTE
+   ============================================================ */
+.pp-gallery-header {
+    margin-bottom: 48px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.pp-logo-container {
+    margin-bottom: 20px;
+}
+
+.pp-custom-logo {
+    max-width: 180px;
+    height: auto;
+    display: block;
+}
+
+.pp-site-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--pp-text);
+    opacity: 0.45;
+}
+
+.pp-gallery-title {
+    font-size: 28px;
+    font-weight: 300;
+    color: var(--pp-text);
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+    margin: 0 0 8px;
+}
+
+.pp-gallery-description {
+    font-size: 14px;
+    color: var(--pp-text);
+    opacity: 0.55;
+    line-height: 1.7;
+    max-width: 560px;
+}
+
+.pp-gallery-description p {
+    margin: 0;
+}
+
+/* ============================================================
+   4. GRILLE DE PHOTOS
+   ============================================================ */
+.pp-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 24px; /* gap-6 tailwind */
+    margin-bottom: 48px;
+}
+
+.pp-photo-item {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.04);
+
+    /* Option coins : var(--pp-img-radius) injectée par PHP selon le réglage */
+    border-radius: var(--pp-img-radius, 0px);
+
+    /* Border au hover / sélection */
+    border: 2px solid transparent;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Hover : border couleur passive (text avec opacité) */
+.pp-photo-item:hover {
+    border-color: rgba(var(--pp-text-rgb, 30, 41, 59), 0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
+}
+
+/* Sélectionné : border couleur active */
+.pp-photo-item.pp-selected {
+    border-color: var(--pp-active, #2271b1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* ── Image ── */
+.pp-photo-img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    border-radius: inherit;
+}
+
+.pp-photo-item:hover .pp-photo-img {
+    transform: scale(1.03);
+}
+
+.pp-photo-item.pp-selected .pp-photo-img {
+    transform: scale(1.015);
+}
+
+/* ── Overlay ── */
+.pp-photo-overlay {
+    position: absolute;
+    inset: 0;
+    background: transparent;
+    transition: background 0.3s ease;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 10px;
+    border-radius: inherit;
+}
+
+.pp-photo-item:hover .pp-photo-overlay {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.pp-photo-item.pp-selected .pp-photo-overlay {
+    background: rgba(0, 0, 0, 0.04);
+}
+
+/* ── Bouton de sélection (cercle) ── */
+.pp-select-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.85);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    opacity: 0;
+    transition: opacity 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+    flex-shrink: 0;
+}
+
+.pp-select-check {
+    font-size: 11px;
+    color: #fff;
+    line-height: 1;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+/* Apparaît au hover */
+.pp-photo-item:hover .pp-select-btn {
+    opacity: 1;
+}
+
+/* Sélectionné : fond + border couleur active */
+.pp-photo-item.pp-selected .pp-select-btn {
+    opacity: 1;
+    background: var(--pp-active, #2271b1);
+    border-color: var(--pp-active, #2271b1);
+}
+
+.pp-photo-item.pp-selected .pp-select-check {
+    opacity: 1;
+}
+
+/* ── Badge recommandation ── */
+.pp-reco-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 14px;
+    color: var(--pp-active, #2271b1);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+    line-height: 1;
+    pointer-events: none;
+}
+
+/* ── Footer nom fichier ── */
+.pp-photo-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 24px 10px 8px;
+    font-size: 10px;
+    letter-spacing: 0.03em;
+    color: rgba(255, 255, 255, 0.9);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.42) 0%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+    border-radius: 0 0 var(--pp-img-radius, 0px) var(--pp-img-radius, 0px);
+}
+
+.pp-photo-item:hover .pp-photo-footer,
+.pp-photo-item.pp-selected .pp-photo-footer {
+    opacity: 1;
+}
+
+/* ============================================================
+   5. ÉTAT VIDE
+   ============================================================ */
+.pp-empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    border: 2px dashed rgba(0, 0, 0, 0.12);
+    border-radius: 10px;
+    color: var(--pp-text);
+    opacity: 0.45;
+    font-size: 14px;
+}
+
+/* ============================================================
+   6. BARRE DE SÉLECTION — STICKY BAS DE PAGE
+   ============================================================ */
+.pp-selection-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: var(--pp-bg, #ffffff);
+    border-top: 1px solid rgba(0, 0, 0, 0.09);
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.06);
+
+    /* Masquée par défaut, affichée par le JS quand ≥ 1 sélection */
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.pp-selection-bar.pp-bar-visible {
+    transform: translateY(0);
+}
+
+.pp-selection-bar-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.pp-selection-info {
+    font-size: 13px;
+    color: var(--pp-text);
+    opacity: 0.65;
+    white-space: nowrap;
+}
+
+.pp-selection-info strong {
+    font-size: 20px;
+    font-weight: 300;
+    color: var(--pp-text);
+    opacity: 1;
+    margin-right: 5px;
+    line-height: 1;
+}
+
+.pp-save-status {
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--pp-text);
+    opacity: 0.35;
+    flex: 1;
+    text-align: right;
+}
+
+/* Bouton Valider — couleur active */
+.pp-btn-validate {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 11px 26px;
+    border-radius: 6px;
+    border: none;
+    background: var(--pp-active, #2271b1);
+    color: #fff;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.pp-btn-validate:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+}
+
+.pp-btn-validate:active {
+    transform: scale(0.98);
+    opacity: 1;
+}
+
+.pp-btn-validate:disabled {
+    background: rgba(0, 0, 0, 0.1);
+    color: rgba(0, 0, 0, 0.3);
+    cursor: default;
+    transform: none;
+    opacity: 1;
+}
+
+/* ============================================================
+   7. MODAL DE CONFIRMATION
+   ============================================================ */
+.pp-confirm-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.pp-confirm-box {
+    background: var(--pp-bg, #ffffff);
+    border-radius: 12px;
+    padding: 36px 40px;
+    max-width: 400px;
+    width: 100%;
+    border-top: 3px solid var(--pp-active, #2271b1);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.pp-confirm-box h2 {
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--pp-text);
+    margin: 0 0 12px;
+    line-height: 1.3;
+}
+
+.pp-confirm-box p {
+    font-size: 13px;
+    color: var(--pp-text);
+    opacity: 0.6;
+    line-height: 1.7;
+    margin: 0 0 28px;
+}
+
+.pp-confirm-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.pp-btn-cancel {
+    font-size: 12px;
+    padding: 9px 18px;
+    border-radius: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    background: transparent;
+    color: var(--pp-text);
+    opacity: 0.6;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.pp-btn-cancel:hover {
+    opacity: 1;
+}
+
+.pp-btn-confirm {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 9px 22px;
+    border-radius: 6px;
+    border: none;
+    background: var(--pp-active, #2271b1);
+    color: #fff;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.pp-btn-confirm:hover {
+    opacity: 0.88;
+}
+
+/* ============================================================
+   8. RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+    .pp-gallery-wrapper {
+        padding: 28px 16px 100px;
+    }
+
+    .pp-gallery-title {
+        font-size: 22px;
+    }
+
+    .pp-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 16px;
+    }
+
+    .pp-photo-img {
+        height: 160px;
+    }
+
+    .pp-selection-bar-inner {
+        padding: 12px 16px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .pp-save-status {
+        display: none;
+    }
+
+    .pp-confirm-box {
+        padding: 24px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .pp-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+}
