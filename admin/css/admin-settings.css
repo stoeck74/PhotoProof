@@ -4,12 +4,10 @@
  */
 
 /* ============================================================
-   1. VARIABLES & RESET
+   1. RESET
    ============================================================ */
 .pp-settings-page *,
-.pp-meta * {
-    box-sizing: border-box;
-}
+.pp-meta * { box-sizing: border-box; }
 
 /* ============================================================
    2. PAGE DE RÉGLAGES — LAYOUT
@@ -25,7 +23,6 @@
     max-width: 1100px;
 }
 
-/* Sidebar */
 .pp-settings-page .pp-settings-sidebar {
     width: 220px;
     background: #f8f9fa;
@@ -47,10 +44,7 @@
     transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
 
-.pp-settings-page .pp-nav-item:hover {
-    background: #f1f5f9;
-    color: #2271b1;
-}
+.pp-settings-page .pp-nav-item:hover { background: #f1f5f9; color: #2271b1; }
 
 .pp-settings-page .pp-nav-item.active {
     background: #fff;
@@ -59,13 +53,8 @@
     font-weight: 600;
 }
 
-.pp-settings-page .pp-nav-item .dashicons {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-}
+.pp-settings-page .pp-nav-item .dashicons { font-size: 16px; width: 16px; height: 16px; }
 
-/* Contenu */
 .pp-settings-page .pp-settings-content {
     flex: 1;
     padding: 36px 40px;
@@ -73,19 +62,12 @@
     position: relative;
 }
 
-.pp-settings-page .pp-section-content {
-    display: none;
-}
-
-.pp-settings-page .pp-section-content.active {
-    display: block;
-}
+.pp-settings-page .pp-section-content { display: none; }
+.pp-settings-page .pp-section-content.active { display: block; }
 
 /* ============================================================
    3. PAGE DE RÉGLAGES — COMPOSANTS
    ============================================================ */
-
-/* Card */
 .pp-settings-page .pp-card {
     background: #fafafa;
     border: 1px solid #e8ecef;
@@ -103,34 +85,11 @@
     border-bottom: 1px solid #eef0f3;
 }
 
-/* Séparateur */
-.pp-settings-page .pp-separator {
-    border: none;
-    border-top: 1px solid #eef0f3;
-    margin: 22px 0;
-}
+.pp-settings-page .pp-separator { border: none; border-top: 1px solid #eef0f3; margin: 22px 0; }
+.pp-settings-page .pp-option-row { display: flex; align-items: center; gap: 12px; }
+.pp-settings-page .pp-label-text { font-size: 13px; font-weight: 600; color: #334155; }
+.pp-settings-page .pp-explanation { font-size: 12px; color: #64748b; margin: 8px 0 0 52px; line-height: 1.6; }
 
-/* Ligne d'option */
-.pp-settings-page .pp-option-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.pp-settings-page .pp-label-text {
-    font-size: 13px;
-    font-weight: 600;
-    color: #334155;
-}
-
-.pp-settings-page .pp-explanation {
-    font-size: 12px;
-    color: #64748b;
-    margin: 8px 0 0 52px;
-    line-height: 1.6;
-}
-
-/* Sous-panel (dépliable) */
 .pp-settings-page .pp-sub-panel {
     margin: 14px 0 0 52px;
     padding: 18px 20px;
@@ -139,24 +98,10 @@
     border: 1px solid #e2e8f0;
 }
 
-.pp-settings-page .pp-main-label {
-    display: block;
-    margin-bottom: 10px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #1e293b;
-}
+.pp-settings-page .pp-main-label { display: block; margin-bottom: 10px; font-size: 13px; font-weight: 600; color: #1e293b; }
 
-/* Grille branding (logo + preview) */
-.pp-settings-page .pp-branding-grid {
-    display: flex;
-    gap: 32px;
-    align-items: center;
-}
-
-.pp-settings-page .pp-branding-controls {
-    flex: 1;
-}
+.pp-settings-page .pp-branding-grid { display: flex; gap: 32px; align-items: center; }
+.pp-settings-page .pp-branding-controls { flex: 1; }
 
 .pp-settings-page .pp-branding-preview {
     flex: 1;
@@ -171,7 +116,6 @@
     justify-content: center;
 }
 
-/* Preview watermark */
 #wm-preview-container {
     width: 100%;
     min-height: 100px;
@@ -184,32 +128,12 @@
     border-radius: 6px;
 }
 
-#wm-placeholder {
-    color: #94a3b8;
-    font-style: italic;
-    font-size: 13px;
-}
+#wm-placeholder { color: #94a3b8; font-style: italic; font-size: 13px; }
+#wm-live-preview { max-width: 200px; height: auto; }
 
-/* CORRECTION : suppression de transition CSS sur #wm-live-preview
-   (GSAP gère l'opacité — conflit évité) */
-#wm-live-preview {
-    max-width: 200px;
-    height: auto;
-}
+.pp-settings-page .pp-range-group { margin-top: 20px; }
+.pp-settings-page .pp-range-group label { display: block; font-size: 12px; color: #64748b; margin-bottom: 8px; }
 
-/* Range slider */
-.pp-settings-page .pp-range-group {
-    margin-top: 20px;
-}
-
-.pp-settings-page .pp-range-group label {
-    display: block;
-    font-size: 12px;
-    color: #64748b;
-    margin-bottom: 8px;
-}
-
-/* Couleurs */
 .pp-settings-page .pp-color-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -217,15 +141,8 @@
     margin-top: 16px;
 }
 
-.pp-settings-page .pp-color-item label {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #1e293b;
-}
+.pp-settings-page .pp-color-item label { display: block; margin-bottom: 8px; font-size: 12px; font-weight: 600; color: #1e293b; }
 
-/* Barre de sauvegarde */
 .pp-settings-page .pp-save-bar {
     margin-top: 24px;
     padding-top: 20px;
@@ -235,8 +152,7 @@
 }
 
 /* ============================================================
-   4. TOGGLE SWITCH iOS — COMMUN aux deux contextes
-      CORRECTION : une seule définition, scopée proprement
+   4. TOGGLE SWITCH iOS — COMMUN settings + metabox
    ============================================================ */
 .pp-switch {
     position: relative;
@@ -247,11 +163,7 @@
     vertical-align: middle;
 }
 
-.pp-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
+.pp-switch input { opacity: 0; width: 0; height: 0; }
 
 .pp-slider {
     position: absolute;
@@ -274,28 +186,20 @@
     border-radius: 50%;
 }
 
-input:checked + .pp-slider {
-    background-color: #2271b1;
-}
-
-input:checked + .pp-slider:before {
-    transform: translateX(17px);
-}
+input:checked + .pp-slider { background-color: #2271b1; }
+input:checked + .pp-slider:before { transform: translateX(17px); }
 
 /* ============================================================
-   5. METABOX — LAYOUT GÉNÉRAL
+   5. METABOX — LAYOUT
    ============================================================ */
 .pp-meta {
-padding: 4px 0 20px;
+    padding: 4px 0 20px;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     color: #2c3338;
-    /* ↓ ajouter ces deux lignes */
     background: #f8f9fa;
-    border-radius: 0 0 4px 4px; /* arrondi bas uniquement, le haut appartient au titre WP */
-
+    border-radius: 0 0 4px 4px;
 }
 
-/* Label de section (micro-titre) */
 .pp-meta .pp-section-label {
     font-size: 10px;
     font-weight: 600;
@@ -305,12 +209,7 @@ padding: 4px 0 20px;
     margin: 0 0 10px;
 }
 
-/* Séparateur metabox */
-.pp-meta .pp-divider {
-    border: none;
-    border-top: 1px solid #f0f2f5;
-    margin: 20px 0;
-}
+.pp-meta .pp-divider { border: none; border-top: 1px solid #f0f2f5; margin: 20px 0; }
 
 /* ============================================================
    6. METABOX — BANNIÈRE LIEN CLIENT
@@ -323,17 +222,9 @@ padding: 4px 0 20px;
     background: #f8f9fa;
     border: 1px solid #e8ecef;
     border-radius: 8px;
-    margin-bottom: 0;
 }
 
-.pp-meta .pp-share-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: #94a3b8;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    white-space: nowrap;
-}
+.pp-meta .pp-share-label { font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
 
 .pp-meta .pp-share-url {
     flex: 1;
@@ -369,48 +260,19 @@ padding: 4px 0 20px;
     line-height: 1;
 }
 
-.pp-meta .pp-btn:hover {
-    background: #f6f7f7;
-    border-color: #8c8f94;
-}
-
-.pp-meta .pp-btn-sm {
-    font-size: 11px;
-    padding: 5px 11px;
-}
-
-.pp-meta .pp-btn-primary {
-    background: #1e293b;
-    color: #fff;
-    border-color: #1e293b;
-}
-
-.pp-meta .pp-btn-primary:hover {
-    background: #334155;
-    border-color: #334155;
-    color: #fff;
-}
-
-.pp-meta .pp-btn-success {
-    background: #166534;
-    color: #fff;
-    border-color: #166534;
-}
+.pp-meta .pp-btn:hover { background: #f6f7f7; border-color: #8c8f94; }
+.pp-meta .pp-btn-sm { font-size: 11px; padding: 5px 11px; }
+.pp-meta .pp-btn-primary { background: #1e293b; color: #fff; border-color: #1e293b; }
+.pp-meta .pp-btn-primary:hover { background: #334155; border-color: #334155; color: #fff; }
+.pp-meta .pp-btn-success { background: #166534; color: #fff; border-color: #166534; }
+.pp-meta .pp-btn-danger { border-color: #fca5a5; color: #991b1b; }
+.pp-meta .pp-btn-danger:hover { background: #fef2f2; border-color: #f87171; }
 
 /* ============================================================
    8. METABOX — GRILLE DE CHAMPS
    ============================================================ */
-.pp-meta .pp-fields-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 16px;
-}
-
-.pp-meta .pp-field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
+.pp-meta .pp-fields-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.pp-meta .pp-field { display: flex; flex-direction: column; gap: 6px; }
 
 .pp-meta .pp-field label {
     font-size: 11px;
@@ -451,21 +313,10 @@ padding: 4px 0 20px;
     border-left: 3px solid #2271b1;
     border-radius: 8px;
     background: #fff;
-    margin-bottom: 0;
 }
 
-.pp-meta .pp-sel-count {
-    font-size: 13px;
-    color: #64748b;
-}
-
-.pp-meta .pp-sel-count strong {
-    font-size: 22px;
-    font-weight: 600;
-    color: #1e293b;
-    margin-right: 4px;
-    line-height: 1;
-}
+.pp-meta .pp-sel-count { font-size: 13px; color: #64748b; }
+.pp-meta .pp-sel-count strong { font-size: 22px; font-weight: 600; color: #1e293b; margin-right: 4px; line-height: 1; }
 
 /* ============================================================
    10. METABOX — TOGGLE ROW
@@ -480,22 +331,9 @@ padding: 4px 0 20px;
     background: #fff;
 }
 
-.pp-meta .pp-toggle-text {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.pp-meta .pp-toggle-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: #1e293b;
-}
-
-.pp-meta .pp-toggle-sub {
-    font-size: 11px;
-    color: #94a3b8;
-}
+.pp-meta .pp-toggle-text { display: flex; flex-direction: column; gap: 2px; }
+.pp-meta .pp-toggle-title { font-size: 13px; font-weight: 600; color: #1e293b; }
+.pp-meta .pp-toggle-sub { font-size: 11px; color: #94a3b8; }
 
 /* ============================================================
    11. METABOX — ZONE D'UPLOAD
@@ -510,35 +348,19 @@ padding: 4px 0 20px;
     background: #fafafa;
 }
 
-.pp-meta .pp-upload-zone:hover {
+.pp-meta .pp-upload-zone:hover,
+.pp-meta .pp-upload-zone.pp-upload-dragover {
     border-color: #2271b1;
     background: #f0f6fb;
 }
 
-.pp-meta .pp-upload-icon {
-    width: 34px;
-    height: 34px;
-    margin: 0 auto 10px;
-    display: block;
-    color: #94a3b8;
-    transition: color 0.2s;
-}
+.pp-meta .pp-upload-icon { width: 34px; height: 34px; margin: 0 auto 10px; display: block; color: #94a3b8; transition: color 0.2s; }
 
-.pp-meta .pp-upload-zone:hover .pp-upload-icon {
-    color: #2271b1;
-}
+.pp-meta .pp-upload-zone:hover .pp-upload-icon,
+.pp-meta .pp-upload-zone.pp-upload-dragover .pp-upload-icon { color: #2271b1; }
 
-.pp-meta .pp-upload-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: #1e293b;
-    margin-bottom: 4px;
-}
-
-.pp-meta .pp-upload-sub {
-    font-size: 12px;
-    color: #94a3b8;
-}
+.pp-meta .pp-upload-title { font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 4px; }
+.pp-meta .pp-upload-sub { font-size: 12px; color: #94a3b8; }
 
 /* ============================================================
    12. METABOX — GRILLE DE PHOTOS
@@ -560,12 +382,7 @@ padding: 4px 0 20px;
     transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.pp-meta .pp-thumb img {
-    width: 100%;
-    height: 110px;
-    object-fit: cover;
-    display: block;
-}
+.pp-meta .pp-thumb img { width: 100%; height: 110px; object-fit: cover; display: block; }
 
 .pp-meta .pp-thumb-info {
     padding: 6px 8px;
@@ -596,8 +413,37 @@ padding: 4px 0 20px;
     padding: 0;
 }
 
-.pp-meta .pp-thumb:hover .pp-thumb-delete {
+.pp-meta .pp-thumb:hover .pp-thumb-delete { opacity: 1; }
+
+/* Bouton recommandation */
+.pp-meta .pp-thumb-reco {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 255, 255, .6);
+    background: rgba(0, 0, 0, .35);
+    color: rgba(255, 255, 255, .5);
+    font-size: 11px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity .2s, background .2s, border-color .2s, color .2s;
+    padding: 0;
+}
+
+.pp-meta .pp-thumb:hover .pp-thumb-reco { opacity: 1; }
+
+.pp-meta .pp-thumb-reco.pp-reco-active {
     opacity: 1;
+    background: #2271b1;
+    border-color: #2271b1;
+    color: #fff;
 }
 
 /* ============================================================
@@ -614,56 +460,11 @@ padding: 4px 0 20px;
     margin-top: 16px;
 }
 
-.pp-meta .pp-alert-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #d97706;
-    margin-top: 5px;
-    flex-shrink: 0;
-}
-
-.pp-meta .pp-alert-text {
-    font-size: 12px;
-    color: #92400e;
-    line-height: 1.6;
-}
+.pp-meta .pp-alert-dot { width: 6px; height: 6px; border-radius: 50%; background: #d97706; margin-top: 5px; flex-shrink: 0; }
+.pp-meta .pp-alert-text { font-size: 12px; color: #92400e; line-height: 1.6; }
 
 /* ============================================================
-   14. RESPONSIVE — metabox colonne unique sur petit écran
-   ============================================================ */
-@media (max-width: 900px) {
-    .pp-meta .pp-fields-row {
-        grid-template-columns: 1fr;
-    }
-
-    .pp-settings-page .pp-settings-container {
-        flex-direction: column;
-    }
-
-    .pp-settings-page .pp-settings-sidebar {
-        width: 100%;
-        border-right: none;
-        border-bottom: 1px solid #e8ecef;
-        display: flex;
-        overflow-x: auto;
-        padding: 0;
-    }
-
-    .pp-settings-page .pp-nav-item {
-        flex-shrink: 0;
-        border-left: none;
-        border-bottom: 2px solid transparent;
-    }
-
-    .pp-settings-page .pp-nav-item.active {
-        border-left-color: transparent;
-        border-bottom-color: #2271b1;
-    }
-}
-
-/* ============================================================
-   15. METABOX — ÉTAT VALIDÉ
+   14. METABOX — ÉTAT VALIDÉ
    ============================================================ */
 .pp-meta .pp-validated-banner {
     display: flex;
@@ -677,30 +478,11 @@ padding: 4px 0 20px;
     margin-bottom: 16px;
 }
 
-.pp-meta .pp-validated-icon {
-    font-size: 18px;
-    color: #22c55e;
-    flex-shrink: 0;
-}
+.pp-meta .pp-validated-icon { font-size: 18px; color: #22c55e; flex-shrink: 0; }
+.pp-meta .pp-validated-banner div { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.pp-meta .pp-validated-banner strong { font-size: 13px; color: #166534; }
+.pp-meta .pp-validated-banner span { font-size: 11px; color: #15803d; }
 
-.pp-meta .pp-validated-banner div {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.pp-meta .pp-validated-banner strong {
-    font-size: 13px;
-    color: #166534;
-}
-
-.pp-meta .pp-validated-banner span {
-    font-size: 11px;
-    color: #15803d;
-}
-
-/* ── Récap miniatures sélection ── */
 .pp-meta .pp-selection-recap {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
@@ -714,62 +496,34 @@ padding: 4px 0 20px;
     overflow-y: auto;
 }
 
-.pp-meta .pp-recap-thumb {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    align-items: center;
-}
+.pp-meta .pp-recap-thumb { display: flex; flex-direction: column; gap: 4px; align-items: center; }
 
-.pp-meta .pp-recap-img {
-    width: 100%;
-    height: 60px;
-    object-fit: cover;
-    border-radius: 4px;
-    border: 1px solid #e8ecef;
-    display: block;
-}
+.pp-meta .pp-recap-img { width: 100%; height: 60px; object-fit: cover; border-radius: 4px; border: 1px solid #e8ecef; display: block; }
 
-.pp-meta .pp-recap-name {
-    font-size: 9px;
-    color: #64748b;
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 100%;
-    letter-spacing: 0.02em;
-}
+.pp-meta .pp-recap-name { font-size: 9px; color: #64748b; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; letter-spacing: 0.02em; }
 
-/* ── Boutons réouverture ── */
-.pp-meta .pp-reopen-actions {
-    margin-top: 14px;
-}
-
-.pp-meta .pp-reopen-btns {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.pp-meta .pp-btn-danger {
-    border-color: #fca5a5;
-    color: #991b1b;
-}
-
-.pp-meta .pp-btn-danger:hover {
-    background: #fef2f2;
-    border-color: #f87171;
-}
+.pp-meta .pp-reopen-actions { margin-top: 14px; }
+.pp-meta .pp-reopen-btns { display: flex; gap: 10px; flex-wrap: wrap; }
 
 /* ============================================================
-   16. FRONT-END — ÉTAT VERROUILLÉ (injecté dans admin CSS
-       pour le bandeau visible côté admin dans template_redirect)
+   15. METABOX — PROGRESS BAR UPLOAD
    ============================================================ */
-.pp-photo-dimmed {
-    opacity: 0.35;
-    pointer-events: none;
+.pp-meta .pp-progress-wrap {
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: #f8f9fa;
+    border: 1px solid #e8ecef;
+    border-radius: 8px;
 }
+
+.pp-meta .pp-progress-track { height: 4px; background: #e2e8f0; border-radius: 2px; overflow: hidden; margin-bottom: 6px; }
+.pp-meta .pp-progress-fill { height: 100%; background: #2271b1; border-radius: 2px; width: 0%; transition: width 0.3s ease; }
+.pp-meta .pp-progress-label { font-size: 11px; color: #64748b; letter-spacing: 0.02em; }
+
+/* ============================================================
+   16. FRONT-END — ÉTAT VERROUILLÉ
+   ============================================================ */
+.pp-photo-dimmed { opacity: 0.35; pointer-events: none; }
 
 .pp-locked-banner {
     display: flex;
@@ -784,13 +538,25 @@ padding: 4px 0 20px;
     color: #166534;
 }
 
-.pp-locked-icon {
-    font-size: 16px;
-    color: #22c55e;
-    flex-shrink: 0;
-}
+.pp-locked-icon { font-size: 16px; color: #22c55e; flex-shrink: 0; }
+.pp-bar-locked .pp-btn-validate.pp-btn-confirmed { background: #22c55e; cursor: default; }
 
-.pp-bar-locked .pp-btn-validate.pp-btn-confirmed {
-    background: #22c55e;
-    cursor: default;
+/* ============================================================
+   17. RESPONSIVE
+   ============================================================ */
+@media (max-width: 900px) {
+    .pp-meta .pp-fields-row { grid-template-columns: 1fr; }
+    .pp-settings-page .pp-settings-container { flex-direction: column; }
+
+    .pp-settings-page .pp-settings-sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #e8ecef;
+        display: flex;
+        overflow-x: auto;
+        padding: 0;
+    }
+
+    .pp-settings-page .pp-nav-item { flex-shrink: 0; border-left: none; border-bottom: 2px solid transparent; }
+    .pp-settings-page .pp-nav-item.active { border-left-color: transparent; border-bottom-color: #2271b1; }
 }

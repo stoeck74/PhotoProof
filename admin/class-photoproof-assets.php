@@ -1,12 +1,6 @@
 <?php
 /**
- * Gestion des scripts et styles pour l'administration
- *
- * CORRECTIONS :
- * - time() remplacé par PHOTOPROOF_VERSION
- * - GSAP servi en local (vendor) plutôt que CDN externe
- * - export_nonce ajouté dans pp_vars
- * - Commentaire sur le cas post_id = 0 (nouvelle galerie)
+ * Gestion des scripts et styles pour l'administration — PhotoProof
  */
 class PhotoProof_Assets {
 
@@ -15,12 +9,12 @@ class PhotoProof_Assets {
     }
 
     public function enqueue_assets( $hook ) {
-        global $post, $pagenow;
+        global $post;
 
         // 1. Détection de la page de réglages
         $is_settings_page = ( strpos( $hook, 'photoproof-settings' ) !== false );
 
-        // 2. Détection robuste du Post Type (fonctionne sur edit ET post-new)
+        // 2. Détection robuste du Post Type
         $current_post_type = '';
         if ( is_object( $post ) && isset( $post->post_type ) ) {
             $current_post_type = $post->post_type;
@@ -32,13 +26,11 @@ class PhotoProof_Assets {
 
         $is_gallery_page = ( $current_post_type === 'pp_gallery' );
 
-        // Si on n'est pas sur une page PhotoProof, on s'arrête
         if ( ! $is_settings_page && ! $is_gallery_page ) {
             return;
         }
 
-        // ── 1. CSS PRINCIPAL ──────────────────────────────────────────
-        // CORRECTION : PHOTOPROOF_VERSION au lieu de time()
+        // ── CSS ──────────────────────────────────────────────────────
         wp_enqueue_style(
             'pp-admin-css',
             PHOTOPROOF_URL . 'admin/css/admin-settings.css',
@@ -46,11 +38,9 @@ class PhotoProof_Assets {
             PHOTOPROOF_VERSION
         );
 
-        // ── 2. DÉPENDANCES ────────────────────────────────────────────
+        // ── DÉPENDANCES ───────────────────────────────────────────────
         wp_enqueue_media();
 
-        // CORRECTION : GSAP servi en local pour éviter dépendance CDN externe
-        // Déposer gsap.min.js dans admin/js/vendor/gsap.min.js
         wp_register_script(
             'gsap',
             PHOTOPROOF_URL . 'admin/js/vendor/gsap.min.js',
@@ -59,7 +49,7 @@ class PhotoProof_Assets {
             true
         );
 
-        // ── 3. LOGIQUE RÉGLAGES ───────────────────────────────────────
+        // ── RÉGLAGES ──────────────────────────────────────────────────
         if ( $is_settings_page ) {
             wp_enqueue_style( 'wp-color-picker' );
             wp_enqueue_script( 'gsap' );
@@ -72,7 +62,7 @@ class PhotoProof_Assets {
             );
         }
 
-        // ── 4. LOGIQUE METABOXE ───────────────────────────────────────
+        // ── METABOXE ──────────────────────────────────────────────────
         if ( $is_gallery_page ) {
             wp_enqueue_script( 'gsap' );
             wp_enqueue_script(
@@ -83,18 +73,22 @@ class PhotoProof_Assets {
                 true
             );
 
-            // Sur post-new.php, $post->ID vaut 0.
-            // L'upload est bloqué côté JS tant que post_id === 0.
-            // Le JS devra déclencher une sauvegarde automatique avant d'uploader.
             $post_id = ( is_object( $post ) && $post->ID ) ? $post->ID : 0;
+
+            // Icône de recommandation depuis les settings
+            $icons    = array( 'dot' => '●', 'star' => '★', 'heart' => '❤' );
+            $icon_key = get_option( 'pp_global_recommendation_icon', 'star' );
+            $reco_icon = isset( $icons[ $icon_key ] ) ? $icons[ $icon_key ] : '★';
 
             wp_localize_script( 'pp-gallery-js', 'pp_vars', array(
                 'ajax_url'     => admin_url( 'admin-ajax.php' ),
                 'post_id'      => $post_id,
                 'nonce'        => wp_create_nonce( 'pp_upload_nonce' ),
-                // CORRECTION : nonce export disponible dans le JS si besoin
                 'export_nonce' => $post_id ? wp_create_nonce( 'pp_export_' . $post_id ) : '',
                 'is_new_post'  => ( $post_id === 0 ) ? 1 : 0,
+                // NOUVEAU : icône de recommandation passée au JS
+                'reco_icon'    => $reco_icon,
+                'reco_enabled' => get_option( 'pp_enable_recommendations' ) ? 1 : 0,
             ) );
         }
     }
