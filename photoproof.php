@@ -294,7 +294,7 @@ class PhotoProof {
             'has_archive'        => true,
             'hierarchical'       => false,
             'menu_position'      => 20,
-            'menu_icon'          => 'dashicons-format-gallery',
+            'menu_icon'          => plugin_dir_url(__FILE__) . 'admin/img/photoproof-logo.svg',
             'supports'           => array( 'title', 'editor', 'thumbnail' ),
             'show_in_rest'       => true,
         );

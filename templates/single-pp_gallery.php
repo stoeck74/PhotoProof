@@ -50,7 +50,7 @@ $query_images = new WP_Query( array(
 // ── 4. HERO — post thumbnail ──────────────────────────────────────────────
 $hero_url = '';
 if ( has_post_thumbnail( $post->ID ) ) {
-    $hero_url = get_the_post_thumbnail_url( $post->ID, 'large' );
+    $hero_url = get_the_post_thumbnail_url( $post->ID, 'full' );
 }
 ?>
 <!DOCTYPE html>

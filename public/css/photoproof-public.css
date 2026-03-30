@@ -21,7 +21,7 @@ html, body {
 .pp-hero {
     position: relative;
     width: 100%;
-    height: 50vh;
+    height: 60vh;
     min-height: 300px;
     overflow: hidden;
     display: flex;
@@ -36,7 +36,6 @@ html, body {
     background-image: var(--pp-hero-img);
     background-size: cover;
     background-position: center;
-    transform: scale(1.04);
 }
 
 /* Gradient vers --pp-bg en bas */
@@ -46,8 +45,8 @@ html, body {
     background: linear-gradient(
         to bottom,
         transparent             0%,
-        rgba(0,0,0,0.1)        30%,
-        color-mix(in srgb, var(--pp-bg) 60%, transparent) 65%,
+        rgba(0,0,0,0.3)        25%,
+        color-mix(in srgb, var(--pp-bg) 40%, transparent) 60%,
         var(--pp-bg)           100%
     );
 }
@@ -59,14 +58,14 @@ html, body {
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    padding: 0 24px 32px;
+    padding: 0 24px 48px;
     gap: 16px;
 }
 
 .pp-hero-left {
     display: flex;
     align-items: flex-end;
-    gap: 16px;
+    gap: 24px;
     min-width: 0;
 }
 
@@ -95,7 +94,7 @@ html, body {
     font-weight: 300;
     letter-spacing: -.01em;
     margin: 0;
-    line-height: 1.1;
+    line-height: 1.3;
     color: var(--pp-text);
     white-space: nowrap;
     overflow: hidden;
@@ -134,7 +133,7 @@ html, body {
 /* ── Card ── */
 .pp-card {
     background: color-mix(in srgb, var(--pp-text) 5%, var(--pp-bg));
-    border: 1.5px solid transparent;
+    border: 2px solid transparent;
     border-radius: var(--pp-img-radius, 0px);
     overflow: hidden;
     cursor: pointer;
@@ -145,7 +144,7 @@ html, body {
 
 .pp-card:hover {
     transform: translateY(-5px);
-    border-color: color-mix(in srgb, var(--pp-text) 15%, transparent);
+    border-color: color-mix(in srgb, var(--pp-text) 25%, transparent);
     box-shadow: 0px 5px 15px 0px rgba(0,0,0,0.1);
 }
 
@@ -156,7 +155,7 @@ html, body {
 /* ── Zone image ── */
 .pp-card-img-wrap {
     width: 100%;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 5 / 4;
     background: color-mix(in srgb, var(--pp-text) 6%, var(--pp-bg));
     display: flex;
     align-items: start;
@@ -183,7 +182,7 @@ html, body {
     padding: 5px 10px 10px 8px;
     border-bottom-right-radius: 15px;
     font-size: 24px;
-    color: var(--pp-text, #2271b1);
+    color: var(--pp-active, #2271b1);
     pointer-events: none;
     line-height: 0.8;
     background: color-mix(in srgb, var(--pp-text) 6%, var(--pp-bg));

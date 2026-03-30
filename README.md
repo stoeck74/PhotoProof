@@ -44,10 +44,8 @@ photoproof/
 ## Installation
 
 1. Copier le dossier `photoproof/` dans `wp-content/plugins/`
-2. Télécharger GSAP et le placer dans `admin/js/vendor/gsap.min.js`
-   → https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js
-3. Activer le plugin dans **Extensions**
-4. Aller dans **Réglages → Permaliens** et cliquer **Enregistrer** (flush rewrite rules)
+2. Activer le plugin dans **Extensions**
+3. Aller dans **Réglages → Permaliens** et cliquer **Enregistrer** (flush rewrite rules) a vérifier si encore utile
 
 ---
 
@@ -90,6 +88,11 @@ Accessible via **PhotoProof → Réglages**
 - **Couleur texte** — `--pp-text`
 - **Coins arrondis** — arrondit les images dans la grille client
 
+### Sécurité
+- **Acces et login** — renseigner sa page de login/ou par defaut va sur wp-login
+- **Suppression des fichiers** — Efface les images des galeries supprimées ou concerver toutes les données
+- **Bloquer le téléchargement via clic droit** A faire 
+- **Prevoir d'autre check et nettoyage** 
 ---
 
 ## Flux de travail
@@ -110,7 +113,7 @@ Accessible via **PhotoProof → Réglages**
 ### 2. Partager avec le client
 
 - Copier l'URL depuis la metabox et l'envoyer au client
-- Le client doit être connecté à WordPress (compte utilisateur)
+- Le client doit être être un user WordPress (compte utilisateur)
 - URL format : `https://monsite.com/galerie-epreuve/titre-galerie/`
 
 ### 3. Sélection client
@@ -341,15 +344,6 @@ add_action( 'pp_attachment_uploaded', function( $attachment_id, $post_id ) {
 | ImagesLoaded | 5.0.0 | Bundle WP (`wp-includes`) |
 | GSAP | 3.12.2 | Local (`admin/js/vendor/gsap.min.js`) |
 | GD ou Imagick | — | Extension PHP serveur |
-
----
-
-## Notes MAMP / Windows
-
-- Les notices `ob_end_flush zlib` dans `debug.log` sont du bruit MAMP — à ignorer
-- Après réactivation du plugin → toujours aller dans **Réglages → Permaliens → Enregistrer**
-- Le flush automatique des rewrite rules est en place mais peut ne pas suffire sur MAMP
-- `wp_mail()` nécessite WP Mail SMTP + MailHog en local
 
 ---
 
