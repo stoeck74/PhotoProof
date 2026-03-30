@@ -84,8 +84,9 @@ class PhotoProof_Uploader {
         $metadata = wp_generate_attachment_metadata( $attachment_id, $uploaded['file'] );
         wp_update_attachment_metadata( $attachment_id, $metadata );
 
+        // Marquer comme photo PhotoProof — exclue de la médiathèque standard
         update_post_meta( $attachment_id, '_pp_gallery_photo', '1' );
-        
+
         // Stocker le nom cible pour le renommage différé
         do_action( 'pp_attachment_uploaded', $attachment_id, $post_id );
 
@@ -143,6 +144,11 @@ class PhotoProof_Uploader {
             wp_send_json_error( array( 'message' => 'Paramètres invalides.' ) );
         }
 
+        // Vérifier que l'attachement appartient bien à cette galerie
+        if ( get_post_field( 'post_parent', $attachment_id ) != $post_id ) {
+            wp_send_json_error( array( 'message' => 'Cet attachement n\'appartient pas à cette galerie.' ) );
+        }
+
         // Détacher du post parent
         wp_update_post( array( 'ID' => $attachment_id, 'post_parent' => 0 ) );
 
@@ -183,6 +189,11 @@ class PhotoProof_Uploader {
 
         if ( ! $post_id || ! $attachment_id ) {
             wp_send_json_error( array( 'message' => 'Paramètres invalides.' ) );
+        }
+
+        // Vérifier que l'attachement appartient bien à cette galerie
+        if ( get_post_field( 'post_parent', $attachment_id ) != $post_id ) {
+            wp_send_json_error( array( 'message' => 'Cet attachement n\'appartient pas à cette galerie.' ) );
         }
 
         if ( $recommended ) {
