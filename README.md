@@ -73,7 +73,7 @@ Le plugin crée automatiquement la table `wp_photoproof_galleries` :
 Accessible via **PhotoProof → Réglages**
 
 ### Général
-- **URLs aléatoires (UUID)** — masque le slug dans l'URL publique
+- **URLs aléatoires (UUID)** — masque le slug dans l'URL publique -> a finaliser
 - **Renommage automatique** — renomme les fichiers à la publication selon un pattern `{gallery_title}-{index}`
 - **Recommandations** — active les badges photographe sur les photos (icône configurable : dot / étoile / cœur)
 - **Expiration** — archive automatiquement les galeries 30 jours après publication
