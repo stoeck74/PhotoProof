@@ -73,7 +73,7 @@ Le plugin crée automatiquement la table `wp_photoproof_galleries` :
 Accessible via **PhotoProof → Réglages**
 
 ### Général
-- **URLs aléatoires (UUID)** — masque le slug dans l'URL publique -> a finaliser
+- **URLs aléatoires (UUID)** — masque le slug dans l'URL publique -> a finaliser ne fonctionne pas encore
 - **Renommage automatique** — renomme les fichiers à la publication selon un pattern `{gallery_title}-{index}`
 - **Recommandations** — active les badges photographe sur les photos (icône configurable : dot / étoile / cœur)
 - **Expiration** — archive automatiquement les galeries 30 jours après publication
@@ -98,7 +98,7 @@ Accessible via **PhotoProof → Réglages**
 
 1. **PhotoProof → Ajouter une galerie**
 2. Donner un titre
-3. Enregistrer en brouillon (nécessaire avant l'upload)
+3. Enregistrer en brouillon (nécessaire avant l'upload) ou définir le statut sur publié
 4. Uploader les photos via la zone drag & drop dans la metabox
 5. Optionnel : marquer des photos comme recommandées (étoile coin haut gauche)
 6. Optionnel : renseigner le client (utilisateur WP) dans la metabox

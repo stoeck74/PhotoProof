@@ -162,21 +162,30 @@
             selected_ids: selectedIds,
             confirm:      isConfirm ? '1' : '0'
         })
-        .done(function (r) {
-            if (r.success) {
-                if (isConfirm) {
-                    isLocked = true;
-                    closeConfirmModal();
-                    applyLockedState();
-                    setStatus('confirmed');
-                } else {
-                    setStatus('saved');
-                }
-            } else {
-                if (r.data && r.data.locked) { isLocked = true; applyLockedState(); }
-                setStatus('error');
+.done(function (r) {
+    if (r.success) {
+        if (isConfirm) {
+            isLocked = true;
+            closeConfirmModal();
+            applyLockedState();
+            setStatus('confirmed');
+        } else {
+            setStatus('saved');
+        }
+    } else {
+        if (r.data && r.data.locked) {
+            isLocked = true;
+            applyLockedState();
+        } else if (r.data && r.data.auth_required) {
+            closeConfirmModal();
+            if (confirm(r.data.message + '\n\nCliquer OK pour aller à la page de connexion.')) {
+                window.location.href = r.data.login_url;
             }
-        })
+        } else {
+            setStatus('error');
+        }
+    }
+})
         .fail(function () { setStatus('error'); });
     }
 

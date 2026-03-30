@@ -101,60 +101,98 @@ class PhotoProof_Public {
     /**
      * AJAX : sauvegarde la sélection du client
      */
-    public function save_client_selection() {
-        $post_id = isset( $_POST['post_id'] ) ? intval( $_POST['post_id'] ) : 0;
+public function save_client_selection() {
+    $post_id = isset( $_POST['post_id'] ) ? intval( $_POST['post_id'] ) : 0;
 
-        if ( ! $post_id ) {
-            wp_send_json_error( array( 'message' => 'Galerie invalide.' ) );
-        }
-
-        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'pp_client_selection_' . $post_id ) ) {
-            wp_send_json_error( array( 'message' => 'Requête non autorisée.' ) );
-        }
-
-        if ( get_post_type( $post_id ) !== 'pp_gallery' ) {
-            wp_send_json_error( array( 'message' => 'Type invalide.' ) );
-        }
-
-        if ( $this->is_gallery_locked( $post_id ) ) {
-            wp_send_json_error( array( 'message' => 'Cette galerie est verrouillée.', 'locked' => true ) );
-        }
-
-        if ( ! $this->is_gallery_accessible( $post_id ) ) {
-            wp_send_json_error( array( 'message' => 'Cette galerie n\'est plus accessible.' ) );
-        }
-
-        $raw_ids      = isset( $_POST['selected_ids'] ) ? (array) $_POST['selected_ids'] : array();
-        $selected_ids = array_values( array_unique( array_filter( array_map( 'intval', $raw_ids ) ) ) );
-
-        update_post_meta( $post_id, '_pp_selected_photos', $selected_ids );
-
-        $is_confirm = isset( $_POST['confirm'] ) && $_POST['confirm'] === '1';
-
-        if ( $is_confirm ) {
-            global $wpdb;
-            $wpdb->update(
-                $wpdb->prefix . 'photoproof_galleries',
-                array( 'status' => 'valide' ),
-                array( 'post_id' => $post_id ),
-                array( '%s' ), array( '%d' )
-            );
-
-            // Récupérer le client_id depuis la table
-            $row = $wpdb->get_row( $wpdb->prepare(
-                "SELECT client_id FROM {$wpdb->prefix}photoproof_galleries WHERE post_id = %d",
-                $post_id
-            ) );
-            $client_id = $row ? intval( $row->client_id ) : get_current_user_id();
-
-            // Déclencher les emails de confirmation
-            do_action( 'pp_gallery_selection_confirmed', $post_id, $client_id );
-
-            wp_send_json_success( array( 'count' => count( $selected_ids ), 'locked' => true, 'message' => 'Sélection confirmée.' ) );
-        }
-
-        wp_send_json_success( array( 'count' => count( $selected_ids ), 'locked' => false, 'message' => 'Sélection enregistrée.' ) );
+    if ( ! $post_id ) {
+        wp_send_json_error( array( 'message' => 'Galerie invalide.' ) );
     }
+
+    if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'pp_client_selection_' . $post_id ) ) {
+        wp_send_json_error( array( 'message' => 'Requête non autorisée.' ) );
+    }
+
+    if ( get_post_type( $post_id ) !== 'pp_gallery' ) {
+        wp_send_json_error( array( 'message' => 'Type invalide.' ) );
+    }
+
+    if ( $this->is_gallery_locked( $post_id ) ) {
+        wp_send_json_error( array( 'message' => 'Cette galerie est verrouillée.', 'locked' => true ) );
+    }
+
+    if ( ! $this->is_gallery_accessible( $post_id ) ) {
+        wp_send_json_error( array( 'message' => 'Cette galerie n\'est plus accessible.' ) );
+    }
+
+    // Construire et valider les IDs sélectionnés
+    $raw_ids      = isset( $_POST['selected_ids'] ) ? (array) $_POST['selected_ids'] : array();
+    $selected_ids = array_values( array_unique( array_filter( array_map( 'intval', $raw_ids ) ) ) );
+
+    // ── VÉRIFICATION APPARTENANCE DES ATTACHEMENTS ────────────────
+    // S'assurer que chaque photo appartient bien à cette galerie
+    $selected_ids = array_values( array_filter( $selected_ids, function( $att_id ) use ( $post_id ) {
+        return get_post_field( 'post_parent', $att_id ) == $post_id;
+    } ) );
+
+    update_post_meta( $post_id, '_pp_selected_photos', $selected_ids );
+
+    $is_confirm = isset( $_POST['confirm'] ) && $_POST['confirm'] === '1';
+
+    if ( $is_confirm ) {
+
+        // ── VÉRIFICATION IDENTITÉ AVANT VALIDATION ────────────────
+        $custom_login = get_option( 'pp_login_url' );
+        $login_url    = $custom_login
+            ? add_query_arg( 'redirect_to', urlencode( get_permalink( $post_id ) ), esc_url_raw( $custom_login ) )
+            : wp_login_url( get_permalink( $post_id ) );
+
+        if ( ! is_user_logged_in() ) {
+            wp_send_json_error( array(
+                'message'       => 'Vous devez être connecté pour valider votre sélection.',
+                'auth_required' => true,
+                'login_url'     => $login_url,
+            ) );
+        }
+
+        global $wpdb;
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT client_id FROM {$wpdb->prefix}photoproof_galleries WHERE post_id = %d",
+            $post_id
+        ) );
+
+        if ( $row && $row->client_id && intval( $row->client_id ) !== get_current_user_id() ) {
+            wp_send_json_error( array(
+                'message'       => 'Vous n\'avez pas les autorisations nécessaires pour valider cette galerie. Merci de vous connecter avec le bon compte.',
+                'auth_required' => true,
+                'login_url'     => $login_url,
+            ) );
+        }
+
+        // ── VALIDATION ────────────────────────────────────────────
+        $wpdb->update(
+            $wpdb->prefix . 'photoproof_galleries',
+            array( 'status' => 'valide' ),
+            array( 'post_id' => $post_id ),
+            array( '%s' ), array( '%d' )
+        );
+
+        $client_id = $row ? intval( $row->client_id ) : get_current_user_id();
+
+        do_action( 'pp_gallery_selection_confirmed', $post_id, $client_id );
+
+        wp_send_json_success( array(
+            'count'   => count( $selected_ids ),
+            'locked'  => true,
+            'message' => 'Sélection confirmée.',
+        ) );
+    }
+
+    wp_send_json_success( array(
+        'count'   => count( $selected_ids ),
+        'locked'  => false,
+        'message' => 'Sélection enregistrée.',
+    ) );
+}
 
     /**
      * AJAX : retourne la sélection actuelle

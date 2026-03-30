@@ -35,6 +35,9 @@ class PhotoProof_Settings {
         register_setting( 'pp_settings_group', 'pp_color_active', array( 'sanitize_callback' => 'sanitize_hex_color' ) );
         register_setting( 'pp_settings_group', 'pp_color_text',   array( 'sanitize_callback' => 'sanitize_hex_color' ) );
         register_setting( 'pp_settings_group', 'pp_photo_rounded' );
+        register_setting( 'pp_settings_group', 'pp_login_url', array( 'sanitize_callback' => 'esc_url_raw' ) );
+        register_setting( 'pp_settings_group', 'pp_delete_files_on_delete' );
+
     }
 
     public function render_settings_page() {
@@ -282,12 +285,40 @@ class PhotoProof_Settings {
                         <!-- ========================
                              SECTION : SÉCURITÉ
                         ======================== -->
-                        <div id="section-securite" class="pp-section-content">
-                            <div class="pp-card">
-                                <h3>Protection des données</h3>
-                                <p style="padding: 15px; background: #fff8e5; border-left: 4px solid #ffb900; border-radius: 4px;">Les fonctions avancées de suppression automatique sont en cours de développement.</p>
-                            </div><!-- /.pp-card -->
-                        </div><!-- /#section-securite -->
+<div id="section-securite" class="pp-section-content">
+    <div class="pp-card">
+        <h3>Accès & Authentification</h3>
+        <div class="pp-option-row" style="flex-direction: column; align-items: flex-start; gap: 10px;">
+            <label class="pp-main-label">Page de connexion</label>
+            <input type="url" name="pp_login_url"
+                value="<?php echo esc_attr( get_option( 'pp_login_url', '' ) ); ?>"
+                placeholder="<?php echo esc_attr( wp_login_url() ); ?>"
+                class="regular-text"
+                style="width: 100%;">
+            <p class="pp-explanation" style="margin: 0;">
+                URL de votre page de connexion personnalisée. Si vide, WordPress utilisera sa page de login par défaut.<br>
+                Exemple : https://example.com/login</code>
+            </p>
+        </div>
+        <hr class="pp-separator">
+<h3>Suppression des fichiers</h3>
+<div class="pp-option-row">
+    <label class="pp-switch">
+        <input type="checkbox" name="pp_delete_files_on_delete" value="1"
+            <?php checked( 1, get_option( 'pp_delete_files_on_delete' ), true ); ?>>
+        <span class="pp-slider"></span>
+    </label>
+    <span class="pp-label-text">Supprimer les photos à la suppression d'une galerie</span>
+</div>
+<p class="pp-explanation">
+    Si activé, les fichiers physiques et les attachements sont supprimés définitivement avec la galerie.<br>
+    Si désactivé, les dossiers <code>photoproof/gallery-{id}/</code> sont conservés sur le serveur.
+</p>
+        <hr class="pp-separator">
+        <h3>Protection des données</h3>
+        <p style="padding: 15px; background: #fff8e5; border-left: 4px solid #ffb900; border-radius: 4px;">Les fonctions avancées de suppression automatique sont en cours de développement.</p>
+    </div>
+</div>
 
                         <!-- Barre de sauvegarde — toujours visible, hors des sections -->
                         <div class="pp-save-bar">

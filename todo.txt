@@ -1,6 +1,5 @@
+URL ALEATOIRES pas fait ou fragile
+option de logout manquantes
 
-Renaming ne marche - pas a verif ok
-watermark feature
-presentation globale ---- ok
 
 

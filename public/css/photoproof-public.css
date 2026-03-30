@@ -1,6 +1,6 @@
 /**
  * PhotoProof — photoproof-public.css
- * 5 colonnes, cards aérées, coins arrondis, object-fit: contain
+ * Hero header + 5 colonnes, cards aérées, object-fit: contain
  */
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -16,32 +16,109 @@ html, body {
 .pp-page { width: 100%; min-height: 100vh; }
 
 /* ============================================================
-   HEADER
+   HERO HEADER
    ============================================================ */
-.pp-header {
+.pp-hero {
+    position: relative;
+    width: 100%;
+    height: 50vh;
+    min-height: 300px;
+    overflow: hidden;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 24px 24px 20px;
-    background: var(--pp-bg, #f5f4f2);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    gap: 12px;
+    flex-direction: column;
+    justify-content: flex-end;
 }
 
+/* Image de fond via CSS custom property injectée en PHP */
+.pp-hero-bg {
+    position: absolute;
+    inset: 0;
+    background-image: var(--pp-hero-img);
+    background-size: cover;
+    background-position: center;
+    transform: scale(1.04);
+}
 
-.pp-header-left { display: flex; align-items: center; gap: 14px; min-width: 0; }
+/* Gradient vers --pp-bg en bas */
+.pp-hero-gradient {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to bottom,
+        transparent             0%,
+        rgba(0,0,0,0.1)        30%,
+        color-mix(in srgb, var(--pp-bg) 60%, transparent) 65%,
+        var(--pp-bg)           100%
+    );
+}
+
+/* Contenu positionné en bas du hero */
+.pp-hero-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 24px 32px;
+    gap: 16px;
+}
+
+.pp-hero-left {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    min-width: 0;
+}
+
 .pp-logo-wrap { flex-shrink: 0; }
-.pp-logo-img { max-height: 36px; max-width: 120px; width: auto; display: block; }
-.pp-site-name { font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; opacity: .5; }
-.pp-header-meta { min-width: 0; }
-.pp-gallery-title { font-size: 36px; font-weight: 300; letter-spacing: -.01em; margin: 0; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--pp-text); }
-.pp-header-right { flex-shrink: 0; font-size: 15px; opacity: .7; letter-spacing: .06em; white-space: nowrap; }
+.pp-logo-img { max-height: 64px; max-width: 140px; width: auto; display: block; }
 
+.pp-hero-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
 
-.pp-content-section{
-     padding: 24px 24px 12px 24px;   
+.pp-site-name {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--pp-text);
+
+    line-height: 1;
+}
+
+.pp-gallery-title {
+    font-size: 36px;
+    font-weight: 300;
+    letter-spacing: -.01em;
+    margin: 0;
+    line-height: 1.1;
+    color: var(--pp-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pp-hero-right {
+    flex-shrink: 0;
+    font-size: 15px;
+    color: var(--pp-text);
+    opacity: .5;
+    letter-spacing: .06em;
+    white-space: nowrap;
+    padding-bottom: 6px;
+}
+
+/* ── Section contenu optionnel ── */
+.pp-content-section {
+    padding: 24px 24px 12px;
+    font-size: 14px;
+    color: var(--pp-text);
+    opacity: .7;
+    line-height: 1.7;
 }
 
 /* ============================================================
@@ -58,26 +135,25 @@ html, body {
 .pp-card {
     background: color-mix(in srgb, var(--pp-text) 5%, var(--pp-bg));
     border: 1.5px solid transparent;
-    border-radius: 6px;
+    border-radius: var(--pp-img-radius, 0px);
     overflow: hidden;
     cursor: pointer;
     display: flex;
     flex-direction: column;
     transition: border-color .3s, transform .25s cubic-bezier(.25,.46,.45,.94);
-    border-radius: var(--pp-img-radius, 0px);
 }
 
 .pp-card:hover {
     transform: translateY(-5px);
     border-color: color-mix(in srgb, var(--pp-text) 15%, transparent);
-    box-shadow: 0px 5px 15px 0px rgba(0,0,0,0.1)
+    box-shadow: 0px 5px 15px 0px rgba(0,0,0,0.1);
 }
 
 .pp-card.pp-selected {
     border-color: var(--pp-active, #2271b1);
 }
 
-/* ── Zone image — aspect-ratio 4:3, image contenue ── */
+/* ── Zone image ── */
 .pp-card-img-wrap {
     width: 100%;
     aspect-ratio: 4 / 3;
@@ -101,17 +177,15 @@ html, body {
     transition: transform .45s cubic-bezier(.25,.46,.45,.94);
 }
 
-.pp-card:hover .pp-card-img {}
-
 /* Badge recommandation */
 .pp-reco-badge {
     position: absolute; top: 0; left: 0;
-    padding: 5px 10px  10px 8px;
-    -webkit-border-bottom-right-radius: 15px;
-    -moz-border-radius-bottomright: 15px;
+    padding: 5px 10px 10px 8px;
     border-bottom-right-radius: 15px;
-    font-size: 24px; color: var(--pp-text, #2271b1);
-    pointer-events: none; line-height: 0.8;
+    font-size: 24px;
+    color: var(--pp-text, #2271b1);
+    pointer-events: none;
+    line-height: 0.8;
     background: color-mix(in srgb, var(--pp-text) 6%, var(--pp-bg));
 }
 
@@ -195,7 +269,7 @@ html, body {
 .pp-selection-bar.pp-bar-visible { transform: translateY(0); }
 
 .pp-bar-inner {
-    padding: 24px 24px;
+    padding: 24px;
     display: flex; align-items: center; justify-content: space-between; gap: 16px;
 }
 
@@ -281,11 +355,15 @@ html, body {
 }
 @media (max-width: 1024px) {
     .pp-grid { grid-template-columns: repeat(3, 1fr); }
+    .pp-hero { height: 40vh; }
+    .pp-gallery-title { font-size: 28px; }
 }
 @media (max-width: 700px) {
+    .pp-hero { height: 35vh; min-height: 220px; }
+    .pp-hero-content { padding: 0 16px 24px; }
+    .pp-gallery-title { font-size: 22px; }
+    .pp-hero-right { display: none; }
     .pp-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 10px 12px 100px; }
-    .pp-gallery-title { font-size: 15px; }
-    .pp-header-right { display: none; }
     .pp-lb-img-wrap { padding: 50px 40px 16px; }
     .pp-confirm-box { padding: 28px 24px; }
 }

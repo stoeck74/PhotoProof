@@ -1,7 +1,7 @@
 <?php
 /**
  * Template standalone de la galerie PhotoProof
- * Grille card stricte 7 colonnes — object-fit: contain, zéro crop
+ * Hero header avec première photo en fond + grille 5 colonnes
  */
 
 global $post, $wpdb;
@@ -46,6 +46,12 @@ $query_images = new WP_Query( array(
     'orderby'        => 'menu_order date',
     'order'          => 'ASC',
 ) );
+
+// ── 4. HERO — post thumbnail ──────────────────────────────────────────────
+$hero_url = '';
+if ( has_post_thumbnail( $post->ID ) ) {
+    $hero_url = get_the_post_thumbnail_url( $post->ID, 'large' );
+}
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
@@ -61,32 +67,52 @@ $query_images = new WP_Query( array(
 
 <div class="pp-page" id="pp-page">
 
-    <!-- ── HEADER ── -->
-    <header class="pp-header">
-        <div class="pp-header-left">
-            <div class="pp-logo-wrap">
-                <a href="<?php echo get_home_url(); ?>">
-                <?php if ( $custom_logo_id ) : ?>
-                    <?php echo wp_get_attachment_image( $custom_logo_id, 'medium', false, array( 'class' => 'pp-logo-img' ) ); ?>
-                <?php else : ?>
-                    <span class="pp-site-name"><?php echo esc_html( $site_title ); ?></span>
-                <?php endif; ?>
-                </a>
-            </div>
-            <div class="pp-header-meta">
-                <h1 class="pp-gallery-title"><?php the_title(); ?></h1>
-            </div>
-        </div>
-        <div class="pp-header-right">
-            <?php echo $query_images->found_posts; ?> photographie<?php echo $query_images->found_posts > 1 ? 's' : ''; ?>
-        </div>
+    <!-- ── HERO HEADER ── -->
+    <header class="pp-hero" <?php if ( $hero_url ) : ?>style="--pp-hero-img: url('<?php echo esc_url( $hero_url ); ?>');"<?php endif; ?>>
 
+        <!-- Image de fond -->
+        <?php if ( $hero_url ) : ?>
+            <div class="pp-hero-bg"></div>
+        <?php endif; ?>
+
+        <!-- Gradient vers --pp-bg -->
+        <div class="pp-hero-gradient"></div>
+
+        <!-- Contenu positionné en bas -->
+        <div class="pp-hero-content">
+            <div class="pp-hero-left">
+                <?php if ( $custom_logo_id || $site_title ) : ?>
+                <div class="pp-logo-wrap">
+                    <a href="<?php echo esc_url( get_home_url() ); ?>">
+                        <?php if ( $custom_logo_id ) : ?>
+                            <?php echo wp_get_attachment_image( $custom_logo_id, 'medium', false, array( 'class' => 'pp-logo-img' ) ); ?>
+                        <?php endif; ?>
+                    </a>
+                </div>
+                <?php endif; ?>
+
+                <div class="pp-hero-text">
+                    <?php if ( $site_title ) : ?>
+                        <span class="pp-site-name"><?php echo esc_html( $site_title ); ?></span>
+                    <?php endif; ?>
+                    <h1 class="pp-gallery-title"><?php the_title(); ?></h1>
+                </div>
+            </div>
+
+            <div class="pp-hero-right">
+                <?php echo $query_images->found_posts; ?> photographie<?php echo $query_images->found_posts > 1 ? 's' : ''; ?>
+            </div>
+        </div>
     </header>
-       <div class="pp-content-section">
-                    <p> <?php the_content(); ?></p>
-       </div>
+
+    <?php if ( get_the_content() ) : ?>
+    <div class="pp-content-section">
+        <p><?php the_content(); ?></p>
+    </div>
+    <?php endif; ?>
+
     <?php if ( $row && $row->status === 'valide' ) : ?>
-    <div class="pp-locked-banner">
+    <div id="pp-locked-banner" class="pp-locked-banner">
         <span class="pp-locked-icon">✓</span>
         Sélection confirmée — contactez votre photographe pour toute modification.
     </div>
@@ -95,34 +121,33 @@ $query_images = new WP_Query( array(
     <!-- ── GRILLE ── -->
     <?php if ( $query_images->have_posts() ) : ?>
     <div class="pp-grid" id="pp-grid">
-<?php while ( $query_images->have_posts() ) : $query_images->the_post();
-    $img_id      = get_the_ID();
-    $is_reco     = get_post_meta( $img_id, '_pp_recommended', true );
-    $is_selected = in_array( $img_id, $selected_ids, true );
+        <?php while ( $query_images->have_posts() ) : $query_images->the_post();
+            $img_id      = get_the_ID();
+            $is_reco     = get_post_meta( $img_id, '_pp_recommended', true );
+            $is_selected = in_array( $img_id, $selected_ids, true );
 
-    $has_watermark = get_option( 'pp_global_watermark' );
-    $img_src       = $has_watermark
-        ? PhotoProof_Watermark::get_watermarked_url( $img_id )
-        : wp_get_attachment_image_url( $img_id, 'large' );
-    $img_srcset    = $has_watermark ? '' : wp_get_attachment_image_srcset( $img_id, 'large' );
-    $img_full      = $has_watermark
-        ? PhotoProof_Watermark::get_watermarked_url( $img_id )
-        : wp_get_attachment_url( $img_id );
-    $img_title     = get_the_title();
-    $filename      = get_post_meta( $img_id, '_pp_target_filename', true ) ?: basename( get_attached_file( $img_id ) );
-    ?>
+            $has_watermark = get_option( 'pp_global_watermark' );
+            $img_src       = $has_watermark
+                ? PhotoProof_Watermark::get_watermarked_url( $img_id )
+                : wp_get_attachment_image_url( $img_id, 'large' );
+            $img_srcset    = $has_watermark ? '' : wp_get_attachment_image_srcset( $img_id, 'large' );
+            $img_full      = $has_watermark
+                ? PhotoProof_Watermark::get_watermarked_url( $img_id )
+                : wp_get_attachment_url( $img_id );
+            $img_title     = get_the_title();
+            $filename      = get_post_meta( $img_id, '_pp_target_filename', true ) ?: basename( get_attached_file( $img_id ) );
+            ?>
             <div class="pp-card <?php echo $is_selected ? 'pp-selected' : ''; ?>"
                  data-id="<?php echo esc_attr( $img_id ); ?>"
                  data-full="<?php echo esc_url( $img_full ); ?>">
 
-                <!-- Zone image -->
                 <div class="pp-card-img-wrap">
                     <img
                         class="pp-card-img"
                         src="<?php echo esc_url( $img_src ); ?>"
                         <?php if ( $img_srcset ) : ?>
                         srcset="<?php echo esc_attr( $img_srcset ); ?>"
-                        sizes="14vw"
+                        sizes="20vw"
                         <?php endif; ?>
                         alt="<?php echo esc_attr( $img_title ); ?>"
                         loading="lazy"
@@ -133,7 +158,6 @@ $query_images = new WP_Query( array(
                     <?php endif; ?>
                 </div>
 
-                <!-- Footer card -->
                 <div class="pp-card-footer">
                     <span class="pp-card-name"><?php echo esc_html( $filename ); ?></span>
                     <button class="pp-select-btn" type="button"

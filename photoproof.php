@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       PhotoProof
  * Description:       Galerie d'épreuve pour photographe avec gestion de watermark et dossiers sécurisés.
- * Version:           0.1.0
+ * Version:           0.2.0
  * Author:            Cédric Stoecklin
  * License:           GPL-2.0-or-later
  * Text Domain:       photoproof
@@ -21,6 +21,7 @@ class PhotoProof {
         $this->define_public_hooks();
 
         register_activation_hook( __FILE__, array( $this, 'activate' ) );
+        register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
     }
 
     private function define_constants() {
@@ -98,6 +99,13 @@ class PhotoProof {
         flush_rewrite_rules();
     }
 
+    public function deactivate() {
+    $timestamp = wp_next_scheduled( 'pp_daily_expiration_check' );
+    if ( $timestamp ) {
+        wp_unschedule_event( $timestamp, 'pp_daily_expiration_check' );
+    }
+}
+
     private function load_dependencies() {
         // ── ADMIN ─────────────────────────────────────────────────────
         require_once PHOTOPROOF_PATH . 'admin/class-photoproof-settings.php';
@@ -162,7 +170,6 @@ class PhotoProof {
         } );
 
         // Flush automatique si le slug PhotoProof n'est pas dans les rewrite rules
-        // Se déclenche silencieusement — transparent pour l'utilisateur final
         add_action( 'wp', function () {
             $rules = get_option( 'rewrite_rules' );
             $slug  = PHOTOPROOF_GALLERY_SLUG;
@@ -181,6 +188,40 @@ class PhotoProof {
                 flush_rewrite_rules();
             }
         } );
+
+        // Nettoyage à la suppression définitive d'une galerie
+        add_action( 'before_delete_post', function( $post_id ) {
+            if ( get_post_type( $post_id ) !== 'pp_gallery' ) return;
+
+            // Toujours nettoyer la ligne en base
+            global $wpdb;
+            $wpdb->delete(
+                $wpdb->prefix . 'photoproof_galleries',
+                array( 'post_id' => $post_id ),
+                array( '%d' )
+            );
+
+            // Nettoyer les fichiers uniquement si option activée
+            if ( ! get_option( 'pp_delete_files_on_delete' ) ) return;
+
+            $attachments = get_posts( array(
+                'post_type'      => 'attachment',
+                'post_status'    => 'inherit',
+                'post_parent'    => $post_id,
+                'posts_per_page' => -1,
+                'fields'         => 'ids',
+            ) );
+
+            foreach ( $attachments as $att_id ) {
+                wp_delete_attachment( $att_id, true );
+            }
+
+            $upload_dir  = wp_upload_dir();
+            $gallery_dir = $upload_dir['basedir'] . '/photoproof/gallery-' . $post_id;
+            if ( file_exists( $gallery_dir ) ) {
+                $this->delete_directory( $gallery_dir );
+            }
+        } );
     }
 
     private function define_public_hooks() {
@@ -188,7 +229,6 @@ class PhotoProof {
         add_filter( 'single_template', array( $this, 'load_gallery_template' ) );
 
         // Template pour URLs UUID : /galerie-epreuve/550e8400-xxxx/
-        // Déclenché après que pre_get_posts a résolu l'UUID → is_singular() est vrai
         add_filter( 'template_include', array( $this, 'load_gallery_template_uuid' ) );
     }
 
@@ -206,8 +246,7 @@ class PhotoProof {
     }
 
     /**
-     * Template pour URL UUID — couvre le cas où is_singular() n'est pas encore vrai
-     * au moment du filtre single_template mais où la query var pp_uuid est présente
+     * Template pour URL UUID
      */
     public function load_gallery_template_uuid( $template ) {
         global $wp_query;
@@ -261,6 +300,19 @@ class PhotoProof {
         );
 
         register_post_type( 'pp_gallery', $args );
+    }
+
+    /**
+     * Supprime récursivement un dossier et son contenu
+     */
+    private function delete_directory( $dir ) {
+        if ( ! is_dir( $dir ) ) return;
+        $files = array_diff( scandir( $dir ), array( '.', '..' ) );
+        foreach ( $files as $file ) {
+            $path = $dir . '/' . $file;
+            is_dir( $path ) ? $this->delete_directory( $path ) : unlink( $path );
+        }
+        rmdir( $dir );
     }
 }
 
