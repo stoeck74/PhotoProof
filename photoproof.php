@@ -8,14 +8,10 @@
  * Text Domain:       photoproof
  */
 
-// Sécurité : Empêcher l'accès direct
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-/**
- * Initialisation du Plugin
- */
 class PhotoProof {
 
     public function __construct() {
@@ -24,28 +20,16 @@ class PhotoProof {
         $this->define_admin_hooks();
         $this->define_public_hooks();
 
-        // Enregistrement du hook d'activation
         register_activation_hook( __FILE__, array( $this, 'activate' ) );
     }
 
-    /**
-     * Définition des constantes de chemin et URL
-     */
     private function define_constants() {
         define( 'PHOTOPROOF_VERSION', '0.1.0' );
         define( 'PHOTOPROOF_PATH', plugin_dir_path( __FILE__ ) );
         define( 'PHOTOPROOF_URL', plugin_dir_url( __FILE__ ) );
-        // Slug partagé entre le CPT et le Router — source unique de vérité
         define( 'PHOTOPROOF_GALLERY_SLUG', 'galerie-epreuve' );
     }
 
-    /**
-     * Code exécuté à l'activation du plugin
-     *
-     * CORRECTIONS :
-     * - Suppression de "new PhotoProof_Router()" ici (double instanciation inutile à l'activation)
-     * - flush_rewrite_rules() conservé pour que le CPT soit immédiatement accessible
-     */
     public function activate() {
         global $wpdb;
         $table_name      = $wpdb->prefix . 'photoproof_galleries';
@@ -67,7 +51,7 @@ class PhotoProof {
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         dbDelta( $sql );
 
-        // Création du dossier racine protégé
+        // Dossier racine protégé
         $upload_dir = wp_upload_dir();
         $pp_dir     = $upload_dir['basedir'] . '/photoproof';
         if ( ! file_exists( $pp_dir ) ) {
@@ -75,20 +59,47 @@ class PhotoProof {
             file_put_contents( $pp_dir . '/index.php', '<?php // Silence is golden' );
         }
 
-        // On enregistre le CPT avant de flusher pour éviter les 404
+        // Migration : passer toutes les galeries WP publiées à 'publie' si brouillon ou absentes
+        $published_ids = get_posts( array(
+            'post_type'      => 'pp_gallery',
+            'post_status'    => 'publish',
+            'posts_per_page' => -1,
+            'fields'         => 'ids',
+        ) );
+
+        foreach ( $published_ids as $pid ) {
+            $existing = $wpdb->get_row( $wpdb->prepare(
+                "SELECT id, status FROM {$wpdb->prefix}photoproof_galleries WHERE post_id = %d",
+                $pid
+            ) );
+
+            if ( ! $existing ) {
+                $wpdb->insert(
+                    $wpdb->prefix . 'photoproof_galleries',
+                    array(
+                        'post_id'     => $pid,
+                        'status'      => 'publie',
+                        'folder_path' => 'photoproof/gallery-' . $pid,
+                    ),
+                    array( '%d', '%s', '%s' )
+                );
+            } elseif ( $existing->status === 'brouillon' ) {
+                $wpdb->update(
+                    $wpdb->prefix . 'photoproof_galleries',
+                    array( 'status' => 'publie' ),
+                    array( 'post_id' => $pid ),
+                    array( '%s' ),
+                    array( '%d' )
+                );
+            }
+        }
+
         $this->register_gallery_post_type();
         flush_rewrite_rules();
     }
 
-    /**
-     * Chargement des fichiers de classes
-     *
-     * CORRECTIONS :
-     * - Chaque classe est instanciée UNE seule fois ici
-     * - PhotoProof_Router n'est plus instancié dans activate()
-     */
     private function load_dependencies() {
-        // --- 1. ADMIN & INTERFACE ---
+        // ── ADMIN ─────────────────────────────────────────────────────
         require_once PHOTOPROOF_PATH . 'admin/class-photoproof-settings.php';
         new PhotoProof_Settings();
 
@@ -101,7 +112,7 @@ class PhotoProof {
         require_once PHOTOPROOF_PATH . 'admin/class-photoproof-admin-columns.php';
         new PhotoProof_Admin_Columns();
 
-        // --- 2. LOGIQUE MÉTIER (INCLUDES) ---
+        // ── LOGIQUE MÉTIER ────────────────────────────────────────────
         require_once PHOTOPROOF_PATH . 'includes/class-photoproof-uploader.php';
         new PhotoProof_Uploader();
 
@@ -117,42 +128,105 @@ class PhotoProof {
         require_once PHOTOPROOF_PATH . 'includes/class-photoproof-expiration.php';
         new PhotoProof_Expiration();
 
-        // --- 3. PUBLIC ---
+        require_once PHOTOPROOF_PATH . 'includes/class-photoproof-watermark.php';
+        new PhotoProof_Watermark();
+
+        require_once PHOTOPROOF_PATH . 'includes/class-photoproof-mailer.php';
+        new PhotoProof_Mailer();
+
+        // ── PUBLIC ────────────────────────────────────────────────────
         require_once PHOTOPROOF_PATH . 'public/class-photoproof-public.php';
         new PhotoProof_Public();
+
+        require_once PHOTOPROOF_PATH . 'includes/class-photoproof-helpers.php';
+        new PhotoProof_Helpers();
     }
 
     private function define_admin_hooks() {
         add_action( 'init', array( $this, 'register_gallery_post_type' ) );
 
-        // Flush les rewrite rules quand l'option UUID change
-        // (évite les 404 inexpliqués après activation/désactivation)
+        // Flush quand l'option UUID change
         add_action( 'update_option_pp_use_random_urls', 'flush_rewrite_rules' );
+
+        // Exclure les photos PhotoProof de la médiathèque standard
+        add_action( 'pre_get_posts', function( $query ) {
+            if ( ! is_admin() ) return;
+            if ( $query->get( 'post_type' ) !== 'attachment' ) return;
+            if ( ! $query->is_main_query() ) return;
+            $query->set( 'meta_query', array(
+                array(
+                    'key'     => '_pp_gallery_photo',
+                    'compare' => 'NOT EXISTS',
+                ),
+            ) );
+        } );
+
+        // Flush automatique si le slug PhotoProof n'est pas dans les rewrite rules
+        // Se déclenche silencieusement — transparent pour l'utilisateur final
+        add_action( 'wp', function () {
+            $rules = get_option( 'rewrite_rules' );
+            $slug  = PHOTOPROOF_GALLERY_SLUG;
+            $found = false;
+
+            if ( is_array( $rules ) ) {
+                foreach ( array_keys( $rules ) as $rule ) {
+                    if ( strpos( $rule, $slug ) !== false ) {
+                        $found = true;
+                        break;
+                    }
+                }
+            }
+
+            if ( ! $found ) {
+                flush_rewrite_rules();
+            }
+        } );
     }
 
     private function define_public_hooks() {
+        // Template pour URLs slug classiques : /galerie-epreuve/mon-titre/
         add_filter( 'single_template', array( $this, 'load_gallery_template' ) );
+
+        // Template pour URLs UUID : /galerie-epreuve/550e8400-xxxx/
+        // Déclenché après que pre_get_posts a résolu l'UUID → is_singular() est vrai
+        add_filter( 'template_include', array( $this, 'load_gallery_template_uuid' ) );
     }
 
     /**
-     * Charge le template personnalisé pour le CPT pp_gallery
+     * Template pour URL slug classique
      */
     public function load_gallery_template( $template ) {
         if ( is_singular( 'pp_gallery' ) ) {
-            $custom_template = PHOTOPROOF_PATH . 'templates/single-pp_gallery.php';
-            if ( file_exists( $custom_template ) ) {
-                return $custom_template;
+            $custom = PHOTOPROOF_PATH . 'templates/single-pp_gallery.php';
+            if ( file_exists( $custom ) ) {
+                return $custom;
             }
         }
         return $template;
     }
 
     /**
-     * Enregistrement du Custom Post Type
-     *
-     * CORRECTION :
-     * - Le slug utilise la constante PHOTOPROOF_GALLERY_SLUG
-     *   pour rester cohérent avec le Router (qui l'utilise aussi)
+     * Template pour URL UUID — couvre le cas où is_singular() n'est pas encore vrai
+     * au moment du filtre single_template mais où la query var pp_uuid est présente
+     */
+    public function load_gallery_template_uuid( $template ) {
+        global $wp_query;
+
+        if (
+            $wp_query->get( 'pp_uuid' ) ||
+            ( $wp_query->is_main_query() && $wp_query->get( 'post_type' ) === 'pp_gallery' && is_singular() )
+        ) {
+            $custom = PHOTOPROOF_PATH . 'templates/single-pp_gallery.php';
+            if ( file_exists( $custom ) ) {
+                return $custom;
+            }
+        }
+
+        return $template;
+    }
+
+    /**
+     * Enregistrement du Custom Post Type pp_gallery
      */
     public function register_gallery_post_type() {
         $labels = array(
@@ -190,5 +264,4 @@ class PhotoProof {
     }
 }
 
-// Initialisation globale — une seule instance
 new PhotoProof();

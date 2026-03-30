@@ -84,6 +84,8 @@ class PhotoProof_Uploader {
         $metadata = wp_generate_attachment_metadata( $attachment_id, $uploaded['file'] );
         wp_update_attachment_metadata( $attachment_id, $metadata );
 
+        update_post_meta( $attachment_id, '_pp_gallery_photo', '1' );
+        
         // Stocker le nom cible pour le renommage différé
         do_action( 'pp_attachment_uploaded', $attachment_id, $post_id );
 

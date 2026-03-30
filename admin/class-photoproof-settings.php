@@ -145,6 +145,7 @@ class PhotoProof_Settings {
                                     <select name="pp_global_recommendation_icon" style="width:100%; max-width:250px;">
                                         <option value="dot"  <?php selected( get_option( 'pp_global_recommendation_icon' ), 'dot' ); ?>>■ Point</option>
                                         <option value="star" <?php selected( get_option( 'pp_global_recommendation_icon' ), 'star' ); ?>>★ Etoile</option>
+                                        <option value="square"<?php selected( get_option( 'pp_global_recommendation_icon' ), 'square' ); ?>>■ carré</option>
                                         <option value="heart"<?php selected( get_option( 'pp_global_recommendation_icon' ), 'heart' ); ?>>❤ Coeur</option>
                                     </select>
                                 </div>

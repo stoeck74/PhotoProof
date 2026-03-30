@@ -75,15 +75,19 @@ class PhotoProof_Metaboxes {
                     <label for="pp_client_id">Client assigné</label>
                     <select name="pp_client_id" id="pp_client_id" <?php echo $is_validated ? 'disabled' : ''; ?>>
                         <option value="">— Aucun client —</option>
-                        <?php
-                        $users = get_users( array( 'role__in' => array( 'subscriber', 'customer', 'author', 'editor' ) ) );
-                        foreach ( $users as $user ) :
-                            $sel = ( $data && $data->client_id == $user->ID ) ? 'selected' : '';
-                            echo '<option value="' . esc_attr( $user->ID ) . '" ' . $sel . '>'
-                                . esc_html( $user->display_name ) . '</option>';
-                        endforeach;
-                        ?>
-                    </select>
+                            <?php
+                            $users = get_users( array( 'role__in' => array( 'subscriber', 'customer', 'author', 'editor' ) ) );
+
+                            foreach ( $users as $user ) :
+                                $sel = ( $data && $data->client_id == $user->ID ) ? 'selected' : '';
+                                
+                                // On prépare le texte d'affichage
+                                $display_text = esc_html( $user->last_name ) . ' ' . esc_html( $user->first_name ) . ' - (' . esc_html( $user->nickname ) . ')';
+                                
+                                echo '<option value="' . esc_attr( $user->ID ) . '" ' . $sel . '>' . $display_text . '</option>';
+                            endforeach;
+                            ?>
+                         </select>
                 </div>
 
                 <div class="pp-field">

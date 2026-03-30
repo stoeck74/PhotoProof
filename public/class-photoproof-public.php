@@ -16,83 +16,77 @@ class PhotoProof_Public {
         add_action( 'wp_ajax_pp_reopen_gallery', array( $this, 'reopen_gallery' ) );
     }
 
-public function enqueue_public_assets() {
-    if ( ! is_singular( 'pp_gallery' ) ) {
-        return;
-    }
+    public function enqueue_public_assets() {
+        if ( ! is_singular( 'pp_gallery' ) ) {
+            return;
+        }
 
-    // 1. Enregistrer et charger Packery (non natif à WP)
-        wp_enqueue_script(
-            'packery',
-            'https://unpkg.com/packery@2.1.2/dist/packery.pkgd.min.js', 
+        // ── Désactiver scripts/styles du thème — template standalone ──
+        add_action( 'wp_enqueue_scripts', function () {
+            global $wp_scripts, $wp_styles;
+
+            foreach ( $wp_scripts->queue as $handle ) {
+                if (
+                    strpos( $handle, 'pp-' ) === false &&
+                    strpos( $handle, 'jquery' ) === false &&
+                    strpos( $handle, 'wp-' ) === false &&
+                    $handle !== 'imagesloaded' &&
+                    $handle !== 'pp-public-js'
+                ) {
+                    wp_dequeue_script( $handle );
+                }
+            }
+
+            foreach ( $wp_styles->queue as $handle ) {
+                if ( strpos( $handle, 'pp-' ) === false && strpos( $handle, 'admin-bar' ) === false && strpos( $handle, 'dashicons' ) === false ) {
+                    wp_dequeue_style( $handle );
+                }
+            }
+        }, 100 );
+
+        // ── CSS ───────────────────────────────────────────────────────
+        wp_enqueue_style(
+            'pp-public-style',
+            PHOTOPROOF_URL . 'public/css/photoproof-public.css',
             array(),
-            '2.1.2',
+            PHOTOPROOF_VERSION
+        );
+
+        // ── ImagesLoaded — WP le bundle nativement dans wp-includes ──
+        // Pas besoin de Masonry — grille CSS Grid pure
+        wp_enqueue_script( 'imagesloaded' );
+
+        // ── JS public ─────────────────────────────────────────────────
+        wp_enqueue_script(
+            'pp-public-js',
+            PHOTOPROOF_URL . 'public/js/photoproof-public.js',
+            array( 'jquery', 'imagesloaded' ),
+            PHOTOPROOF_VERSION,
             true
         );
 
-    // 1. Déclarer vos scripts avec les dépendances natives
-    // On utilise 'imagesloaded' et 'masonry' qui sont les handles standards de WP
-    wp_enqueue_script(
-        'pp-public-js',
-        PHOTOPROOF_URL . 'public/js/photoproof-public.js',
-        array( 'jquery', 'packery', 'imagesloaded' ), // WP chargera automatiquement ces scripts
-        PHOTOPROOF_VERSION,
-        true
-    );
+        // Statut pour le JS
+        global $wpdb;
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT status FROM {$wpdb->prefix}photoproof_galleries WHERE post_id = %d",
+            get_the_ID()
+        ) );
+        $current_status = $row ? $row->status : 'publie';
 
-    // 2. Nettoyage sélectif (on le place APRES l'enqueue pour savoir ce qu'on garde)
-    add_action( 'wp_print_scripts', function () {
-        global $wp_scripts;
-        if ( ! is_singular( 'pp_gallery' ) ) return;
-
-        // Liste blanche des scripts à CONSERVER
-        $keep = array(
-            'jquery',
-            'jquery-core',
-            'jquery-migrate',
-            'packery',
-            'imagesloaded',
-            'pp-public-js',
-            'admin-bar' // Optionnel
-        );
-
-        foreach ( $wp_scripts->queue as $handle ) {
-            if ( ! in_array( $handle, $keep ) && strpos( $handle, 'pp-' ) === false ) {
-                wp_dequeue_script( $handle );
-            }
-        }
-    }, 100 );
-
-    // ── CSS ───────────────────────────────────────────────────────
-    wp_enqueue_style(
-        'pp-public-style',
-        PHOTOPROOF_URL . 'public/css/photoproof-public.css',
-        array(),
-        PHOTOPROOF_VERSION
-    );
-
-    // 3. Localize et Inline Style (Reste inchangé)
-    global $wpdb;
-    $row = $wpdb->get_row( $wpdb->prepare(
-        "SELECT status FROM {$wpdb->prefix}photoproof_galleries WHERE post_id = %d",
-        get_the_ID()
-    ) );
-    $current_status = $row ? $row->status : 'publie';
-
-    wp_localize_script( 'pp-public-js', 'pp_public', array(
-        'ajax_url'  => admin_url( 'admin-ajax.php' ),
-        'post_id'   => get_the_ID(),
-        'nonce'     => wp_create_nonce( 'pp_client_selection_' . get_the_ID() ),
-        'status'    => $current_status,
-        'is_locked' => ( $current_status === 'valide' || $current_status === 'ferme' ) ? 1 : 0,
-    ) );
+        wp_localize_script( 'pp-public-js', 'pp_public', array(
+            'ajax_url'  => admin_url( 'admin-ajax.php' ),
+            'post_id'   => get_the_ID(),
+            'nonce'     => wp_create_nonce( 'pp_client_selection_' . get_the_ID() ),
+            'status'    => $current_status,
+            'is_locked' => ( $current_status === 'valide' || $current_status === 'ferme' ) ? 1 : 0,
+        ) );
 
         // ── CSS variables thème ───────────────────────────────────────
         $bg_color      = sanitize_hex_color( get_option( 'pp_color_bg',     '#f5f4f2' ) ) ?: '#f5f4f2';
         $active_color  = sanitize_hex_color( get_option( 'pp_color_active', '#2271b1' ) ) ?: '#2271b1';
         $text_color    = sanitize_hex_color( get_option( 'pp_color_text',   '#1e293b' ) ) ?: '#1e293b';
         $photo_rounded = get_option( 'pp_photo_rounded' );
-        $img_radius    = $photo_rounded ? '4px' : '0px';
+        $img_radius    = $photo_rounded ? '8px' : '0px';
 
         wp_add_inline_style( 'pp-public-style', "
             :root {
@@ -145,6 +139,16 @@ public function enqueue_public_assets() {
                 array( 'post_id' => $post_id ),
                 array( '%s' ), array( '%d' )
             );
+
+            // Récupérer le client_id depuis la table
+            $row = $wpdb->get_row( $wpdb->prepare(
+                "SELECT client_id FROM {$wpdb->prefix}photoproof_galleries WHERE post_id = %d",
+                $post_id
+            ) );
+            $client_id = $row ? intval( $row->client_id ) : get_current_user_id();
+
+            // Déclencher les emails de confirmation
+            do_action( 'pp_gallery_selection_confirmed', $post_id, $client_id );
 
             wp_send_json_success( array( 'count' => count( $selected_ids ), 'locked' => true, 'message' => 'Sélection confirmée.' ) );
         }
