@@ -33,9 +33,13 @@ class PhotoProof {
 
     public function activate() {
         global $wpdb;
+
         $table_name      = $wpdb->prefix . 'photoproof_galleries';
         $charset_collate = $wpdb->get_charset_collate();
 
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
+        // Tentative via dbDelta (standard WP)
         $sql = "CREATE TABLE $table_name (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             post_id bigint(20) NOT NULL,
@@ -48,9 +52,23 @@ class PhotoProof {
             PRIMARY KEY  (id),
             KEY post_id (post_id)
         ) $charset_collate;";
-
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         dbDelta( $sql );
+
+        // Fallback si dbDelta a échoué silencieusement (ex: Infomaniak)
+        if ( $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" ) !== $table_name ) {
+            $wpdb->query( "CREATE TABLE IF NOT EXISTS `$table_name` (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                post_id bigint(20) NOT NULL,
+                client_id bigint(20) DEFAULT NULL,
+                folder_path varchar(255) NOT NULL,
+                status varchar(50) DEFAULT 'brouillon' NOT NULL,
+                watermark_settings text DEFAULT NULL,
+                selection_data longtext DEFAULT NULL,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                PRIMARY KEY (id),
+                KEY post_id (post_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;" );
+        }
 
         // Dossier racine protégé
         $upload_dir = wp_upload_dir();

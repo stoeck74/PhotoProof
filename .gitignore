@@ -8,7 +8,6 @@ Thumbs.db
 
 # Development
 node_modules/
-vendor/
 .env
 
 # WordPress specific
