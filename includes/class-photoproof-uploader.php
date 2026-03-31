@@ -84,6 +84,24 @@ class PhotoProof_Uploader {
         $metadata = wp_generate_attachment_metadata( $attachment_id, $uploaded['file'] );
         wp_update_attachment_metadata( $attachment_id, $metadata );
 
+
+$metadata = wp_generate_attachment_metadata( $attachment_id, $uploaded['file'] );
+wp_update_attachment_metadata( $attachment_id, $metadata );
+
+// DEBUG temporaire
+error_log( 'PP Upload — attachment_id: ' . $attachment_id . ' post_id: ' . $post_id );
+
+update_post_meta( $attachment_id, '_pp_gallery_photo', '1' );
+
+error_log( 'PP Upload — meta posé sur: ' . $attachment_id );
+
+
+
+
+
+
+
+
         // Marquer comme photo PhotoProof — exclue de la médiathèque standard
         update_post_meta( $attachment_id, '_pp_gallery_photo', '1' );
 

@@ -169,6 +169,21 @@ class PhotoProof {
             ) );
         } );
 
+
+// Exclure les photos PhotoProof de la médiathèque — toutes les méthodes
+add_action( 'wp_ajax_query-attachments', function() {
+    add_filter( 'ajax_query_attachments_args', function( $args ) {
+        error_log( 'PP media filter applied' );
+        $args['meta_query'] = array(
+            array(
+                'key'     => '_pp_gallery_photo',
+                'compare' => 'NOT EXISTS',
+            ),
+        );
+        return $args;
+    });
+}, 0 );
+
         // Flush automatique si le slug PhotoProof n'est pas dans les rewrite rules
         add_action( 'wp', function () {
             $rules = get_option( 'rewrite_rules' );
