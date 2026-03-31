@@ -55,11 +55,12 @@
     // ── INTERACTIONS ──────────────────────────────────────────────────
 
     // Clic card → lightbox (sauf si clic sur le bouton sélection)
-        $(document).on('click', '.pp-card-img-wrap', function (e) {
-        if ($(e.target).closest('.pp-select-btn').length) return;
-        var idx = allItems.indexOf(this);
-        if (idx !== -1) openLightbox(idx);
-    });
+$(document).on('click', '.pp-card-img-wrap', function (e) {
+    if ($(e.target).closest('.pp-select-btn').length) return;
+    var $card = $(this).closest('.pp-card');
+    var idx = allItems.indexOf($card[0]);
+    if (idx !== -1) openLightbox(idx);
+});
 
     // Clic bouton cercle → sélection uniquement
     $(document).on('click', '.pp-select-btn', function (e) {
@@ -94,21 +95,28 @@
     }
 
     // ── LIGHTBOX ──────────────────────────────────────────────────────
-    function openLightbox(idx) {
-        lbIndex = idx;
-        updateLightbox();
-        $('#pp-lightbox').fadeIn(180);
-        $('body').css('overflow', 'hidden');
-    }
+function openLightbox(idx) {
+    lbIndex = idx;
+    updateLightbox();
+    var scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    $('body').css({
+        'overflow': 'hidden',
+        'padding-right': scrollbarWidth + 'px'
+    });
+    $('#pp-lightbox').fadeIn(180);
+}
 
-    function closeLightbox() {
-        $('#pp-lightbox').fadeOut(180);
-        $('body').css('overflow', '');
-    }
+function closeLightbox() {
+    $('#pp-lightbox').fadeOut(180);
+    $('body').css({
+        'overflow': '',
+        'padding-right': ''
+    });
+}
 
     function updateLightbox() {
         var $card   = $(allItems[lbIndex]);
-        var fullSrc = $card.data('full') || $card.find('.pp-card-img').attr('src');
+        var fullSrc = $card.find('.pp-card-img-wrap').data('full') || $card.find('.pp-card-img').attr('src');
         var id      = parseInt($card.data('id'), 10);
         var isSel   = selectedIds.indexOf(id) !== -1;
 
