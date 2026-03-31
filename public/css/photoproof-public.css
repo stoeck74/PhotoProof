@@ -29,7 +29,6 @@ html, body {
     justify-content: flex-end;
 }
 
-/* Image de fond via CSS custom property injectée en PHP */
 .pp-hero-bg {
     position: absolute;
     inset: 0;
@@ -38,7 +37,6 @@ html, body {
     background-position: center;
 }
 
-/* Gradient vers --pp-bg en bas */
 .pp-hero-gradient {
     position: absolute;
     inset: 0;
@@ -51,7 +49,6 @@ html, body {
     );
 }
 
-/* Contenu positionné en bas du hero */
 .pp-hero-content {
     position: relative;
     z-index: 2;
@@ -85,7 +82,6 @@ html, body {
     letter-spacing: .14em;
     text-transform: uppercase;
     color: var(--pp-text);
-
     line-height: 1;
 }
 
@@ -111,7 +107,6 @@ html, body {
     padding-bottom: 6px;
 }
 
-/* ── Section contenu optionnel ── */
 .pp-content-section {
     padding: 24px 24px 12px;
     font-size: 14px;
@@ -136,20 +131,37 @@ html, body {
     border: 2px solid transparent;
     border-radius: var(--pp-img-radius, 0px);
     overflow: hidden;
-    cursor: pointer;
     display: flex;
     flex-direction: column;
-    transition: border-color .3s, transform .25s cubic-bezier(.25,.46,.45,.94);
+    transition: border-color .3s, background .3s;
 }
 
 .pp-card:hover {
-    transform: translateY(-5px);
-    border-color: color-mix(in srgb, var(--pp-text) 25%, transparent);
-    box-shadow: 0px 5px 15px 0px rgba(0,0,0,0.1);
+    border-color: color-mix(in srgb, var(--pp-active) 50%, transparent);
 }
 
+.pp-card:hover .pp-card-img {
+    filter: brightness(1.08);
+}
+
+/* ── Card sélectionnée — couleurs inversées ── */
 .pp-card.pp-selected {
     border-color: var(--pp-active, #2271b1);
+    background: var(--pp-active, #2271b1);
+}
+
+.pp-card.pp-selected .pp-card-img-wrap {
+    background: color-mix(in srgb, var(--pp-active) 80%, transparent);
+}
+
+.pp-card.pp-selected .pp-card-name {
+    color: var(--pp-bg, #f5f4f2);
+    opacity: .85;
+}
+
+.pp-card.pp-selected .pp-reco-badge {
+    color: var(--pp-bg, #f5f4f2);
+    background: color-mix(in srgb, var(--pp-active) 80%, transparent);
 }
 
 /* ── Zone image ── */
@@ -163,6 +175,7 @@ html, body {
     position: relative;
     overflow: hidden;
     flex-shrink: 0;
+    padding-top: 10px;
 }
 
 .pp-card-img {
@@ -173,15 +186,16 @@ html, body {
     display: block;
     object-fit: contain;
     border-radius: var(--pp-img-radius, 0px);
-    transition: transform .45s cubic-bezier(.25,.46,.45,.94);
+    transition: filter .3s;
+    cursor: pointer;
 }
 
 /* Badge recommandation */
 .pp-reco-badge {
     position: absolute; top: 0; left: 0;
-    padding: 5px 10px 10px 8px;
+    padding: 8px 10px 10px 8px;
     border-bottom-right-radius: 15px;
-    font-size: 24px;
+    font-size: 18px;
     color: var(--pp-active, #2271b1);
     pointer-events: none;
     line-height: 0.8;
@@ -199,7 +213,7 @@ html, body {
 }
 
 .pp-card-name {
-    font-size: 15px;
+    font-size: 13px;
     color: var(--pp-text);
     opacity: .7;
     white-space: nowrap;
@@ -235,11 +249,15 @@ html, body {
     pointer-events: none;
 }
 
+/* Bouton inversé sur card sélectionnée */
 .pp-card.pp-selected .pp-select-btn {
-    background: var(--pp-active, #2271b1);
-    border-color: var(--pp-active, #2271b1);
+    background: var(--pp-bg, #f5f4f2);
+    border-color: var(--pp-bg, #f5f4f2);
 }
-.pp-card.pp-selected .pp-check-dot { opacity: 1; }
+.pp-card.pp-selected .pp-check-dot {
+    background: var(--pp-active, #2271b1);
+    opacity: 1;
+}
 
 /* ── États ── */
 .pp-photo-dimmed { opacity: 0.2; pointer-events: none; }
@@ -365,4 +383,87 @@ html, body {
     .pp-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 10px 12px 100px; }
     .pp-lb-img-wrap { padding: 50px 40px 16px; }
     .pp-confirm-box { padding: 28px 24px; }
+}
+
+/* ============================================================
+   TRAY — PANIER VISUEL (chargé uniquement si animations activées)
+   ============================================================ */
+.pp-tray {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    padding: 4px 8px;
+    min-height: 56px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.pp-tray::-webkit-scrollbar { display: none; }
+
+.pp-tray-thumb {
+    position: relative;
+    flex-shrink: 0;
+    width: 52px;
+    height: 52px;
+    border-radius: 6px;
+    overflow: visible;
+    cursor: pointer;
+}
+
+.pp-tray-img {
+    width: 52px;
+    height: 52px;
+    object-fit: cover;
+    border-radius: 5px;
+    display: block;
+}
+
+.pp-tray-remove {
+    position: absolute;
+    top: -7px; right: -7px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: #ef4444;
+    color: #fff;
+    border: none;
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0;
+    opacity: 0;
+    transition: opacity .15s;
+    z-index: 2;
+}
+
+.pp-tray-zoom {
+    position: absolute;
+    bottom: -7px; right: -7px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--pp-active, #2271b1);
+    color: #fff;
+    border: none;
+    font-size: 10px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0;
+    opacity: 0;
+    transition: opacity .15s;
+    z-index: 2;
+}
+
+.pp-tray-thumb:hover .pp-tray-remove,
+.pp-tray-thumb:hover .pp-tray-zoom { opacity: 1; }
+
+.pp-flying-clone {
+    position: fixed;
+    object-fit: cover;
+    pointer-events: none;
+    z-index: 9999;
+    box-shadow: 0 8px 24px rgba(0,0,0,.3);
 }

@@ -35,27 +35,27 @@
             selectedIds = (response.data.selected_ids || []).map(Number);
             isLocked    = parseInt(response.data.is_locked, 10) === 1;
 
-             if (wasLocked && !isLocked) { window.location.reload(); return; }
-
+            if (wasLocked && !isLocked) { window.location.reload(); return; }
 
             selectedIds.forEach(function (id) {
                 var $card = $('.pp-card[data-id="' + id + '"]');
                 $card.addClass('pp-selected');
                 $card.find('.pp-select-btn').attr('aria-pressed', 'true');
-            
-            
             });
 
             updateCounter();
             if (isLocked) applyLockedState();
             else if (selectedIds.length > 0) showBar();
+
+            // Notifier le module d'animation de la sélection initiale
+            $(document).trigger('pp:selectionLoaded', [selectedIds]);
         }
     });
 
     // ── INTERACTIONS ──────────────────────────────────────────────────
 
     // Clic card → lightbox (sauf si clic sur le bouton sélection)
-    $(document).on('click', '.pp-card', function (e) {
+        $(document).on('click', '.pp-card-img-wrap', function (e) {
         if ($(e.target).closest('.pp-select-btn').length) return;
         var idx = allItems.indexOf(this);
         if (idx !== -1) openLightbox(idx);
@@ -79,10 +79,15 @@
             $card.removeClass('pp-selected');
             $card.find('.pp-select-btn').attr('aria-pressed', 'false');
             selectedIds = selectedIds.filter(function (i) { return i !== id; });
+            // Notifier le module d'animation — suppression
+            $(document).trigger('pp:photoDeselected', [{ id: id }]);
         } else {
             $card.addClass('pp-selected');
             $card.find('.pp-select-btn').attr('aria-pressed', 'true');
             if (selectedIds.indexOf(id) === -1) selectedIds.push(id);
+            // Notifier le module d'animation — ajout
+            var imgSrc = $card.find('.pp-card-img').attr('src');
+            $(document).trigger('pp:photoSelected', [{ id: id, imgSrc: imgSrc, $card: $card }]);
         }
         updateCounter();
         scheduleSave();
@@ -162,36 +167,38 @@
             selected_ids: selectedIds,
             confirm:      isConfirm ? '1' : '0'
         })
-.done(function (r) {
-    if (r.success) {
-        if (isConfirm) {
-            isLocked = true;
-            closeConfirmModal();
-            applyLockedState();
-            setStatus('confirmed');
-        } else {
-            setStatus('saved');
-        }
-    } else {
-        if (r.data && r.data.locked) {
-            isLocked = true;
-            applyLockedState();
-        } else if (r.data && r.data.auth_required) {
-            closeConfirmModal();
-            if (confirm(r.data.message + '\n\nCliquer OK pour aller à la page de connexion.')) {
-                window.location.href = r.data.login_url;
+        .done(function (r) {
+            if (r.success) {
+                if (isConfirm) {
+                    isLocked = true;
+                    closeConfirmModal();
+                    applyLockedState();
+                    setStatus('confirmed');
+                } else {
+                    setStatus('saved');
+                }
+            } else {
+                if (r.data && r.data.locked) {
+                    isLocked = true;
+                    applyLockedState();
+                } else if (r.data && r.data.auth_required) {
+                    closeConfirmModal();
+                    if (confirm(r.data.message + '\n\nCliquer OK pour aller à la page de connexion.')) {
+                        window.location.href = r.data.login_url;
+                    }
+                } else {
+                    setStatus('error');
+                }
             }
-        } else {
-            setStatus('error');
-        }
-    }
-})
+        })
         .fail(function () { setStatus('error'); });
     }
 
     // ── ÉTAT VERROUILLÉ ───────────────────────────────────────────────
     function applyLockedState() {
         showBar();
+        // Notifier le module d'animation
+        $(document).trigger('pp:galleryLocked');
         $('.pp-card:not(.pp-selected)').addClass('pp-photo-dimmed');
         $('.pp-card').css('cursor', 'default');
         $('#pp-selection-bar').addClass('pp-bar-locked');
@@ -242,5 +249,19 @@
     });
 
     function closeConfirmModal() { $('#pp-confirm-overlay').fadeOut(200); }
+
+    // ── BRIDGE MODULE ANIMATION ───────────────────────────────────────
+    // Écouter les requêtes du module d'animation (deselect + lightbox)
+    $(document).on('pp:requestDeselect', function (e, id) {
+        var $card = $('.pp-card[data-id="' + id + '"]');
+        if ($card.hasClass('pp-selected')) toggleSelection($card, id);
+    });
+
+    $(document).on('pp:requestLightbox', function (e, id) {
+        var idx = allItems.findIndex(function (el) {
+            return parseInt($(el).data('id'), 10) === id;
+        });
+        if (idx !== -1) openLightbox(idx);
+    });
 
 })(jQuery);

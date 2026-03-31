@@ -37,7 +37,7 @@ class PhotoProof_Settings {
         register_setting( 'pp_settings_group', 'pp_photo_rounded' );
         register_setting( 'pp_settings_group', 'pp_login_url', array( 'sanitize_callback' => 'esc_url_raw' ) );
         register_setting( 'pp_settings_group', 'pp_delete_files_on_delete' );
-
+        register_setting( 'pp_settings_group', 'pp_enable_animations' );
     }
 
     public function render_settings_page() {
@@ -148,7 +148,7 @@ class PhotoProof_Settings {
                                     <select name="pp_global_recommendation_icon" style="width:100%; max-width:250px;">
                                         <option value="dot"  <?php selected( get_option( 'pp_global_recommendation_icon' ), 'dot' ); ?>>■ Point</option>
                                         <option value="star" <?php selected( get_option( 'pp_global_recommendation_icon' ), 'star' ); ?>>★ Etoile</option>
-                                        <option value="square"<?php selected( get_option( 'pp_global_recommendation_icon' ), 'square' ); ?>>■ carré</option>
+                                        <option value="square"<?php selected( get_option( 'pp_global_recommendation_icon' ), 'square' ); ?>>◆ carré</option>
                                         <option value="heart"<?php selected( get_option( 'pp_global_recommendation_icon' ), 'heart' ); ?>>❤ Coeur</option>
                                     </select>
                                 </div>
@@ -278,6 +278,22 @@ class PhotoProof_Settings {
                                 <p class="pp-explanation">
                                     Par défaut les photos sont affichées avec des coins carrés (style reportage).<br>
                                     Activez cette option pour des coins légèrement arrondis (style moderne).
+                                </p>
+                            </div><!-- /.pp-card -->
+
+                            <div class="pp-card">
+                                <h3>Expérience Client</h3>
+                                <div class="pp-option-row">
+                                    <label class="pp-switch">
+                                        <input type="checkbox" name="pp_enable_animations" id="pp_enable_animations" value="1"
+                                            <?php checked( 1, get_option( 'pp_enable_animations' ), true ); ?>>
+                                        <span class="pp-slider"></span>
+                                    </label>
+                                    <span class="pp-label-text">Activer le panier visuel animé</span>
+                                </div>
+                                <p class="pp-explanation">
+                                    Quand le client sélectionne une photo, une vignette vole vers la barre de sélection et s'y dépose. Les vignettes sont cliquables (lightbox) et supprimables depuis la barre.<br>
+                                    <em>Désactiver si vous préférez une interface minimaliste ou si le site est lent.</em>
                                 </p>
                             </div><!-- /.pp-card -->
                         </div><!-- /#section-design -->

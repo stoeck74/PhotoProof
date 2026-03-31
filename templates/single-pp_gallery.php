@@ -26,7 +26,7 @@ if ( $row ) {
 // ── 2. RÉGLAGES ───────────────────────────────────────────────────────────
 $reco_enabled   = get_option( 'pp_enable_recommendations' );
 $reco_icon_type = get_option( 'pp_global_recommendation_icon', 'star' );
-$icons          = array( 'dot' => '●', 'star' => '★', 'heart' => '❤' );
+$icons          = array( 'dot' => '●', 'star' => '★', 'heart' => '❤',"square" => '◆' );
 $icon           = isset( $icons[ $reco_icon_type ] ) ? $icons[ $reco_icon_type ] : '★';
 
 $selected_photos = get_post_meta( $post->ID, '_pp_selected_photos', true );
@@ -139,9 +139,10 @@ if ( has_post_thumbnail( $post->ID ) ) {
             ?>
             <div class="pp-card <?php echo $is_selected ? 'pp-selected' : ''; ?>"
                  data-id="<?php echo esc_attr( $img_id ); ?>"
-                 data-full="<?php echo esc_url( $img_full ); ?>">
+>
 
-                <div class="pp-card-img-wrap">
+                <div class="pp-card-img-wrap"
+                       data-full="<?php echo esc_url( $img_full ); ?>">
                     <img
                         class="pp-card-img"
                         src="<?php echo esc_url( $img_src ); ?>"

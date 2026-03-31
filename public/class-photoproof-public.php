@@ -65,6 +65,24 @@ class PhotoProof_Public {
             true
         );
 
+        // ── Animations panier visuel (optionnel) ──────────────────────
+        if ( get_option( 'pp_enable_animations' ) ) {
+            wp_enqueue_script(
+                'pp-gsap',
+                PHOTOPROOF_URL . 'admin/js/vendor/gsap.min.js',
+                array(),
+                '3.12.2',
+                true
+            );
+            wp_enqueue_script(
+                'pp-selection-anim',
+                PHOTOPROOF_URL . 'public/js/photoproof-selection-anim.js',
+                array( 'jquery', 'pp-public-js', 'pp-gsap' ),
+                PHOTOPROOF_VERSION,
+                true
+            );
+        }
+
         // Statut pour le JS
         global $wpdb;
         $row = $wpdb->get_row( $wpdb->prepare(
