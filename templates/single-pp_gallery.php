@@ -26,7 +26,7 @@ if ( $row ) {
 // ── 2. RÉGLAGES ───────────────────────────────────────────────────────────
 $reco_enabled   = get_option( 'pp_enable_recommendations' );
 $reco_icon_type = get_option( 'pp_global_recommendation_icon', 'star' );
-$icons          = array( 'dot' => '●', 'star' => '★', 'heart' => '❤',"square" => '◆' );
+$icons          = array( 'dot' => '●', 'star' => '★', 'heart' => '❤', 'square' => '◆' );
 $icon           = isset( $icons[ $reco_icon_type ] ) ? $icons[ $reco_icon_type ] : '★';
 
 $selected_photos = get_post_meta( $post->ID, '_pp_selected_photos', true );
@@ -70,15 +70,12 @@ if ( has_post_thumbnail( $post->ID ) ) {
     <!-- ── HERO HEADER ── -->
     <header class="pp-hero" <?php if ( $hero_url ) : ?>style="--pp-hero-img: url('<?php echo esc_url( $hero_url ); ?>');"<?php endif; ?>>
 
-        <!-- Image de fond -->
         <?php if ( $hero_url ) : ?>
             <div class="pp-hero-bg"></div>
         <?php endif; ?>
 
-        <!-- Gradient vers --pp-bg -->
         <div class="pp-hero-gradient"></div>
 
-        <!-- Contenu positionné en bas -->
         <div class="pp-hero-content">
             <div class="pp-hero-left">
                 <?php if ( $custom_logo_id || $site_title ) : ?>
@@ -138,11 +135,10 @@ if ( has_post_thumbnail( $post->ID ) ) {
             $filename      = get_post_meta( $img_id, '_pp_target_filename', true ) ?: basename( get_attached_file( $img_id ) );
             ?>
             <div class="pp-card <?php echo $is_selected ? 'pp-selected' : ''; ?>"
-                 data-id="<?php echo esc_attr( $img_id ); ?>"
->
+                 data-id="<?php echo esc_attr( $img_id ); ?>">
 
                 <div class="pp-card-img-wrap"
-                       data-full="<?php echo esc_url( $img_full ); ?>">
+                     data-full="<?php echo esc_url( $img_full ); ?>">
                     <img
                         class="pp-card-img"
                         src="<?php echo esc_url( $img_src ); ?>"
@@ -219,7 +215,7 @@ if ( has_post_thumbnail( $post->ID ) ) {
         </div>
     </div>
 
-</div>
+</div><!-- /#pp-page -->
 
 <?php wp_footer(); ?>
 </body>

@@ -47,22 +47,19 @@
             if (isLocked) applyLockedState();
             else if (selectedIds.length > 0) showBar();
 
-            // Notifier le module d'animation de la sélection initiale
             $(document).trigger('pp:selectionLoaded', [selectedIds]);
         }
     });
 
     // ── INTERACTIONS ──────────────────────────────────────────────────
 
-    // Clic card → lightbox (sauf si clic sur le bouton sélection)
-$(document).on('click', '.pp-card-img-wrap', function (e) {
-    if ($(e.target).closest('.pp-select-btn').length) return;
-    var $card = $(this).closest('.pp-card');
-    var idx = allItems.indexOf($card[0]);
-    if (idx !== -1) openLightbox(idx);
-});
+    $(document).on('click', '.pp-card-img-wrap', function (e) {
+        if ($(e.target).closest('.pp-select-btn').length) return;
+        var $card = $(this).closest('.pp-card');
+        var idx = allItems.indexOf($card[0]);
+        if (idx !== -1) openLightbox(idx);
+    });
 
-    // Clic bouton cercle → sélection uniquement
     $(document).on('click', '.pp-select-btn', function (e) {
         e.stopPropagation();
         if (isLocked) return;
@@ -80,13 +77,11 @@ $(document).on('click', '.pp-card-img-wrap', function (e) {
             $card.removeClass('pp-selected');
             $card.find('.pp-select-btn').attr('aria-pressed', 'false');
             selectedIds = selectedIds.filter(function (i) { return i !== id; });
-            // Notifier le module d'animation — suppression
             $(document).trigger('pp:photoDeselected', [{ id: id }]);
         } else {
             $card.addClass('pp-selected');
             $card.find('.pp-select-btn').attr('aria-pressed', 'true');
             if (selectedIds.indexOf(id) === -1) selectedIds.push(id);
-            // Notifier le module d'animation — ajout
             var imgSrc = $card.find('.pp-card-img').attr('src');
             $(document).trigger('pp:photoSelected', [{ id: id, imgSrc: imgSrc, $card: $card }]);
         }
@@ -95,24 +90,18 @@ $(document).on('click', '.pp-card-img-wrap', function (e) {
     }
 
     // ── LIGHTBOX ──────────────────────────────────────────────────────
-function openLightbox(idx) {
-    lbIndex = idx;
-    updateLightbox();
-    var scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    $('body').css({
-        'overflow': 'hidden',
-        'padding-right': scrollbarWidth + 'px'
-    });
-    $('#pp-lightbox').fadeIn(180);
-}
+    function openLightbox(idx) {
+        lbIndex = idx;
+        updateLightbox();
+        var scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+        $('body').css({ 'overflow': 'hidden', 'padding-right': scrollbarWidth + 'px' });
+        $('#pp-lightbox').fadeIn(180);
+    }
 
-function closeLightbox() {
-    $('#pp-lightbox').fadeOut(180);
-    $('body').css({
-        'overflow': '',
-        'padding-right': ''
-    });
-}
+    function closeLightbox() {
+        $('#pp-lightbox').fadeOut(180);
+        $('body').css({ 'overflow': '', 'padding-right': '' });
+    }
 
     function updateLightbox() {
         var $card   = $(allItems[lbIndex]);
@@ -205,7 +194,6 @@ function closeLightbox() {
     // ── ÉTAT VERROUILLÉ ───────────────────────────────────────────────
     function applyLockedState() {
         showBar();
-        // Notifier le module d'animation
         $(document).trigger('pp:galleryLocked');
         $('.pp-card:not(.pp-selected)').addClass('pp-photo-dimmed');
         $('.pp-card').css('cursor', 'default');
@@ -239,10 +227,104 @@ function closeLightbox() {
         if (state === 'saved') statusTimer = setTimeout(function () { $s.fadeOut(400); }, 3000);
     }
 
+    // ── RÉCAP — fade out grille, fade in récap ───────────────────────
+    function openRecapPanel() {
+        var $recap = $('<div class="pp-recap-view" id="pp-recap-view"></div>');
+
+        $recap.html(
+            '<div class="pp-recap-header">' +
+                '<button class="pp-recap-back" id="pp-recap-back">← Revenir modifier</button>' +
+                '<div class="pp-recap-title-wrap">' +
+                    '<p class="pp-recap-eyebrow">Récapitulatif</p>' +
+                    '<h2 class="pp-recap-title">Votre sélection — <span id="pp-recap-count">' + selectedIds.length + '</span> photos</h2>' +
+                '</div>' +
+                '<button type="button" class="pp-btn-recap-confirm-top" id="pp-recap-confirm">Confirmer ma sélection</button>' +
+            '</div>' +
+            '<div class="pp-recap-grid" id="pp-recap-grid"></div>'
+        );
+
+        var $grid = $recap.find('#pp-recap-grid');
+        selectedIds.forEach(function (id) {
+            var $card  = $('.pp-card[data-id="' + id + '"]');
+            var imgSrc = $card.find('.pp-card-img-wrap').data('full') || $card.find('.pp-card-img').attr('src');
+            var name   = $card.find('.pp-card-name').text();
+            $grid.append(
+                '<div class="pp-recap-item" data-id="' + id + '">' +
+                    '<div class="pp-recap-img-wrap">' +
+                        '<img src="' + imgSrc + '" class="pp-recap-img" />' +
+                        '<button class="pp-recap-remove" title="Retirer">×</button>' +
+                    '</div>' +
+                    '<span class="pp-recap-name">' + name + '</span>' +
+                '</div>'
+            );
+        });
+
+        $recap.on('click', '.pp-recap-remove', function () {
+            var id    = parseInt($(this).closest('.pp-recap-item').data('id'), 10);
+            var $card = $('.pp-card[data-id="' + id + '"]');
+            toggleSelection($card, id);
+            $(this).closest('.pp-recap-item').remove();
+            $('#pp-recap-count').text(selectedIds.length);
+            if (selectedIds.length === 0) closeRecapPanel();
+        });
+
+        $recap.on('click', '#pp-recap-back', closeRecapPanel);
+        $recap.on('click', '#pp-recap-confirm', function () {
+            closeRecapPanel();
+            clearTimeout(saveTimer);
+            saveSelection(true);
+        });
+
+        // Cacher la barre sticky
+        $('#pp-selection-bar').addClass('pp-bar-hidden');
+
+        $('#pp-page').append($recap);
+        window.scrollTo({ top: 0 });
+
+        // Grille descend et disparaît
+        $('#pp-grid').css({ transition: 'transform .35s cubic-bezier(.4,0,.2,1), opacity .35s', transform: 'translateY(40px)', opacity: '0' });
+
+        setTimeout(function () {
+            $('#pp-grid').css('display', 'none');
+            // Récap arrive depuis le haut
+            $recap.css({ display: 'block', transform: 'translateY(-30px)', opacity: '0',
+                transition: 'transform .35s cubic-bezier(.4,0,.2,1), opacity .35s' });
+            setTimeout(function () {
+                $recap.css({ transform: 'translateY(0)', opacity: '1' });
+            }, 20);
+        }, 350);
+    }
+
+    function closeRecapPanel() {
+        var $recap = $('#pp-recap-view');
+        // Récap descend et disparaît
+        $recap.css({ transition: 'transform .35s cubic-bezier(.4,0,.2,1), opacity .35s', transform: 'translateY(30px)', opacity: '0' });
+
+        setTimeout(function () {
+            $recap.remove();
+            // Grille remonte depuis le bas
+            $('#pp-grid').css({ display: 'grid', transform: 'translateY(-20px)', opacity: '0',
+                transition: 'transform .35s cubic-bezier(.4,0,.2,1), opacity .35s' });
+            setTimeout(function () {
+                $('#pp-grid').css({ transform: 'translateY(0)', opacity: '1' });
+                setTimeout(function () {
+                    $('#pp-grid').css({ transition: '', transform: '', opacity: '' });
+                }, 400);
+            }, 20);
+            // Réafficher la barre sticky
+            $('#pp-selection-bar').removeClass('pp-bar-hidden');
+        }, 350);
+    }
+
     // ── MODAL ─────────────────────────────────────────────────────────
     $('#pp-btn-validate').on('click', function () {
         if (!selectedIds.length || isLocked) return;
-        $('#pp-confirm-overlay').fadeIn(200);
+        // Si le module animation est chargé, il gère le récap
+        if (typeof gsap !== 'undefined' && $('#pp-tray').length) {
+            $(document).trigger('pp:openRecap', [selectedIds]);
+        } else {
+            openRecapPanel();
+        }
     });
 
     $('#pp-btn-cancel').on('click', function () { closeConfirmModal(); });
@@ -253,13 +335,19 @@ function closeLightbox() {
     });
 
     $(document).on('keydown', function (e) {
+        if (e.key === 'Escape' && $('#pp-recap-panel').hasClass('pp-recap-open')) { closeRecapPanel(); return; }
         if (e.key === 'Escape' && $('#pp-confirm-overlay').is(':visible')) closeConfirmModal();
     });
 
     function closeConfirmModal() { $('#pp-confirm-overlay').fadeOut(200); }
 
     // ── BRIDGE MODULE ANIMATION ───────────────────────────────────────
-    // Écouter les requêtes du module d'animation (deselect + lightbox)
+    // Confirmation directe depuis le récap animé
+    $(document).on('pp:confirmSelection', function () {
+        clearTimeout(saveTimer);
+        saveSelection(true);
+    });
+
     $(document).on('pp:requestDeselect', function (e, id) {
         var $card = $('.pp-card[data-id="' + id + '"]');
         if ($card.hasClass('pp-selected')) toggleSelection($card, id);
