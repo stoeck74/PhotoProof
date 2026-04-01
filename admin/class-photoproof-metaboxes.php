@@ -73,12 +73,12 @@ class PhotoProof_Metaboxes {
                         <a href="<?php echo esc_url( admin_url( 'admin-ajax.php?action=pp_export_selection&post_id=' . $post->ID . '&_wpnonce=' . $export_nonce ) ); ?>"
                            class="pp-btn pp-btn-sm pp-btn-state-action">↓ Exporter CSV</a>
                     <?php endif; ?>
-                    <?php if ( ! $is_new && ! $is_brouillon ) : ?>
-                        <button type="button" class="pp-btn pp-btn-sm pp-btn-ghost" id="pp-copy-link-btn"
-                            data-url="<?php echo esc_attr( $gallery_url ); ?>">
-                            Copier le lien
-                        </button>
-                    <?php endif; ?>
+                        <?php if ( ! $is_new && ! $is_brouillon ) : ?>
+                            <a href="<?php echo esc_url( $gallery_url ); ?>" target="_blank"
+                            class="pp-btn pp-btn-sm pp-btn-ghost">
+                                Voir la galerie ↗
+                            </a>
+                        <?php endif; ?>
                 </div>
             </div>
 

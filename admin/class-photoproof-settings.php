@@ -37,7 +37,7 @@ class PhotoProof_Settings {
         register_setting( 'pp_settings_group', 'pp_photo_rounded' );
         register_setting( 'pp_settings_group', 'pp_login_url', array( 'sanitize_callback' => 'esc_url_raw' ) );
         register_setting( 'pp_settings_group', 'pp_delete_files_on_delete' );
-        register_setting( 'pp_settings_group', 'pp_enable_animations' );
+
     }
 
     public function render_settings_page() {
@@ -55,15 +55,13 @@ class PhotoProof_Settings {
                         <div class="pp-nav-item active" data-target="general">
                             <span class="dashicons dashicons-admin-generic"></span> Général
                         </div>
-                        <div class="pp-nav-item" data-target="apparence">
-                            <span class="dashicons dashicons-shield"></span> Filigrane
+                        <div class="pp-nav-item" data-target="securite">
+                            <span class="dashicons dashicons-shield"></span> Sécurité & Filigrane
                         </div>
                         <div class="pp-nav-item" data-target="design">
                             <span class="dashicons dashicons-admin-appearance"></span> Design Thème
                         </div>
-                        <div class="pp-nav-item" data-target="securite">
-                            <span class="dashicons dashicons-lock"></span> Sécurité
-                        </div>
+
                     </div>
 
                     <div class="pp-settings-content">
@@ -176,76 +174,33 @@ class PhotoProof_Settings {
                         </div><!-- /#section-general  ← CORRECTION : fermé ici, au bon niveau -->
 
                         <!-- ========================
-                             SECTION : FILIGRANE
-                             CORRECTION : div sœur de section-general, plus imbriquée dedans
-                        ======================== -->
-                        <div id="section-apparence" class="pp-section-content">
-                            <div class="pp-card">
-                                <h3>Protection Filigrane (Watermark)</h3>
-                                <p class="pp-explanation">Applique automatiquement votre logo sur les images envoyées pour empêcher les captures d'écran.</p>
-                                <div class="pp-branding-grid">
-                                    <div class="pp-branding-controls">
-                                        <input type="hidden" name="pp_global_watermark" id="pp_global_watermark" value="<?php echo esc_attr( get_option( 'pp_global_watermark' ) ); ?>">
-                                        <button type="button" class="button button-secondary" id="pp_upload_watermark_btn">Choisir le logo</button>
-
-                                        <!-- CORRECTION : bouton suppression watermark ajouté -->
-                                        <button type="button" class="button button-link-delete" id="pp_remove_watermark_btn" style="display: <?php echo get_option( 'pp_global_watermark' ) ? 'inline-block' : 'none'; ?>; margin-left: 10px;">Supprimer</button>
-
-                                        <div class="pp-range-group" style="margin-top:20px;">
-                                            <label>Opacité : <span id="opacity-val"><?php echo esc_attr( get_option( 'pp_watermark_opacity', 50 ) ); ?></span>%</label>
-                                            <input type="range" name="pp_watermark_opacity" id="pp_watermark_opacity_range" min="10" max="100" step="5"
-                                                value="<?php echo esc_attr( get_option( 'pp_watermark_opacity', 50 ) ); ?>"
-                                                style="width:100%;"
-                                                <?php echo get_option( 'pp_global_watermark' ) ? '' : 'disabled'; ?>>
-                                        </div>
-                                    </div>
-                                    <div class="pp-branding-preview">
-                                        <div id="wm-preview-container" style="border: 1px dashed #ccc; padding: 10px; text-align: center; min-height: 100px; display: flex; align-items: center; justify-content: center; background: #f0f0f0;">
-                                            <?php
-                                            $wm_id = get_option( 'pp_global_watermark' );
-                                            if ( $wm_id ) :
-                                                $url     = wp_get_attachment_url( $wm_id );
-                                                $opacity = (int) get_option( 'pp_watermark_opacity', 50 ) / 100; // CORRECTION : cast (int)
-                                                echo '<img id="wm-live-preview" src="' . esc_url( $url ) . '" style="opacity:' . esc_attr( $opacity ) . '; max-width:150px; height:auto;">';
-                                            else :
-                                                echo '<p id="wm-placeholder" style="color:#94a3b8;">Aucun logo configuré</p>';
-                                            endif;
-                                            ?>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div><!-- /.pp-card -->
-                        </div><!-- /#section-apparence -->
-
-                        <!-- ========================
                              SECTION : DESIGN
                         ======================== -->
                         <div id="section-design" class="pp-section-content">
                             <div class="pp-card">
                                 <h3>Identité Visuelle (Espace Client)</h3>
-                                <div class="pp-option-row" style="flex-direction: column; align-items: flex-start; gap: 10px;">
-                                    <label class="pp-main-label">Titre de l'en-tête</label>
-                                    <input type="text" name="pp_custom_title" value="<?php echo esc_attr( get_option( 'pp_custom_title', get_bloginfo( 'name' ) ) ); ?>" class="regular-text">
-                                </div>
-                                <hr class="pp-separator">
                                 <div class="pp-branding-grid">
                                     <div class="pp-branding-controls">
-                                        <label class="pp-main-label">Logo spécifique</label>
-                                        <input type="hidden" name="pp_custom_logo" id="pp_custom_logo" value="<?php echo esc_attr( get_option( 'pp_custom_logo' ) ); ?>">
-                                        <button type="button" class="button button-secondary" id="pp_upload_custom_logo_btn">Téléverser</button>
-                                        <!-- CORRECTION : bouton suppression logo custom ajouté -->
-                                        <button type="button" class="button button-link-delete" id="pp_remove_custom_logo_btn" style="display: <?php echo get_option( 'pp_custom_logo' ) ? 'inline-block' : 'none'; ?>; margin-left: 10px;">Supprimer</button>
+                                        <label class="pp-main-label">Titre de l'en-tête</label>
+                                        <input type="text" name="pp_custom_title" value="<?php echo esc_attr( get_option( 'pp_custom_title', get_bloginfo( 'name' ) ) ); ?>" class="regular-text" style="width:100%;">
                                     </div>
-                                    <div class="pp-branding-preview">
-                                        <div id="custom-logo-preview-container">
-                                            <?php
-                                            $custom_logo_id = get_option( 'pp_custom_logo' );
-                                            if ( $custom_logo_id ) {
-                                                echo wp_get_attachment_image( $custom_logo_id, 'medium', false, array( 'style' => 'max-width:150px; height:auto;' ) );
-                                            } else {
-                                                echo '<p style="color:#94a3b8;">Logo du site par défaut</p>';
-                                            }
-                                            ?>
+                                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                                        <div class="pp-branding-preview" style="margin: 0;">
+                                            <div id="custom-logo-preview-container">
+                                                <?php
+                                                $custom_logo_id = get_option( 'pp_custom_logo' );
+                                                if ( $custom_logo_id ) {
+                                                    echo wp_get_attachment_image( $custom_logo_id, 'medium', false, array( 'style' => 'max-width:150px; height:auto;' ) );
+                                                } else {
+                                                    echo '<p style="color:#94a3b8; font-size:13px; margin:0;">Logo du site par défaut</p>';
+                                                }
+                                                ?>
+                                            </div>
+                                        </div>
+                                        <div style="display: flex; gap: 8px; justify-content: center;">
+                                            <input type="hidden" name="pp_custom_logo" id="pp_custom_logo" value="<?php echo esc_attr( get_option( 'pp_custom_logo' ) ); ?>">
+                                            <button type="button" class="button button-secondary" id="pp_upload_custom_logo_btn">Téléverser un logo</button>
+                                            <button type="button" class="button button-link-delete" id="pp_remove_custom_logo_btn" style="display: <?php echo get_option( 'pp_custom_logo' ) ? 'inline-block' : 'none'; ?>;">Supprimer</button>
                                         </div>
                                     </div>
                                 </div>
@@ -280,28 +235,44 @@ class PhotoProof_Settings {
                                     Activez cette option pour des coins légèrement arrondis (style moderne).
                                 </p>
                             </div><!-- /.pp-card -->
-
-                            <div class="pp-card">
-                                <h3>Expérience Client</h3>
-                                <div class="pp-option-row">
-                                    <label class="pp-switch">
-                                        <input type="checkbox" name="pp_enable_animations" id="pp_enable_animations" value="1"
-                                            <?php checked( 1, get_option( 'pp_enable_animations' ), true ); ?>>
-                                        <span class="pp-slider"></span>
-                                    </label>
-                                    <span class="pp-label-text">Activer le panier visuel animé</span>
-                                </div>
-                                <p class="pp-explanation">
-                                    Quand le client sélectionne une photo, une vignette vole vers la barre de sélection et s'y dépose. Les vignettes sont cliquables (lightbox) et supprimables depuis la barre.<br>
-                                    <em>Désactiver si vous préférez une interface minimaliste ou si le site est lent.</em>
-                                </p>
-                            </div><!-- /.pp-card -->
                         </div><!-- /#section-design -->
 
                         <!-- ========================
                              SECTION : SÉCURITÉ
                         ======================== -->
 <div id="section-securite" class="pp-section-content">
+    <div class="pp-card">
+        <h3>Protection Filigrane (Watermark)</h3>
+        <p class="pp-explanation">Applique automatiquement votre logo sur les images envoyées pour empêcher les captures d'écran.</p>
+        <div class="pp-branding-grid">
+            <div class="pp-branding-controls">
+                <input type="hidden" name="pp_global_watermark" id="pp_global_watermark" value="<?php echo esc_attr( get_option( 'pp_global_watermark' ) ); ?>">
+                <button type="button" class="button button-secondary" id="pp_upload_watermark_btn">Choisir le logo</button>
+                <button type="button" class="button button-link-delete" id="pp_remove_watermark_btn" style="display: <?php echo get_option( 'pp_global_watermark' ) ? 'inline-block' : 'none'; ?>; margin-left: 10px;">Supprimer</button>
+                <div class="pp-range-group" style="margin-top:20px;">
+                    <label>Opacité : <span id="opacity-val"><?php echo esc_attr( get_option( 'pp_watermark_opacity', 50 ) ); ?></span>%</label>
+                    <input type="range" name="pp_watermark_opacity" id="pp_watermark_opacity_range" min="10" max="100" step="5"
+                        value="<?php echo esc_attr( get_option( 'pp_watermark_opacity', 50 ) ); ?>"
+                        style="width:100%;"
+                        <?php echo get_option( 'pp_global_watermark' ) ? '' : 'disabled'; ?>>
+                </div>
+            </div>
+            <div class="pp-branding-preview">
+                <div id="wm-preview-container" style="border: 1px dashed #ccc; padding: 10px; text-align: center; min-height: 100px; display: flex; align-items: center; justify-content: center; background: #f0f0f0;">
+                    <?php
+                    $wm_id = get_option( 'pp_global_watermark' );
+                    if ( $wm_id ) :
+                        $url     = wp_get_attachment_url( $wm_id );
+                        $opacity = (int) get_option( 'pp_watermark_opacity', 50 ) / 100;
+                        echo '<img id="wm-live-preview" src="' . esc_url( $url ) . '" style="opacity:' . esc_attr( $opacity ) . '; max-width:150px; height:auto;">';
+                    else :
+                        echo '<p id="wm-placeholder" style="color:#94a3b8;">Aucun logo configuré</p>';
+                    endif;
+                    ?>
+                </div>
+            </div>
+        </div>
+    </div><!-- /.pp-card -->
     <div class="pp-card">
         <h3>Accès & Authentification</h3>
         <div class="pp-option-row" style="flex-direction: column; align-items: flex-start; gap: 10px;">
@@ -345,6 +316,33 @@ class PhotoProof_Settings {
                 </div><!-- /.pp-settings-container -->
             </form>
         </div><!-- /.wrap -->
+        <script>
+        (function() {
+            // Restaurer l'onglet actif depuis l'URL hash
+            var hash = window.location.hash.replace('#', '');
+            if (hash) {
+                var $nav = jQuery('.pp-nav-item[data-target="' + hash + '"]');
+                if ($nav.length) {
+                    jQuery('.pp-nav-item').removeClass('active');
+                    jQuery('.pp-section-content').removeClass('active');
+                    $nav.addClass('active');
+                    jQuery('#section-' + hash).addClass('active');
+                }
+            }
+
+            // Mettre à jour le hash quand on change d'onglet
+            jQuery('.pp-nav-item').on('click', function() {
+                var target = jQuery(this).data('target');
+                window.location.hash = target;
+            });
+
+            // Avant le submit — stocker l'onglet actif dans le hash
+            jQuery('form').on('submit', function() {
+                var active = jQuery('.pp-nav-item.active').data('target');
+                if (active) window.location.hash = active;
+            });
+        })();
+        </script>
         <?php
     }
 }

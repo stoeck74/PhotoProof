@@ -192,6 +192,8 @@
     }
 
     // ── ÉTAT VERROUILLÉ ───────────────────────────────────────────────
+    var wasAlreadyLocked = isLocked;
+
     function applyLockedState() {
         showBar();
         $(document).trigger('pp:galleryLocked');
@@ -199,17 +201,17 @@
         $('.pp-card').css('cursor', 'default');
         $('#pp-selection-bar').addClass('pp-bar-locked');
         $('#pp-btn-validate').text('✓ Sélection confirmée').prop('disabled', true).addClass('pp-btn-confirmed');
-        $('#pp-save-status').text('Votre photographe a été notifié').show();
 
-        if (!$('#pp-locked-banner').length) {
-            $('#pp-grid').before(
-                '<div class="pp-locked-banner">' +
-                '<span class="pp-locked-icon">✓</span>' +
-                'Sélection confirmée — contactez votre photographe pour toute modification.' +
-                '</div>'
-            );
+        // Modal de fin — uniquement après une vraie confirmation (pas au chargement)
+        if (!wasAlreadyLocked) {
+            $('#pp-end-overlay').fadeIn(300);
         }
     }
+
+    $('#pp-end-back').on('click', function (e) {
+        e.preventDefault();
+        $('#pp-end-overlay').fadeOut(200);
+    });
 
     // ── STATUT ────────────────────────────────────────────────────────
     var statusTimer = null;

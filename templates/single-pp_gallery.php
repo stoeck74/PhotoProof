@@ -201,6 +201,20 @@ if ( has_post_thumbnail( $post->ID ) ) {
         </div>
     </div>
 
+    <!-- ── MODAL FIN ── -->
+    <div class="pp-end-overlay" id="pp-end-overlay" style="display:none;">
+        <div class="pp-end-box">
+            <div class="pp-end-icon">✓</div>
+            <h2 class="pp-end-title">Sélection confirmée</h2>
+            <p class="pp-end-message">Votre photographe a été notifié.<br>Contactez-le pour toute modification.</p>
+            <div class="pp-end-actions">
+                <a href="#" class="pp-end-link" id="pp-end-back">Revenir à la galerie</a>
+                <a href="<?php echo esc_url( home_url() ); ?>" class="pp-end-link">Retour à l'accueil</a>
+                <a href="<?php echo esc_url( wp_logout_url( home_url() ) ); ?>" class="pp-end-link pp-end-logout">Se déconnecter</a>
+            </div>
+        </div>
+    </div>
+
     <!-- ── LIGHTBOX ── -->
     <div class="pp-lightbox" id="pp-lightbox" style="display:none;">
         <button class="pp-lb-close" id="pp-lb-close" aria-label="Fermer">×</button>

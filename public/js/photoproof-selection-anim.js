@@ -90,9 +90,13 @@
     }
 
     // ── RÉCAP ANIMÉ ──────────────────────────────────────────────────
+    var barInitialHeight = 0;
+
     function openRecap(selectedIds) {
         if (recapOpen) return;
         recapOpen = true;
+
+        barInitialHeight = $bar[0].getBoundingClientRect().height;
 
         // 1. Snapshot des positions des vignettes dans le tray
         var thumbRects = {};
@@ -109,11 +113,16 @@
         var $barInner = $bar.find('.pp-bar-inner');
         gsap.to($barInner[0], { opacity: 0, duration: 0.2 });
 
+        // Bloquer le scroll du body pendant le récap
+        var scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+        $('body').css({ 'overflow': 'hidden', 'padding-right': scrollbarWidth + 'px' });
+
+        var adminBarH = $('#wpadminbar').length ? $('#wpadminbar').outerHeight() : 0;
         gsap.to($bar[0], {
             duration: 0.55,
             ease:     'power3.inOut',
-            top:      0,
-            height:   window.innerHeight,
+            top:      adminBarH,
+            height:   window.innerHeight - adminBarH,
             onComplete: function () {
 
                 // 4. Injecter le contenu récap
@@ -121,14 +130,14 @@
                 var $recapContent = $(
                     '<div class="pp-recap-content" id="pp-recap-content">' +
                         '<div class="pp-recap-bar-header">' +
-                            '<button class="pp-btn-recap-back" id="pp-recap-back">← Revenir modifier</button>' +
-                            '<div>' +
-                                '<p class="pp-recap-eyebrow">Récapitulatif</p>' +
-                                '<h2 class="pp-recap-title">' + selectedIds.length + ' photos sélectionnées</h2>' +
-                            '</div>' +
-                            '<button class="pp-btn-recap-confirm" id="pp-recap-confirm">Confirmer ma sélection</button>' +
+                            '<p class="pp-recap-eyebrow">Récapitulatif</p>' +
+                            '<h2 class="pp-recap-title">' + selectedIds.length + ' photos sélectionnées</h2>' +
                         '</div>' +
                         '<div class="pp-recap-bar-grid" id="pp-recap-bar-grid"></div>' +
+                        '<div class="pp-recap-bar-footer">' +
+                            '<button class="pp-btn-recap-back" id="pp-recap-back">← Revenir modifier</button>' +
+                            '<button class="pp-btn-recap-confirm" id="pp-recap-confirm">Confirmer ma sélection</button>' +
+                        '</div>' +
                     '</div>'
                 );
 
@@ -155,40 +164,14 @@
                     { opacity: 1, duration: 0.25 }
                 );
 
-                // 5. Vol des vignettes vers leurs positions dans la grille
+                // 5. Fade in des images — simple et performant
                 setTimeout(function () {
-                    $recapGrid.find('.pp-recap-bar-item').each(function (i) {
-                        var id       = parseInt($(this).data('id'), 10);
-                        var srcRect  = thumbRects[id];
-                        var $img     = $(this).find('.pp-recap-bar-img');
-                        var destRect = $img[0].getBoundingClientRect();
-
-                        if (!srcRect || !destRect.width) return;
-
-                        var $clone = $('<img class="pp-flying-clone" src="' + $img.attr('src') + '" />');
-                        $('body').append($clone);
-
-                        gsap.set($clone[0], {
-                            position: 'fixed',
-                            left: srcRect.left, top: srcRect.top,
-                            width: srcRect.width, height: srcRect.height,
-                            objectFit: 'cover', borderRadius: '6px',
-                            zIndex: 9999, opacity: 1, pointerEvents: 'none',
-                        });
-
-                        gsap.to($clone[0], {
-                            duration: 0.45,
-                            delay:    i * 0.035,
-                            ease:     'power2.inOut',
-                            left:     destRect.left,
-                            top:      destRect.top,
-                            width:    destRect.width,
-                            height:   destRect.height,
-                            borderRadius: 'var(--pp-img-radius, 0px)',
-                            onComplete: function () {
-                                $clone.remove();
-                                gsap.to($img[0], { opacity: 1, duration: 0.15 });
-                            },
+                    $recapGrid.find('.pp-recap-bar-img').each(function (i) {
+                        gsap.to(this, {
+                            opacity: 1,
+                            duration: 0.25,
+                            delay: i * 0.02,
+                            ease: 'power2.out',
                         });
                     });
                 }, 80);
@@ -225,10 +208,11 @@
                 $recapContent.remove();
                 $barInner.show();
                 gsap.set($barInner[0], { opacity: 0 });
+                $('body').css({ 'overflow': '', 'padding-right': '' });
 
                 gsap.to($bar[0], {
                     duration: 0.45, ease: 'power3.inOut',
-                    height:   'auto',
+                    height:   barInitialHeight,
                     onComplete: function () {
                         recapOpen = false;
                         gsap.set($bar[0], { clearProps: 'top,height' });
