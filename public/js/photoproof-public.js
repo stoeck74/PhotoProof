@@ -12,11 +12,12 @@
         return;
     }
 
-    var selectedIds = [];
-    var isLocked    = parseInt(pp_public.is_locked, 10) === 1;
-    var saveTimer   = null;
-    var allItems    = [];
-    var lbIndex     = 0;
+    var selectedIds      = [];
+    var isLocked         = parseInt(pp_public.is_locked, 10) === 1;
+    var wasAlreadyLocked = isLocked;
+    var saveTimer        = null;
+    var allItems         = [];
+    var lbIndex          = 0;
 
     // Cache des cards dans l'ordre DOM
     function buildCache() {
@@ -192,21 +193,20 @@
     }
 
     // ── ÉTAT VERROUILLÉ ───────────────────────────────────────────────
-    var wasAlreadyLocked = isLocked;
-
     function applyLockedState() {
-        showBar();
-        $(document).trigger('pp:galleryLocked');
-        $('.pp-card:not(.pp-selected)').addClass('pp-photo-dimmed');
-        $('.pp-card').css('cursor', 'default');
-        $('#pp-selection-bar').addClass('pp-bar-locked');
-        $('#pp-btn-validate').text('✓ Sélection confirmée').prop('disabled', true).addClass('pp-btn-confirmed');
+    showBar();
+    $(document).trigger('pp:galleryLocked');
+    $('.pp-card:not(.pp-selected)').addClass('pp-photo-dimmed');
+    $('.pp-card').css('cursor', 'default');
+    $('#pp-selection-bar').addClass('pp-bar-locked');
 
-        // Modal de fin — uniquement après une vraie confirmation (pas au chargement)
-        if (!wasAlreadyLocked) {
-            $('#pp-end-overlay').fadeIn(300);
-        }
+    var confirmedText = $('#pp-btn-validate').data('confirmed') || 'Selection confirmed';
+    $('#pp-btn-validate').text('✓ ' + confirmedText).prop('disabled', true).addClass('pp-btn-confirmed');
+
+    if (!wasAlreadyLocked) {
+        $('#pp-end-overlay').css('display', 'flex').hide().fadeIn(300);
     }
+}
 
     $('#pp-end-back').on('click', function (e) {
         e.preventDefault();
@@ -219,76 +219,41 @@
         var $s = $('#pp-save-status');
         clearTimeout(statusTimer);
         var cfg = {
-            saving:    { text: 'Enregistrement…',       color: '#64748b' },
-            saved:     { text: '✓ Enregistré',           color: '#166534' },
-            confirmed: { text: '✓ Sélection confirmée', color: '#166534' },
-            error:     { text: '⚠ Erreur — réessayez',  color: '#991b1b' }
+            saving:    { text: 'Saving…',       color: '#64748b' },
+            saved:     { text: '✓ Saved',           color: '#166534' },
+            confirmed: { text: '✓ Confirmed selection', color: '#166534' },
+            error:     { text: '⚠ Error — try again',  color: '#991b1b' }
         };
         var c = cfg[state] || cfg.saved;
         $s.text(c.text).css('color', c.color).show();
         if (state === 'saved') statusTimer = setTimeout(function () { $s.fadeOut(400); }, 3000);
     }
 
-    // ── RÉCAP — fade out grille, fade in récap ───────────────────────
+    // ── RÉCAP FALLBACK — markup dans le PHP, JS remplit la grille ──
     function openRecapPanel() {
-        var $recap = $('<div class="pp-recap-view" id="pp-recap-view"></div>');
+        var $recap = $('#pp-recap-view');
+        var $grid  = $('#pp-recap-grid').empty();
+        $('#pp-recap-count').text(selectedIds.length);
 
-        $recap.html(
-            '<div class="pp-recap-header">' +
-                '<button class="pp-recap-back" id="pp-recap-back">← Revenir modifier</button>' +
-                '<div class="pp-recap-title-wrap">' +
-                    '<p class="pp-recap-eyebrow">Récapitulatif</p>' +
-                    '<h2 class="pp-recap-title">Votre sélection — <span id="pp-recap-count">' + selectedIds.length + '</span> photos</h2>' +
-                '</div>' +
-                '<button type="button" class="pp-btn-recap-confirm-top" id="pp-recap-confirm">Confirmer ma sélection</button>' +
-            '</div>' +
-            '<div class="pp-recap-grid" id="pp-recap-grid"></div>'
-        );
-
-        var $grid = $recap.find('#pp-recap-grid');
         selectedIds.forEach(function (id) {
             var $card  = $('.pp-card[data-id="' + id + '"]');
             var imgSrc = $card.find('.pp-card-img-wrap').data('full') || $card.find('.pp-card-img').attr('src');
             var name   = $card.find('.pp-card-name').text();
-            $grid.append(
-                '<div class="pp-recap-item" data-id="' + id + '">' +
-                    '<div class="pp-recap-img-wrap">' +
-                        '<img src="' + imgSrc + '" class="pp-recap-img" />' +
-                        '<button class="pp-recap-remove" title="Retirer">×</button>' +
-                    '</div>' +
-                    '<span class="pp-recap-name">' + name + '</span>' +
-                '</div>'
-            );
+            var $item  = $('<div class="pp-recap-item" data-id="' + id + '"></div>');
+            var $wrap  = $('<div class="pp-recap-img-wrap"></div>');
+            $wrap.append($('<img class="pp-recap-img" />').attr('src', imgSrc));
+            $wrap.append($('<button class="pp-recap-remove" type="button">×</button>'));
+            $item.append($wrap).append($('<span class="pp-recap-name"></span>').text(name));
+            $grid.append($item);
         });
 
-        $recap.on('click', '.pp-recap-remove', function () {
-            var id    = parseInt($(this).closest('.pp-recap-item').data('id'), 10);
-            var $card = $('.pp-card[data-id="' + id + '"]');
-            toggleSelection($card, id);
-            $(this).closest('.pp-recap-item').remove();
-            $('#pp-recap-count').text(selectedIds.length);
-            if (selectedIds.length === 0) closeRecapPanel();
-        });
-
-        $recap.on('click', '#pp-recap-back', closeRecapPanel);
-        $recap.on('click', '#pp-recap-confirm', function () {
-            closeRecapPanel();
-            clearTimeout(saveTimer);
-            saveSelection(true);
-        });
-
-        // Cacher la barre sticky
         $('#pp-selection-bar').addClass('pp-bar-hidden');
-
-        $('#pp-page').append($recap);
         window.scrollTo({ top: 0 });
 
-        // Grille descend et disparaît
         $('#pp-grid').css({ transition: 'transform .35s cubic-bezier(.4,0,.2,1), opacity .35s', transform: 'translateY(40px)', opacity: '0' });
 
         setTimeout(function () {
             $('#pp-grid').css('display', 'none');
-            // Récap arrive depuis le haut
             $recap.css({ display: 'block', transform: 'translateY(-30px)', opacity: '0',
                 transition: 'transform .35s cubic-bezier(.4,0,.2,1), opacity .35s' });
             setTimeout(function () {
@@ -299,12 +264,10 @@
 
     function closeRecapPanel() {
         var $recap = $('#pp-recap-view');
-        // Récap descend et disparaît
         $recap.css({ transition: 'transform .35s cubic-bezier(.4,0,.2,1), opacity .35s', transform: 'translateY(30px)', opacity: '0' });
 
         setTimeout(function () {
-            $recap.remove();
-            // Grille remonte depuis le bas
+            $recap.css({ display: 'none', transition: '', transform: '', opacity: '' });
             $('#pp-grid').css({ display: 'grid', transform: 'translateY(-20px)', opacity: '0',
                 transition: 'transform .35s cubic-bezier(.4,0,.2,1), opacity .35s' });
             setTimeout(function () {
@@ -313,10 +276,26 @@
                     $('#pp-grid').css({ transition: '', transform: '', opacity: '' });
                 }, 400);
             }, 20);
-            // Réafficher la barre sticky
             $('#pp-selection-bar').removeClass('pp-bar-hidden');
         }, 350);
     }
+
+    // Événements récap fallback — délégués sur document
+    $(document).on('click', '#pp-recap-back', closeRecapPanel);
+    $(document).on('click', '#pp-recap-confirm', function () {
+        closeRecapPanel();
+        clearTimeout(saveTimer);
+        saveSelection(true);
+    });
+    $(document).on('click', '.pp-recap-remove', function () {
+        if (!$(this).closest('#pp-recap-view').length) return;
+        var id    = parseInt($(this).closest('.pp-recap-item').data('id'), 10);
+        var $card = $('.pp-card[data-id="' + id + '"]');
+        toggleSelection($card, id);
+        $(this).closest('.pp-recap-item').remove();
+        $('#pp-recap-count').text(selectedIds.length);
+        if (selectedIds.length === 0) closeRecapPanel();
+    });
 
     // ── MODAL ─────────────────────────────────────────────────────────
     $('#pp-btn-validate').on('click', function () {

@@ -1,4 +1,7 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly
+}
 // Sécurité — ne s'exécute que via WP
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) exit;
 

@@ -1,8 +1,15 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly
+}
 /**
  * Gestion de l'interface d'édition de la galerie PhotoProof
  * Metabox redesignée — états contextuels, hiérarchie visuelle
  */
+
+// Protection accès direct
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 class PhotoProof_Metaboxes {
 
     public function __construct() {
@@ -24,10 +31,18 @@ class PhotoProof_Metaboxes {
     public function render_metabox( $post ) {
         global $wpdb;
 
-        $data = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$wpdb->prefix}photoproof_galleries WHERE post_id = %d",
-            $post->ID
-        ) );
+        // ── Requête avec cache ──
+        $cache_key = 'pp_gallery_' . $post->ID;
+        $data      = wp_cache_get( $cache_key, 'photoproof' );
+        if ( false === $data ) {
+            $data = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+                $wpdb->prepare(
+                    "SELECT * FROM {$wpdb->prefix}photoproof_galleries WHERE post_id = %d",
+                    $post->ID
+                )
+            );
+            wp_cache_set( $cache_key, $data, 'photoproof', 300 );
+        }
 
         $current_status = $data ? $data->status : 'brouillon';
         $is_new         = ( $post->post_status === 'auto-draft' || ! $data );
@@ -47,10 +62,26 @@ class PhotoProof_Metaboxes {
 
         // Config bande statut
         $status_config = array(
-            'brouillon' => array( 'label' => 'Brouillon — Privé',        'sub' => 'Non visible par le client',            'class' => 'pp-state-brouillon' ),
-            'publie'    => array( 'label' => 'Publiée — Ouverte',         'sub' => 'En attente de la sélection client',    'class' => 'pp-state-publie' ),
-            'valide'    => array( 'label' => 'Sélection confirmée',       'sub' => 'Le client a validé sa sélection',      'class' => 'pp-state-valide' ),
-            'ferme'     => array( 'label' => 'Archivée',                  'sub' => 'Accès client désactivé',               'class' => 'pp-state-ferme' ),
+            'brouillon' => array(
+                'label' => __( 'Draft — Private', 'photoproof' ),
+                'sub'   => __( 'Not visible to the client', 'photoproof' ),
+                'class' => 'pp-state-brouillon',
+            ),
+            'publie'    => array(
+                'label' => __( 'Published — Open', 'photoproof' ),
+                'sub'   => __( 'Waiting for client selection', 'photoproof' ),
+                'class' => 'pp-state-publie',
+            ),
+            'valide'    => array(
+                'label' => __( 'Selection Confirmed', 'photoproof' ),
+                'sub'   => __( 'The client has validated his selection', 'photoproof' ),
+                'class' => 'pp-state-valide',
+            ),
+            'ferme'     => array(
+                'label' => __( 'Archived', 'photoproof' ),
+                'sub'   => __( 'Client access disabled', 'photoproof' ),
+                'class' => 'pp-state-ferme',
+            ),
         );
         $sc = $status_config[ $current_status ] ?? $status_config['brouillon'];
 
@@ -71,26 +102,28 @@ class PhotoProof_Metaboxes {
                 <div class="pp-state-actions">
                     <?php if ( $is_validated ) : ?>
                         <a href="<?php echo esc_url( admin_url( 'admin-ajax.php?action=pp_export_selection&post_id=' . $post->ID . '&_wpnonce=' . $export_nonce ) ); ?>"
-                           class="pp-btn pp-btn-sm pp-btn-state-action">↓ Exporter CSV</a>
+                           class="pp-btn pp-btn-sm pp-btn-state-action">
+                            <?php esc_html_e( '↓ Export CSV', 'photoproof' ); ?>
+                        </a>
                     <?php endif; ?>
-                        <?php if ( ! $is_new && ! $is_brouillon ) : ?>
-                            <a href="<?php echo esc_url( $gallery_url ); ?>" target="_blank"
-                            class="pp-btn pp-btn-sm pp-btn-ghost">
-                                Voir la galerie ↗
-                            </a>
-                        <?php endif; ?>
+                    <?php if ( ! $is_new && ! $is_brouillon ) : ?>
+                        <a href="<?php echo esc_url( $gallery_url ); ?>" target="_blank"
+                           class="pp-btn pp-btn-sm pp-btn-ghost">
+                            <?php esc_html_e( 'View Gallery ↗', 'photoproof' ); ?>
+                        </a>
+                    <?php endif; ?>
                 </div>
             </div>
 
-            <!-- ── URL — toujours visible ── -->
+            <!-- ── URL ── -->
             <div class="pp-url-row">
-                <span class="pp-url-label">URL</span>
+                <span class="pp-url-label"><?php esc_html_e( 'URL', 'photoproof' ); ?></span>
                 <div class="pp-url-value" title="<?php echo esc_attr( $gallery_url ); ?>">
                     <?php echo esc_html( $gallery_url ); ?>
                 </div>
                 <button type="button" class="pp-btn pp-btn-sm pp-btn-ghost" id="pp-copy-link-btn-2"
                     data-url="<?php echo esc_attr( $gallery_url ); ?>">
-                    Copier
+                    <?php esc_html_e( 'URL / Copy', 'photoproof' ); ?>
                 </button>
             </div>
 
@@ -98,71 +131,98 @@ class PhotoProof_Metaboxes {
 
                 <!-- ── CONFIGURATION ── -->
                 <div class="pp-meta-section">
-                    <div class="pp-meta-section-title">Configuration</div>
+                    <div class="pp-meta-section-title">
+                        <?php esc_html_e( 'Configuration', 'photoproof' ); ?>
+                    </div>
                     <div class="pp-fields-row">
 
                         <div class="pp-field">
-                            <label for="pp_client_id">Client assigné</label>
+                            <label for="pp_client_id">
+                                <?php esc_html_e( 'Assigned Client', 'photoproof' ); ?>
+                            </label>
                             <select name="pp_client_id" id="pp_client_id" <?php echo $is_locked ? 'disabled' : ''; ?>>
-                                <option value="">— Aucun client —</option>
+                                <option value=""><?php esc_html_e( '— No client selected —', 'photoproof' ); ?></option>
                                 <?php
                                 $users = get_users( array( 'role__in' => array( 'subscriber', 'customer', 'author', 'editor', 'administrator' ) ) );
                                 foreach ( $users as $user ) :
-                                    $sel  = ( $data && $data->client_id == $user->ID ) ? 'selected' : '';
-                                    $name = trim( $user->last_name . ' ' . $user->first_name );
-                                    $name = $name ?: $user->display_name;
-                                    echo '<option value="' . esc_attr( $user->ID ) . '" ' . $sel . '>'
-                                        . esc_html( $name ) . ' (' . esc_html( $user->user_login ) . ')</option>';
-                                endforeach;
-                                ?>
+                                    $is_selected = ( $data && (int) $data->client_id === (int) $user->ID );
+                                    $name        = trim( $user->last_name . ' ' . $user->first_name );
+                                    $name        = $name ?: $user->display_name;
+                                    ?>
+                                    <option value="<?php echo esc_attr( $user->ID ); ?>"
+                                        <?php selected( $is_selected, true ); ?>>
+                                        <?php echo esc_html( $name . ' (' . $user->user_login . ')' ); ?>
+                                    </option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
 
                         <div class="pp-field">
-                            <label for="pp_status">État</label>
+                            <label for="pp_status">
+                                <?php esc_html_e( 'Status', 'photoproof' ); ?>
+                            </label>
                             <select name="pp_status" id="pp_status">
                                 <?php
                                 $status_list = array(
-                                    'brouillon' => '📝 Brouillon (Privé)',
-                                    'publie'    => '🌐 Publiée (Ouverte)',
-                                    'valide'    => '✅ Sélection terminée',
-                                    'ferme'     => '🔒 Archivée',
+                                    'brouillon' => __( '📝 Draft (Private)', 'photoproof' ),
+                                    'publie'    => __( '🌐 Published (Open)', 'photoproof' ),
+                                    'valide'    => __( '✅ Proofed by client (closed)', 'photoproof' ),
+                                    'ferme'     => __( '🔒 Archived (hiden)', 'photoproof' ),
                                 );
                                 foreach ( $status_list as $key => $label ) :
-                                    $sel = ( $data && $data->status === $key ) ? 'selected' : '';
-                                    echo '<option value="' . esc_attr( $key ) . '" ' . $sel . '>'
-                                        . esc_html( $label ) . '</option>';
-                                endforeach;
-                                ?>
+                                    ?>
+                                    <option value="<?php echo esc_attr( $key ); ?>"
+                                        <?php selected( $data && $data->status === $key, true ); ?>>
+                                        <?php echo esc_html( $label ); ?>
+                                    </option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
 
                         <div class="pp-field">
-                            <label for="pp_custom_rename">Préfixe personnalisé</label>
+                            <label for="pp_custom_rename">
+                                <?php esc_html_e( 'Custom Prefix', 'photoproof' ); ?>
+                            </label>
                             <input type="text"
                                 name="pp_custom_rename"
                                 id="pp_custom_rename"
                                 value="<?php echo esc_attr( get_post_meta( $post->ID, '_pp_custom_rename', true ) ); ?>"
-                                placeholder="Ex : Mariage-Dupont"
+                                placeholder="<?php esc_attr_e( 'e.g.: Smith-Wedding', 'photoproof' ); ?>"
                                 <?php echo $is_locked ? 'disabled' : ''; ?>>
                         </div>
 
                     </div>
                 </div>
 
-                <!-- ── SÉLECTION CLIENT (publie / valide / ferme) ── -->
+                <!-- ── SÉLECTION CLIENT ── -->
                 <?php if ( ! $is_brouillon ) : ?>
                 <div class="pp-meta-section">
-                    <div class="pp-meta-section-title">Sélection client</div>
+                    <div class="pp-meta-section-title">
+                        <?php esc_html_e( 'CLIENT SELECTION', 'photoproof' ); ?>
+                    </div>
 
                     <?php if ( $is_validated ) : ?>
 
-                        <!-- État validé : bandeau + récap + réouverture -->
                         <div class="pp-validated-banner">
                             <span class="pp-validated-icon">✓</span>
                             <div>
-                                <strong>Sélection confirmée par le client</strong>
-                                <span><?php echo intval( $count_selection ); ?> photo(s) retenue(s)</span>
+                                <strong><?php esc_html_e( 'Approved selection by client', 'photoproof' ); ?></strong>
+                                <span>
+                                    <?php
+                                        printf(
+                                            esc_html(
+                                                // translators: %d: number of photos selected by the client
+                                                _n(
+                                                    '%d photo selected',
+                                                    '%d photos selected',
+                                                    $count_selection,
+                                                    'photoproof'
+                                                )
+                                            ),
+                                            intval( $count_selection )
+                                        );
+                                    ?>
+                               </span>
                             </div>
                         </div>
 
@@ -181,34 +241,35 @@ class PhotoProof_Metaboxes {
                         <?php endif; ?>
 
                         <div class="pp-reopen-actions">
-                            <p class="pp-meta-section-title" style="margin-bottom:10px;">Rouvrir la galerie</p>
+                            <p class="pp-meta-section-title" style="margin-bottom:10px;">
+                                <?php esc_html_e( 'Reopen gallery', 'photoproof' ); ?>
+                            </p>
                             <div class="pp-reopen-btns">
                                 <button type="button" class="pp-btn pp-btn-sm pp-btn-reopen"
                                     data-post-id="<?php echo esc_attr( $post->ID ); ?>"
                                     data-nonce="<?php echo esc_attr( $reopen_nonce ); ?>"
                                     data-mode="keep">
-                                    Rouvrir — conserver la sélection
+                                    <?php esc_html_e( 'Reopen — with client previous selection', 'photoproof' ); ?>
                                 </button>
                                 <button type="button" class="pp-btn pp-btn-sm pp-btn-reopen pp-btn-danger"
                                     data-post-id="<?php echo esc_attr( $post->ID ); ?>"
                                     data-nonce="<?php echo esc_attr( $reopen_nonce ); ?>"
                                     data-mode="reset">
-                                    Rouvrir — remettre à zéro
+                                    <?php esc_html_e( 'Reopen — with deleted previous selection', 'photoproof' ); ?>
                                 </button>
                             </div>
                         </div>
 
                     <?php else : ?>
 
-                        <!-- État publie / ferme : compteur + CSV -->
                         <div class="pp-sel-card">
                             <div class="pp-sel-count">
                                 <strong id="pp-selection-count"><?php echo intval( $count_selection ); ?></strong>
-                                <span>photo(s) sélectionnée(s)</span>
+                                <span><?php esc_html_e( 'Selected photography', 'photoproof' ); ?></span>
                             </div>
                             <a href="<?php echo esc_url( admin_url( 'admin-ajax.php?action=pp_export_selection&post_id=' . $post->ID . '&_wpnonce=' . $export_nonce ) ); ?>"
                                class="pp-btn pp-btn-sm pp-btn-primary">
-                                ↓ Exporter CSV
+                                <?php esc_html_e( '↓ Export CSV', 'photoproof' ); ?>
                             </a>
                         </div>
 
@@ -216,38 +277,53 @@ class PhotoProof_Metaboxes {
                 </div>
                 <?php endif; ?>
 
-                <!-- ── OPTIONS FILIGRANE (brouillon + publie uniquement) ── -->
+                <!-- ── OPTIONS FILIGRANE ── -->
                 <?php if ( ! $is_locked ) : ?>
                 <div class="pp-meta-section">
-                    <div class="pp-meta-section-title">Options</div>
+                    <div class="pp-meta-section-title">
+                        <?php esc_html_e( 'Options', 'photoproof' ); ?>
+                    </div>
                     <div class="pp-toggle-row">
                         <label class="pp-switch">
                             <?php $wm_active = ( $data && isset( $data->watermark_settings ) && $data->watermark_settings === 'yes' ); ?>
-                            <input type="checkbox" name="pp_watermark_active" value="yes" <?php checked( $wm_active, true ); ?>>
+                            <input type="checkbox" name="pp_watermark_active" value="yes"
+                                <?php checked( $wm_active, true ); ?>>
                             <span class="pp-slider"></span>
                         </label>
                         <div class="pp-toggle-text">
-                            <span class="pp-toggle-title">Protection filigrane</span>
-                            <span class="pp-toggle-sub">Applique votre logo sur toutes les images de cette galerie</span>
+                            <span class="pp-toggle-title">
+                                <?php esc_html_e( 'Watermark protection', 'photoproof' ); ?>
+                            </span>
+                            <span class="pp-toggle-sub">
+                                <?php esc_html_e( 'Applies the watermark on all images uploaded', 'photoproof' ); ?>
+                            </span>
                         </div>
                     </div>
                 </div>
                 <?php endif; ?>
 
-                <!-- ── MÉDIAS (brouillon + publie uniquement) ── -->
+                <!-- ── MÉDIAS ── -->
                 <?php if ( ! $is_locked ) : ?>
                 <div class="pp-meta-section">
-                    <div class="pp-meta-section-title">Médias</div>
+                    <div class="pp-meta-section-title">
+                        <?php esc_html_e( 'Files', 'photoproof' ); ?>
+                    </div>
                     <div class="pp-upload-zone" id="pp_upload_btn">
                         <svg class="pp-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
                         </svg>
                         <div class="pp-upload-title">
-                            <?php echo $is_new ? 'Enregistrez d\'abord la galerie' : 'Ajouter des photos'; ?>
+                            <?php echo $is_new
+                                ? esc_html__( 'Upload media', 'photoproof' )
+                                : esc_html__( 'Add images', 'photoproof' );
+                            ?>
                         </div>
                         <div class="pp-upload-sub">
-                            <?php echo $is_new ? 'Publiez ou enregistrez en brouillon avant d\'uploader' : 'Cliquez pour parcourir ou glissez-déposez vos fichiers ici'; ?>
+                            <?php echo $is_new
+                                ? esc_html__( 'Publish or save the draft before uploading to see images name updated', 'photoproof' )
+                                : esc_html__( 'Click to browse or drag and drop your files here', 'photoproof' );
+                            ?>
                         </div>
                     </div>
                     <div id="pp-gallery-preview" class="pp-gallery-grid"></div>
@@ -259,7 +335,7 @@ class PhotoProof_Metaboxes {
                 <div class="pp-alert">
                     <div class="pp-alert-dot"></div>
                     <div class="pp-alert-text">
-                        Galerie publiée — évitez de supprimer des photos pour ne pas invalider la sélection du client.
+                        <?php esc_html_e( "Gallery published — avoid deleting photos to prevent invalidating the client's selection.", 'photoproof' ); ?>
                     </div>
                 </div>
                 <?php endif; ?>
@@ -269,7 +345,7 @@ class PhotoProof_Metaboxes {
 
         <script>
         (function() {
-            // Copie du lien (deux boutons)
+            // Copie du lien
             function setupCopy(btnId) {
                 var btn = document.getElementById(btnId);
                 if (!btn) return;
@@ -277,7 +353,7 @@ class PhotoProof_Metaboxes {
                     var url  = btn.dataset.url;
                     var orig = btn.textContent;
                     function feedback() {
-                        btn.textContent = 'Copié !';
+                        btn.textContent = '<?php echo esc_js( __( 'Copied !', 'photoproof' ) ); ?>';
                         setTimeout(function() { btn.textContent = orig; }, 2000);
                     }
                     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -297,10 +373,13 @@ class PhotoProof_Metaboxes {
             document.querySelectorAll('.pp-btn-reopen').forEach(function(btn) {
                 btn.addEventListener('click', function() {
                     var mode  = btn.dataset.mode;
-                    var label = mode === 'reset' ? 'remettre à zéro la sélection' : 'conserver la sélection';
-                    if (!confirm('Rouvrir la galerie en mode "' + label + '" ?\nLe client pourra à nouveau modifier sa sélection.')) return;
+                    var label = mode === 'reset'
+                        ? '<?php echo esc_js( __( 'Reset selection', 'photoproof' ) ); ?>'
+                        : '<?php echo esc_js( __( 'Keep selection', 'photoproof' ) ); ?>';
 
-                    btn.textContent = 'En cours…';
+                    if (!confirm('<?php echo esc_js( __( 'Reopen gallery and', 'photoproof' ) ); ?> "' + label + '" ?\n<?php echo esc_js( __( 'Client will be able to select again', 'photoproof' ) ); ?>')) return;
+
+                    btn.textContent = '<?php echo esc_js( __( 'In progress…', 'photoproof' ) ); ?>';
                     btn.disabled = true;
 
                     var fd = new FormData();
@@ -315,9 +394,11 @@ class PhotoProof_Metaboxes {
                             if (data.success) {
                                 window.location.reload();
                             } else {
-                                alert('Erreur : ' + (data.data && data.data.message ? data.data.message : 'inconnue'));
+                                alert('<?php echo esc_js( __( 'Error :', 'photoproof' ) ); ?> ' + (data.data && data.data.message ? data.data.message : '<?php echo esc_js( __( 'unknown', 'photoproof' ) ); ?>'));
                                 btn.disabled = false;
-                                btn.textContent = mode === 'reset' ? 'Rouvrir — remettre à zéro' : 'Rouvrir — conserver la sélection';
+                                btn.textContent = mode === 'reset'
+                                    ? '<?php echo esc_js( __( 'Reopen — reset', 'photoproof' ) ); ?>'
+                                    : '<?php echo esc_js( __( 'Reopen — Keep selection', 'photoproof' ) ); ?>';
                             }
                         });
                 });
@@ -328,7 +409,7 @@ class PhotoProof_Metaboxes {
     }
 
     public function save_gallery_settings( $post_id ) {
-        if ( ! isset( $_POST['pp_gallery_nonce'] ) || ! wp_verify_nonce( $_POST['pp_gallery_nonce'], 'pp_save_gallery_settings' ) ) return;
+        if ( ! isset( $_POST['pp_gallery_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['pp_gallery_nonce'] ) ), 'pp_save_gallery_settings' ) ) return;
         if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
         if ( ! current_user_can( 'edit_post', $post_id ) ) return;
 
@@ -336,43 +417,52 @@ class PhotoProof_Metaboxes {
         $table_name = $wpdb->prefix . 'photoproof_galleries';
 
         $allowed_statuses = array( 'brouillon', 'publie', 'valide', 'ferme' );
-        $status_raw       = isset( $_POST['pp_status'] ) ? sanitize_text_field( $_POST['pp_status'] ) : 'brouillon';
+        $status_raw       = isset( $_POST['pp_status'] ) ? sanitize_text_field( wp_unslash( $_POST['pp_status'] ) ) : 'brouillon';
         $status           = in_array( $status_raw, $allowed_statuses, true ) ? $status_raw : 'brouillon';
         $watermark_val    = isset( $_POST['pp_watermark_active'] ) ? 'yes' : 'no';
-        $client_id        = ( isset( $_POST['pp_client_id'] ) && $_POST['pp_client_id'] !== '' ) ? intval( $_POST['pp_client_id'] ) : null;
+        $client_id        = ( isset( $_POST['pp_client_id'] ) && $_POST['pp_client_id'] !== '' ) ? absint( wp_unslash( $_POST['pp_client_id'] ) ) : null;
 
-        $existing = $wpdb->get_var( $wpdb->prepare(
-            "SELECT id FROM $table_name WHERE post_id = %d",
-            $post_id
-        ) );
+        // ── Requête avec cache ──
+        $cache_key = 'pp_gallery_' . $post_id;
+        $existing  = wp_cache_get( $cache_key . '_id', 'photoproof' );
+        if ( false === $existing ) {
+            $existing = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+                $wpdb->prepare(
+                    "SELECT id FROM {$wpdb->prefix}photoproof_galleries WHERE post_id = %d",
+                    $post_id
+                )
+            );
+            wp_cache_set( $cache_key . '_id', $existing, 'photoproof', 300 );
+        }
+
+        $row_data   = array(
+            'client_id'          => $client_id,
+            'status'             => $status,
+            'watermark_settings' => $watermark_val,
+            'folder_path'        => 'photoproof/gallery-' . $post_id,
+        );
+        $row_format = array( '%d', '%s', '%s', '%s' );
 
         if ( $existing ) {
-            $wpdb->update(
+            $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
                 $table_name,
-                array(
-                    'client_id'          => $client_id,
-                    'status'             => $status,
-                    'watermark_settings' => $watermark_val,
-                    'folder_path'        => 'photoproof/gallery-' . $post_id,
-                ),
+                $row_data,
                 array( 'post_id' => $post_id ),
-                array( '%d', '%s', '%s', '%s' ),
+                $row_format,
                 array( '%d' )
             );
         } else {
-            $wpdb->insert(
+            $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
                 $table_name,
-                array(
-                    'post_id'            => $post_id,
-                    'client_id'          => $client_id,
-                    'status'             => $status,
-                    'watermark_settings' => $watermark_val,
-                    'folder_path'        => 'photoproof/gallery-' . $post_id,
-                ),
-                array( '%d', '%d', '%s', '%s', '%s' )
+                array_merge( array( 'post_id' => $post_id ), $row_data ),
+                array_merge( array( '%d' ), $row_format )
             );
         }
 
-        update_post_meta( $post_id, '_pp_custom_rename', sanitize_text_field( $_POST['pp_custom_rename'] ?? '' ) );
+        // Invalider le cache après écriture
+        wp_cache_delete( $cache_key, 'photoproof' );
+        wp_cache_delete( $cache_key . '_id', 'photoproof' );
+
+        update_post_meta( $post_id, '_pp_custom_rename', sanitize_text_field( wp_unslash( $_POST['pp_custom_rename'] ?? '' ) ) );
     }
 }

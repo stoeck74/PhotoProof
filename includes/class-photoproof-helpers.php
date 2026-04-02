@@ -1,4 +1,7 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly
+}
 /**
  * PhotoProof Helpers — Template Tags & Shortcode
  *
@@ -62,7 +65,7 @@ class PhotoProof_Helpers {
         ob_start();
         ?>
         <style>
-        .pp-sc-grid { display: grid; grid-template-columns: repeat(<?php echo $cols; ?>, 1fr); gap: 16px; }
+        .pp-sc-grid { display: grid; grid-template-columns: repeat(<?php echo absint( $cols ); ?>, 1fr); gap: 16px; }
         .pp-sc-card { border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; text-decoration: none; color: inherit; display: flex; flex-direction: column; transition: box-shadow .2s; }
         .pp-sc-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.1); }
         .pp-sc-thumb { width: 100%; aspect-ratio: 3/2; object-fit: cover; display: block; background: #f1f5f9; }
@@ -80,7 +83,7 @@ class PhotoProof_Helpers {
 
         <div class="pp-sc-grid">
         <?php foreach ( $galleries as $g ) :
-            $status_label = $g['status'] === 'valide' ? 'Validé' : 'Ouvert';
+            $status_label = $g['status'] === 'valide' ? esc_html__( 'Validé', 'photoproof' ) : esc_html__( 'Ouvert', 'photoproof' );
             $dot_class    = $g['status'] === 'valide' ? 'pp-sc-dot-validated' : 'pp-sc-dot-open';
             ?>
             <a href="<?php echo esc_url( $g['url'] ); ?>" class="pp-sc-card">
@@ -96,13 +99,23 @@ class PhotoProof_Helpers {
                     <p class="pp-sc-title"><?php echo esc_html( $g['title'] ); ?></p>
                     <div class="pp-sc-meta">
                         <?php if ( $show_status ) : ?>
-                            <span class="pp-sc-status">
-                                <span class="pp-sc-dot <?php echo $dot_class; ?>"></span>
-                                <?php echo $status_label; ?>
-                            </span>
+                        <span class="pp-sc-status">
+                            <span class="pp-sc-dot <?php echo esc_attr( $dot_class ); ?>"></span>
+                            
+                            <?php /* On sécurise le texte avec esc_html */ ?>
+                            <?php echo esc_html( $status_label ); ?>
+                        </span>
                         <?php endif; ?>
                         <?php if ( $show_count ) : ?>
-                            <span class="pp-sc-info"><?php echo intval( $g['photo_count'] ); ?> photo<?php echo $g['photo_count'] > 1 ? 's' : ''; ?></span>
+                            <span class="pp-sc-info">
+                            <?php
+                            printf(
+                                /* translators: %d: number of photos */
+                                esc_html( _n( '%d photo', '%d photos', $g['photo_count'], 'photoproof' ) ),
+                                absint( $g['photo_count'] )
+                            );
+                            ?>
+                        </span>
                         <?php endif; ?>
                         <?php if ( $show_date ) : ?>
                             <span class="pp-sc-info"><?php echo esc_html( $g['date'] ); ?></span>
@@ -136,6 +149,7 @@ class PhotoProof_Helpers {
  *   'selected_ids'  => array,
  * ]
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- prefixed with pp_
 function pp_get_client_galleries( $user_id ) {
     global $wpdb;
 
@@ -181,12 +195,18 @@ function pp_get_client_galleries( $user_id ) {
  * @param int $post_id
  * @return string publie|valide|ferme|brouillon
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- prefixed with pp_
 function pp_get_gallery_status( $post_id ) {
     global $wpdb;
-    $row = $wpdb->get_row( $wpdb->prepare(
-        "SELECT status FROM {$wpdb->prefix}photoproof_galleries WHERE post_id = %d",
-        $post_id
-    ) );
+    $cache_key = 'pp_gallery_status_' . $post_id;
+    $row       = wp_cache_get( $cache_key, 'photoproof' );
+    if ( false === $row ) {
+        $row = $wpdb->get_row( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+            "SELECT status FROM {$wpdb->prefix}photoproof_galleries WHERE post_id = %d",
+            $post_id
+        ) );
+        wp_cache_set( $cache_key, $row, 'photoproof', 60 );
+    }
     return $row ? $row->status : 'brouillon';
 }
 
@@ -196,15 +216,22 @@ function pp_get_gallery_status( $post_id ) {
  * @param int $post_id
  * @return int
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- prefixed with pp_
 function pp_get_gallery_photo_count( $post_id ) {
     global $wpdb;
-    return (int) $wpdb->get_var( $wpdb->prepare(
-        "SELECT COUNT(*) FROM {$wpdb->posts}
-         WHERE post_type = 'attachment'
-         AND post_status = 'inherit'
-         AND post_parent = %d",
-        $post_id
-    ) );
+    $cache_key = 'pp_gallery_photo_count_' . $post_id;
+    $count     = wp_cache_get( $cache_key, 'photoproof' );
+    if ( false === $count ) {
+        $count = (int) $wpdb->get_var( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+            "SELECT COUNT(*) FROM {$wpdb->posts}
+             WHERE post_type = 'attachment'
+             AND post_status = 'inherit'
+             AND post_parent = %d",
+            $post_id
+        ) );
+        wp_cache_set( $cache_key, $count, 'photoproof', 60 );
+    }
+    return $count;
 }
 
 /**
@@ -214,6 +241,7 @@ function pp_get_gallery_photo_count( $post_id ) {
  * @param string $size     Taille WP (défaut: medium)
  * @return string|null
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- prefixed with pp_
 function pp_get_gallery_thumbnail( $post_id, $size = 'medium' ) {
     $first = get_posts( array(
         'post_type'      => 'attachment',
@@ -242,6 +270,7 @@ function pp_get_gallery_thumbnail( $post_id, $size = 'medium' ) {
  * @param int $post_id
  * @return array
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- prefixed with pp_
 function pp_get_gallery_selection( $post_id ) {
     $selected = get_post_meta( $post_id, '_pp_selected_photos', true );
     return is_array( $selected ) ? array_map( 'intval', $selected ) : array();
@@ -253,6 +282,7 @@ function pp_get_gallery_selection( $post_id ) {
  * @param int $post_id
  * @return bool
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- prefixed with pp_
 function pp_is_gallery_locked( $post_id ) {
     return in_array( pp_get_gallery_status( $post_id ), array( 'valide', 'ferme' ), true );
 }

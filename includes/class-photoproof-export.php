@@ -1,15 +1,9 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly
+}
 /**
  * Gestion de l'export des sélections clients — PhotoProof
- *
- * CORRECTIONS :
- * - Vérification nonce CSRF ajoutée
- * - Vérification que le post_id est bien un pp_gallery
- * - Header injection neutralisée (nettoyage du nom de fichier)
- * - date() remplacé par wp_date()
- * - wp_die() remplacé par wp_send_json_error() quand approprié
- * - Format CSV propre avec en-tête (au lieu d'un .txt avec virgules)
- * - Vérification du type MIME des attachements
  */
 class PhotoProof_Export {
 
@@ -21,14 +15,13 @@ class PhotoProof_Export {
 
         // ── 1. SÉCURITÉ ───────────────────────────────────────────────
 
-        $post_id = isset( $_GET['post_id'] ) ? intval( $_GET['post_id'] ) : 0;
+        $post_id = isset( $_GET['post_id'] ) ? absint( wp_unslash( $_GET['post_id'] ) ) : 0;
 
         if ( ! $post_id ) {
             wp_die( 'ID de galerie invalide.', 'Erreur', array( 'response' => 400 ) );
         }
 
-        // CORRECTION : vérification nonce CSRF
-        if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( $_GET['_wpnonce'], 'pp_export_' . $post_id ) ) {
+        if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'pp_export_' . $post_id ) ) {
             wp_die( 'Requête non autorisée.', 'Erreur', array( 'response' => 403 ) );
         }
 
@@ -36,7 +29,6 @@ class PhotoProof_Export {
             wp_die( 'Accès refusé.', 'Erreur', array( 'response' => 403 ) );
         }
 
-        // CORRECTION : vérifier que le post est bien un pp_gallery
         if ( get_post_type( $post_id ) !== 'pp_gallery' ) {
             wp_die( 'Type de contenu invalide.', 'Erreur', array( 'response' => 400 ) );
         }
@@ -65,9 +57,9 @@ class PhotoProof_Export {
                 continue;
             }
 
-            $filename  = basename( $file_path );
-            $title     = get_the_title( $attachment_id );
-            $file_url  = wp_get_attachment_url( $attachment_id );
+            $filename = basename( $file_path );
+            $title    = get_the_title( $attachment_id );
+            $file_url = wp_get_attachment_url( $attachment_id );
 
             $rows[] = array(
                 'filename' => $filename,
@@ -87,20 +79,21 @@ class PhotoProof_Export {
         // ── 4. CONSTRUCTION DU NOM DE FICHIER ─────────────────────────
 
         $gallery_title = sanitize_title( get_post_field( 'post_title', $post_id, 'raw' ) );
-
-        // CORRECTION : wp_date() respecte la timezone WordPress
-        $date = wp_date( 'Y-m-d' );
-
-        $raw_filename = 'selection-' . $gallery_title . '-' . $date . '.csv';
-
-        // CORRECTION : neutralisation header injection (\r \n " retirés)
-        $csv_filename = str_replace( array( "\r", "\n", '"' ), '', $raw_filename );
+        $date          = wp_date( 'Y-m-d' );
+        $raw_filename  = 'selection-' . $gallery_title . '-' . $date . '.csv';
+        $csv_filename  = str_replace( array( "\r", "\n", '"' ), '', $raw_filename );
 
         // ── 5. ENVOI DES HEADERS ──────────────────────────────────────
 
-        // On s'assure qu'aucun output n'a été envoyé avant
         if ( headers_sent( $file, $line ) ) {
-            wp_die( 'Impossible d\'envoyer le fichier : headers déjà envoyés dans ' . $file . ' ligne ' . $line );
+            wp_die(
+                sprintf(
+                    /* translators: 1: File path, 2: Line number */
+                    esc_html__( 'Cannot send file: headers already sent in %1$s line %2$s', 'photoproof' ),
+                    esc_html( $file ),
+                    absint( $line )
+                )
+            );
         }
 
         header( 'Content-Type: text/csv; charset=utf-8' );
@@ -110,16 +103,20 @@ class PhotoProof_Export {
 
         // ── 6. GÉNÉRATION DU CSV ──────────────────────────────────────
 
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
         $output = fopen( 'php://output', 'w' );
 
         // BOM UTF-8 pour compatibilité Excel
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fputs
         fputs( $output, "\xEF\xBB\xBF" );
 
         // En-tête CSV
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fputcsv
         fputcsv( $output, array( 'Nom du fichier', 'Titre', 'URL' ) );
 
         // Lignes de données
         foreach ( $rows as $row ) {
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fputcsv
             fputcsv( $output, array(
                 $row['filename'],
                 $row['title'],
@@ -127,6 +124,7 @@ class PhotoProof_Export {
             ) );
         }
 
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
         fclose( $output );
         exit;
     }

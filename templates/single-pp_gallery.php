@@ -1,4 +1,7 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly
+}
 /**
  * Template standalone de la galerie PhotoProof
  * Hero header avec première photo en fond + grille 5 colonnes
@@ -16,10 +19,10 @@ $is_admin_user = current_user_can( 'manage_options' );
 
 if ( $row ) {
     if ( $row->status === 'brouillon' && ! $is_admin_user ) {
-        wp_die( '<h1>Galerie non disponible</h1><p>Cette galerie n\'est pas encore publiée.</p>', 'Accès refusé', array( 'response' => 403 ) );
+        wp_die( '<h1>' . esc_html__( 'Gallery not available', 'photoproof' ) . '</h1><p>' . esc_html__( 'This gallery is not published yet.', 'photoproof' ) . '</p>', esc_html__( 'Access Denied', 'photoproof' ), array( 'response' => 403 ) );
     }
     if ( $row->status === 'ferme' && ! $is_admin_user ) {
-        wp_die( '<h1>Galerie archivée</h1><p>Contactez votre photographe.</p>', 'Galerie archivée', array( 'response' => 403 ) );
+    wp_die( '<h1>' . esc_html__( 'Archived Gallery', 'photoproof' ) . '</h1><p>' . esc_html__( 'Please contact your photographer.', 'photoproof' ) . '</p>', esc_html__( 'Archived Gallery', 'photoproof' ), array( 'response' => 403 ) );
     }
 }
 
@@ -97,7 +100,9 @@ if ( has_post_thumbnail( $post->ID ) ) {
             </div>
 
             <div class="pp-hero-right">
-                <?php echo $query_images->found_posts; ?> photographie<?php echo $query_images->found_posts > 1 ? 's' : ''; ?>
+                <?php
+                /* translators: %d: number of photographs in the gallery */
+                printf( esc_html( _n( '%d photograph', '%d photographs', $query_images->found_posts, 'photoproof' ) ), absint( $query_images->found_posts ) ); ?>
             </div>
         </div>
     </header>
@@ -111,7 +116,8 @@ if ( has_post_thumbnail( $post->ID ) ) {
     <?php if ( $row && $row->status === 'valide' ) : ?>
     <div id="pp-locked-banner" class="pp-locked-banner">
         <span class="pp-locked-icon">✓</span>
-        Sélection confirmée — contactez votre photographe pour toute modification.
+        <?php esc_html_e( 'Selection confirmed — please contact your photographer for any modification.', 'photoproof' ); ?>
+
     </div>
     <?php endif; ?>
 
@@ -160,7 +166,7 @@ if ( has_post_thumbnail( $post->ID ) ) {
                     <button class="pp-select-btn" type="button"
                         data-id="<?php echo esc_attr( $img_id ); ?>"
                         aria-pressed="<?php echo $is_selected ? 'true' : 'false'; ?>"
-                        aria-label="Sélectionner cette photo">
+                        aria-label="<?php esc_attr_e( 'Select this photo', 'photoproof' ); ?>">
                         <span class="pp-check-dot"></span>
                     </button>
                 </div>
@@ -169,63 +175,100 @@ if ( has_post_thumbnail( $post->ID ) ) {
         <?php endwhile; wp_reset_postdata(); ?>
     </div>
     <?php else : ?>
-        <div class="pp-empty"><p>Aucune photo dans cette galerie pour le moment.</p></div>
+        <div class="pp-empty"><p><?php esc_html_e( 'No photos in the gallery yet.', 'photoproof' ); ?></p></div>
     <?php endif; ?>
 
     <!-- ── BARRE DE SÉLECTION ── -->
     <div class="pp-selection-bar" id="pp-selection-bar">
         <div class="pp-bar-inner">
             <span class="pp-bar-info">
-                <strong id="pp-count-display"><?php echo intval( $count_selected ); ?></strong> sélectionnée(s)
+                <strong id="pp-count-display"><?php echo intval( $count_selected ); ?></strong> <?php esc_html_e( 'selected', 'photoproof' ); ?>
             </span>
             <div class="pp-bar-right">
                 <span class="pp-save-status" id="pp-save-status"></span>
                 <button type="button" class="pp-btn-validate" id="pp-btn-validate"
+                    data-confirmed="<?php esc_attr_e( 'Selection confirmed', 'photoproof' ); ?>"
                     <?php echo $count_selected === 0 ? 'disabled' : ''; ?>>
-                    Valider la sélection
+                    <?php esc_html_e( 'Validate selection', 'photoproof' ); ?>
                 </button>
             </div>
         </div>
     </div>
 
     <!-- ── MODAL CONFIRMATION ── -->
-    <div class="pp-confirm-overlay" id="pp-confirm-overlay" style="display:none;">
-        <div class="pp-confirm-box">
-            <div class="pp-confirm-eyebrow">Confirmation</div>
-            <h2>Valider votre sélection ?</h2>
-            <p>Vous avez retenu <strong id="pp-confirm-count"><?php echo intval( $count_selected ); ?></strong> photographie(s). Cette action est définitive de votre côté.</p>
-            <div class="pp-confirm-actions">
-                <button type="button" class="pp-btn-cancel" id="pp-btn-cancel">Annuler</button>
-                <button type="button" class="pp-btn-confirm" id="pp-btn-confirm">Confirmer</button>
-            </div>
+<div class="pp-confirm-overlay" id="pp-confirm-overlay" style="display:none;">
+    <div class="pp-confirm-box">
+        <div class="pp-confirm-eyebrow"><?php esc_html_e( 'Confirmation', 'photoproof' ); ?></div>
+        <h2><?php esc_html_e( 'Validate your selection?', 'photoproof' ); ?></h2>
+        <p><?php 
+        /* translators: %s: number of photographs, wrapped in a <strong> tag */
+        echo wp_kses_post( sprintf( __( 'You have selected %s photograph(s). This action is final on your end.', 'photoproof' ), '<strong id="pp-confirm-count">' . intval( $count_selected ) . '</strong>' ) ); ?></p>
+        <div class="pp-confirm-actions">
+            <button type="button" class="pp-btn-cancel" id="pp-btn-cancel"><?php esc_html_e( 'Cancel', 'photoproof' ); ?></button>
+            <button type="button" class="pp-btn-confirm" id="pp-btn-confirm"><?php esc_html_e( 'Confirm', 'photoproof' ); ?></button>
         </div>
     </div>
+</div>
 
-    <!-- ── MODAL FIN ── -->
+    <!-- ── RÉCAP FALLBACK (sans animations) ── -->
+<div class="pp-recap-view" id="pp-recap-view" style="display:none;">
+    <div class="pp-recap-header">
+        <button class="pp-recap-back" id="pp-recap-back" type="button">
+            <?php esc_html_e( '← Back to edit', 'photoproof' ); ?>
+        </button>
+        
+        <div class="pp-recap-title-wrap">
+            <p class="pp-recap-eyebrow">
+                <?php esc_html_e( 'Summary', 'photoproof' ); ?>
+            </p>
+            <h2 class="pp-recap-title">
+                <?php 
+                /* translators: %s: number of selected photos, wrapped in a <span> tag */
+                echo wp_kses_post( sprintf( __( 'Your selection — %s photos', 'photoproof' ), '<span id="pp-recap-count">0</span>' ) ); ?>
+            </h2>
+        </div>
+
+        <button type="button" class="pp-btn-recap-confirm-top" id="pp-recap-confirm">
+            <?php esc_html_e( 'Confirm selection', 'photoproof' ); ?>
+        </button>
+    </div>
+    
+    <div class="pp-recap-grid" id="pp-recap-grid"></div>
+</div>
+
+    <!-- ── RÉCAP ANIMÉ — éléments statiques clonés par le JS ── -->
+    <div id="pp-recap-anim-header" style="display:none;">
+        <p class="pp-recap-eyebrow"><?php esc_html_e( 'Summary', 'photoproof' ); ?></p>
+    </div>
+    <div id="pp-recap-anim-footer" style="display:none;">
+        <button class="pp-btn-recap-back" id="pp-recap-anim-back" type="button"><?php esc_html_e( '← Back to edit', 'photoproof' ); ?></button>
+        <button class="pp-btn-recap-confirm" id="pp-recap-anim-confirm" type="button"><?php esc_html_e( 'Confirm selection', 'photoproof' ); ?></button>
+    </div>
+        <!-- ── MODAL FIN ── -->
     <div class="pp-end-overlay" id="pp-end-overlay" style="display:none;">
         <div class="pp-end-box">
             <div class="pp-end-icon">✓</div>
-            <h2 class="pp-end-title">Sélection confirmée</h2>
-            <p class="pp-end-message">Votre photographe a été notifié.<br>Contactez-le pour toute modification.</p>
+            <h2 class="pp-end-title"><?php esc_html_e( 'Selection confirmed', 'photoproof' ); ?></h2>
+            <p class="pp-end-message"><?php esc_html_e( 'Your photographer has been notified. Contact me for any changes in your choice.', 'photoproof' ); ?></p>
             <div class="pp-end-actions">
-                <a href="#" class="pp-end-link" id="pp-end-back">Revenir à la galerie</a>
-                <a href="<?php echo esc_url( home_url() ); ?>" class="pp-end-link">Retour à l'accueil</a>
-                <a href="<?php echo esc_url( wp_logout_url( home_url() ) ); ?>" class="pp-end-link pp-end-logout">Se déconnecter</a>
+                <a href="#" class="pp-end-link" id="pp-end-back"><?php esc_html_e( 'Back to gallery', 'photoproof' ); ?></a>
+                <a href="<?php echo esc_url( home_url() ); ?>" class="pp-end-link"><?php esc_html_e( 'Home', 'photoproof' ); ?></a>
+                <a href="<?php echo esc_url( wp_logout_url( home_url() ) ); ?>" class="pp-end-link pp-end-logout"><?php esc_html_e( 'Log out', 'photoproof' ); ?></a>
             </div>
         </div>
     </div>
 
     <!-- ── LIGHTBOX ── -->
     <div class="pp-lightbox" id="pp-lightbox" style="display:none;">
-        <button class="pp-lb-close" id="pp-lb-close" aria-label="Fermer">×</button>
-        <button class="pp-lb-prev" id="pp-lb-prev" aria-label="Précédent">‹</button>
-        <button class="pp-lb-next" id="pp-lb-next" aria-label="Suivant">›</button>
+        <button class="pp-lb-close" id="pp-lb-close" aria-label="<?php esc_attr_e( 'Close', 'photoproof' ); ?>">×</button>
+        <button class="pp-lb-prev" id="pp-lb-prev" aria-label="<?php esc_attr_e( 'Previous', 'photoproof' ); ?>">‹</button>
+        <button class="pp-lb-next" id="pp-lb-next" aria-label="<?php esc_attr_e( 'Next', 'photoproof' ); ?>">›</button>
         <div class="pp-lb-img-wrap">
             <img src="" alt="" id="pp-lb-img" class="pp-lb-img">
         </div>
         <div class="pp-lb-footer">
             <span id="pp-lb-counter"></span>
-            <button type="button" class="pp-lb-select" id="pp-lb-select">Sélectionner</button>
+            <button type="button" class="pp-lb-select" id="pp-lb-select"><?php esc_html_e( 'Select', 'photoproof' ); ?></button>
         </div>
     </div>
 

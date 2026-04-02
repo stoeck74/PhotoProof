@@ -1,4 +1,7 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly
+}
 /**
  * Gestion de l'affichage public (Front-end) — PhotoProof
  */
@@ -120,13 +123,13 @@ class PhotoProof_Public {
      * AJAX : sauvegarde la sélection du client
      */
     public function save_client_selection() {
-        $post_id = isset( $_POST['post_id'] ) ? intval( $_POST['post_id'] ) : 0;
+        $post_id = isset( $_POST['post_id'] ) ? absint( wp_unslash( $_POST['post_id'] ) ) : 0;
 
         if ( ! $post_id ) {
             wp_send_json_error( array( 'message' => 'Galerie invalide.' ) );
         }
 
-        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'pp_client_selection_' . $post_id ) ) {
+        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'pp_client_selection_' . $post_id ) ) {
             wp_send_json_error( array( 'message' => 'Requête non autorisée.' ) );
         }
 
@@ -183,7 +186,7 @@ class PhotoProof_Public {
 
         update_post_meta( $post_id, '_pp_selected_photos', $selected_ids );
 
-        $is_confirm = isset( $_POST['confirm'] ) && $_POST['confirm'] === '1';
+        $is_confirm = isset( $_POST['confirm'] ) && sanitize_text_field( wp_unslash( $_POST['confirm'] ) ) === '1';
 
         if ( $is_confirm ) {
 
@@ -216,7 +219,7 @@ class PhotoProof_Public {
 
             $client_id = $gallery_row ? intval( $gallery_row->client_id ) : get_current_user_id();
 
-            do_action( 'pp_gallery_selection_confirmed', $post_id, $client_id );
+            do_action( 'pp_gallery_selection_confirmed', $post_id, $client_id ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 
             wp_send_json_success( array( 'count' => count( $selected_ids ), 'locked' => true, 'message' => 'Sélection confirmée.' ) );
         }
@@ -228,11 +231,11 @@ class PhotoProof_Public {
      * AJAX : retourne la sélection actuelle
      */
     public function get_client_selection() {
-        $post_id = isset( $_POST['post_id'] ) ? intval( $_POST['post_id'] ) : 0;
+        $post_id = isset( $_POST['post_id'] ) ? absint( wp_unslash( $_POST['post_id'] ) ) : 0;
 
         if ( ! $post_id ) wp_send_json_error( array( 'message' => 'Galerie invalide.' ) );
 
-        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'pp_client_selection_' . $post_id ) ) {
+        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'pp_client_selection_' . $post_id ) ) {
             wp_send_json_error( array( 'message' => 'Requête non autorisée.' ) );
         }
 
@@ -252,17 +255,17 @@ class PhotoProof_Public {
     public function reopen_gallery() {
         if ( ! current_user_can( 'manage_options' ) ) wp_send_json_error( array( 'message' => 'Accès refusé.' ) );
 
-        $post_id = isset( $_POST['post_id'] ) ? intval( $_POST['post_id'] ) : 0;
+        $post_id = isset( $_POST['post_id'] ) ? absint( wp_unslash( $_POST['post_id'] ) ) : 0;
 
         if ( ! $post_id ) wp_send_json_error( array( 'message' => 'Galerie invalide.' ) );
 
-        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'pp_reopen_' . $post_id ) ) {
+        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'pp_reopen_' . $post_id ) ) {
             wp_send_json_error( array( 'message' => 'Requête non autorisée.' ) );
         }
 
         if ( get_post_type( $post_id ) !== 'pp_gallery' ) wp_send_json_error( array( 'message' => 'Type invalide.' ) );
 
-        $mode = isset( $_POST['mode'] ) && $_POST['mode'] === 'reset' ? 'reset' : 'keep';
+        $mode = ( isset( $_POST['mode'] ) && sanitize_text_field( wp_unslash( $_POST['mode'] ) ) === 'reset' ) ? 'reset' : 'keep';
 
         global $wpdb;
         $wpdb->update( $wpdb->prefix . 'photoproof_galleries', array( 'status' => 'publie' ), array( 'post_id' => $post_id ), array( '%s' ), array( '%d' ) );
@@ -277,7 +280,15 @@ class PhotoProof_Public {
      */
     public function is_gallery_locked( $post_id ) {
         global $wpdb;
-        $row = $wpdb->get_row( $wpdb->prepare( "SELECT status FROM {$wpdb->prefix}photoproof_galleries WHERE post_id = %d", $post_id ) );
+        $cache_key = 'pp_gallery_status_' . $post_id;
+        $row       = wp_cache_get( $cache_key, 'photoproof' );
+        if ( false === $row ) {
+            $row = $wpdb->get_row( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+                "SELECT status FROM {$wpdb->prefix}photoproof_galleries WHERE post_id = %d",
+                $post_id
+            ) );
+            wp_cache_set( $cache_key, $row, 'photoproof', 60 );
+        }
         return $row && in_array( $row->status, array( 'valide', 'ferme' ), true );
     }
 
@@ -286,7 +297,15 @@ class PhotoProof_Public {
      */
     private function is_gallery_accessible( $post_id ) {
         global $wpdb;
-        $row = $wpdb->get_row( $wpdb->prepare( "SELECT status FROM {$wpdb->prefix}photoproof_galleries WHERE post_id = %d", $post_id ) );
+        $cache_key = 'pp_gallery_status_' . $post_id;
+        $row       = wp_cache_get( $cache_key, 'photoproof' );
+        if ( false === $row ) {
+            $row = $wpdb->get_row( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+                "SELECT status FROM {$wpdb->prefix}photoproof_galleries WHERE post_id = %d",
+                $post_id
+            ) );
+            wp_cache_set( $cache_key, $row, 'photoproof', 60 );
+        }
 
         if ( ! $row ) return false;
         if ( ! in_array( $row->status, array( 'publie', 'valide' ), true ) ) return false;

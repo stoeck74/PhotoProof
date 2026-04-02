@@ -1,4 +1,7 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly
+}
 /**
  * Gestion des emails — PhotoProof
  *
@@ -76,7 +79,7 @@ class PhotoProof_Mailer {
 
             $body_client  = sprintf( "Bonjour %s,\n\n", $client_name );
             $body_client .= sprintf( "Nous avons bien reçu votre sélection de %d photo(s) pour la galerie \"%s\".\n\n", $count, $gallery_title );
-            $body_client .= "Votre photographe va maintenant prendre en charge votre commande et reviendra vers vous très prochainement.\n\n";
+            $body_client .= "Nous allons maintenant prendre en charge le traitement final de vos images retenues et reviendrons vers vous très prochainement.\n\n";
             $body_client .= "Merci pour votre confiance.\n\n";
             $body_client .= sprintf( "— %s", $photographer_name );
 

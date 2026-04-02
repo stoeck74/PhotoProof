@@ -1,26 +1,30 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly
+}
+
 /**
- * Gestion des colonnes admin et publication automatique — PhotoProof
+ * Management of admin columns and automatic publication — PhotoProof
  *
- * - Publication WP → statut PhotoProof passe automatiquement à 'publie'
- * - Colonnes custom dans la liste des galeries : statut + nb photos
+ * - WP Publication → PhotoProof status automatically switches to 'publie'
+ * - Custom columns in the gallery list: status + number of photos
  */
 class PhotoProof_Admin_Columns {
 
     public function __construct() {
-        // Publication auto
+        // Auto publication
         add_action( 'publish_pp_gallery', array( $this, 'auto_set_publie_on_publish' ), 10, 2 );
 
-        // Colonnes custom
+        // Custom columns
         add_filter( 'manage_pp_gallery_posts_columns',       array( $this, 'add_columns' ) );
         add_action( 'manage_pp_gallery_posts_custom_column', array( $this, 'render_column' ), 10, 2 );
         add_filter( 'manage_edit-pp_gallery_sortable_columns', array( $this, 'sortable_columns' ) );
     }
 
     /**
-     * Quand une galerie est publiée dans WP,
-     * on passe automatiquement son statut PhotoProof à 'publie'
-     * sauf si elle est déjà à 'valide' ou 'ferme' (on ne rétrograde pas)
+     * When a gallery is published in WP,
+     * we automatically switch its PhotoProof status to 'publie'
+     * unless it's already 'valide' or 'ferme' (we don't downgrade)
      */
     public function auto_set_publie_on_publish( $post_id, $post ) {
         global $wpdb;
@@ -31,7 +35,7 @@ class PhotoProof_Admin_Columns {
             $post_id
         ) );
 
-        // Statuts qu'on ne touche pas (déjà avancés)
+        // Technical status - DO NOT TRANSLATE (DB Keys)
         $protected = array( 'valide', 'ferme' );
 
         if ( $existing ) {
@@ -45,7 +49,7 @@ class PhotoProof_Admin_Columns {
                 );
             }
         } else {
-            // Pas encore de ligne → on la crée
+            // No row yet → create it
             $wpdb->insert(
                 $table,
                 array(
@@ -59,24 +63,23 @@ class PhotoProof_Admin_Columns {
     }
 
     /**
-     * Ajoute les colonnes custom dans la liste WP admin
+     * Adds custom columns to the WP admin list
      */
     public function add_columns( $columns ) {
-        // On réorganise pour mettre nos colonnes après le titre
         $new = array();
         foreach ( $columns as $key => $label ) {
             $new[ $key ] = $label;
             if ( $key === 'title' ) {
-                $new['pp_status'] = 'État';
-                $new['pp_photos'] = 'Photos';
-                $new['pp_client'] = 'Client';
+                $new['pp_status'] = __( 'Status', 'photoproof' );
+                $new['pp_photos'] = __( 'Photos', 'photoproof' );
+                $new['pp_client'] = __( 'Client', 'photoproof' );
             }
         }
         return $new;
     }
 
     /**
-     * Rendu des colonnes custom
+     * Custom columns rendering
      */
     public function render_column( $column, $post_id ) {
         global $wpdb;
@@ -89,17 +92,18 @@ class PhotoProof_Admin_Columns {
 
             $status = $row ? $row->status : null;
 
+            // Mapping: Technical Key => Visual Label (to be translated)
             $map = array(
-                'brouillon' => array( 'icon' => '📝', 'label' => 'Brouillon',  'color' => '#94a3b8' ),
-                'publie'    => array( 'icon' => '🌐', 'label' => 'Publiée',    'color' => '#3b82f6' ),
-                'valide'    => array( 'icon' => '✅', 'label' => 'Validée',    'color' => '#22c55e' ),
-                'ferme'     => array( 'icon' => '🔒', 'label' => 'Archivée',   'color' => '#6b7280' ),
+                'brouillon' => array( 'icon' => '📝', 'label' => __( 'Draft', 'photoproof' ),     'color' => '#94a3b8' ),
+                'publie'    => array( 'icon' => '🌐', 'label' => __( 'Published', 'photoproof' ), 'color' => '#3b82f6' ),
+                'valide'    => array( 'icon' => '✅', 'label' => __( 'Validated', 'photoproof' ), 'color' => '#22c55e' ),
+                'ferme'     => array( 'icon' => '🔒', 'label' => __( 'Archived', 'photoproof' ),  'color' => '#6b7280' ),
             );
 
             if ( $status && isset( $map[ $status ] ) ) {
                 $s = $map[ $status ];
                 echo '<span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;color:' . esc_attr( $s['color'] ) . ';">'
-                    . $s['icon'] . ' ' . esc_html( $s['label'] )
+                    . esc_html($s['icon'] ). ' ' . esc_html( $s['label'] )
                     . '</span>';
             } else {
                 echo '<span style="color:#94a3b8;font-size:12px;">—</span>';
@@ -124,7 +128,7 @@ class PhotoProof_Admin_Columns {
 
             if ( $nb_selected > 0 ) {
                 echo '<span style="font-size:11px;color:#22c55e;margin-left:5px;">('
-                    . $nb_selected . ' sél.)</span>';
+                    . esc_html( $nb_selected ) . ' ' . esc_html__( 'sel.', 'photoproof' ) . ')</span>';
             }
         }
 
@@ -150,7 +154,7 @@ class PhotoProof_Admin_Columns {
     }
 
     /**
-     * Rend la colonne statut triable
+     * Make status column sortable
      */
     public function sortable_columns( $columns ) {
         $columns['pp_status'] = 'pp_status';

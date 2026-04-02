@@ -125,44 +125,39 @@
             height:   window.innerHeight - adminBarH,
             onComplete: function () {
 
-                // 4. Injecter le contenu récap
+                // 4. Contenu récap — structure depuis le PHP, JS remplit uniquement les données
                 $barInner.hide();
-                var $recapContent = $(
-                    '<div class="pp-recap-content" id="pp-recap-content">' +
-                        '<div class="pp-recap-bar-header">' +
-                            '<p class="pp-recap-eyebrow">Récapitulatif</p>' +
-                            '<h2 class="pp-recap-title">' + selectedIds.length + ' photos sélectionnées</h2>' +
-                        '</div>' +
-                        '<div class="pp-recap-bar-grid" id="pp-recap-bar-grid"></div>' +
-                        '<div class="pp-recap-bar-footer">' +
-                            '<button class="pp-btn-recap-back" id="pp-recap-back">← Revenir modifier</button>' +
-                            '<button class="pp-btn-recap-confirm" id="pp-recap-confirm">Confirmer ma sélection</button>' +
-                        '</div>' +
-                    '</div>'
-                );
 
-                var $recapGrid = $recapContent.find('#pp-recap-bar-grid');
+                var $recapContent = $('<div class="pp-recap-content" id="pp-recap-content"></div>');
 
+                // Header — cloné depuis le PHP
+                var $header = $('<div class="pp-recap-bar-header"></div>');
+                $header.append($('#pp-recap-anim-header').children().clone());
+                $header.append($('<h2 class="pp-recap-title"></h2>').text(selectedIds.length + ' photos'));
+                $recapContent.append($header);
+
+                // Grille — items générés dynamiquement (données uniquement)
+                var $recapGrid = $('<div class="pp-recap-bar-grid" id="pp-recap-bar-grid"></div>');
                 selectedIds.forEach(function (id) {
                     var $card  = $('.pp-card[data-id="' + id + '"]');
                     var imgSrc = $card.find('.pp-card-img-wrap').data('full') || $card.find('.pp-card-img').attr('src');
                     var name   = $card.find('.pp-card-name').text();
-                    $recapGrid.append(
-                        '<div class="pp-recap-bar-item" data-id="' + id + '">' +
-                            '<div class="pp-recap-bar-img-wrap">' +
-                                '<img src="' + imgSrc + '" class="pp-recap-bar-img" style="opacity:0" />' +
-                                '<button class="pp-recap-bar-remove">×</button>' +
-                            '</div>' +
-                            '<span class="pp-recap-bar-name">' + name + '</span>' +
-                        '</div>'
-                    );
+                    var $item  = $('<div class="pp-recap-bar-item" data-id="' + id + '"></div>');
+                    var $wrap  = $('<div class="pp-recap-bar-img-wrap"></div>');
+                    $wrap.append($('<img class="pp-recap-bar-img" style="opacity:0" />').attr('src', imgSrc));
+                    $wrap.append($('<button class="pp-recap-bar-remove" type="button">×</button>'));
+                    $item.append($wrap).append($('<span class="pp-recap-bar-name"></span>').text(name));
+                    $recapGrid.append($item);
                 });
+                $recapContent.append($recapGrid);
+
+                // Footer — cloné depuis le PHP
+                var $footer = $('<div class="pp-recap-bar-footer"></div>');
+                $footer.append($('#pp-recap-anim-footer').children().clone(true));
+                $recapContent.append($footer);
 
                 $bar.append($recapContent);
-                gsap.fromTo($recapContent[0],
-                    { opacity: 0 },
-                    { opacity: 1, duration: 0.25 }
-                );
+                gsap.fromTo($recapContent[0], { opacity: 0 }, { opacity: 1, duration: 0.25 });
 
                 // 5. Fade in des images — simple et performant
                 setTimeout(function () {
@@ -176,19 +171,16 @@
                     });
                 }, 80);
 
-                // Désélection depuis le récap
+                // Événements récap animé
                 $recapContent.on('click', '.pp-recap-bar-remove', function () {
                     var id = parseInt($(this).closest('.pp-recap-bar-item').data('id'), 10);
                     $(document).trigger('pp:requestDeselect', [id]);
                     $(this).closest('.pp-recap-bar-item').remove();
-                    var remaining = $recapGrid.find('.pp-recap-bar-item').length;
-                    if (remaining === 0) closeRecap();
+                    if ($recapGrid.find('.pp-recap-bar-item').length === 0) closeRecap();
                 });
-
-                $('#pp-recap-back').on('click', function () { closeRecap(); });
-                $('#pp-recap-confirm').on('click', function () {
+                $recapContent.on('click', '.pp-btn-recap-back', function () { closeRecap(); });
+                $recapContent.on('click', '.pp-btn-recap-confirm', function () {
                     closeRecap(function () {
-                        // Confirmer directement — pas de modal intermédiaire
                         $(document).trigger('pp:confirmSelection');
                     });
                 });

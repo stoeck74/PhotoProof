@@ -1,0 +1,748 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PhotoProof\n"
+"Language: de_DE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Domain: photoproof\n"
+"Language-Team: German\n"
+"PO-Revision-Date: 2026-04-02 15:19+0000\n"
+"X-Generator: Loco https://localise.biz/"
+
+#. %d: number of photos
+#: includes/class-photoproof-helpers.php:114
+msgid "%d photo"
+msgid_plural "%d photos"
+msgstr[0] "%d Foto"
+msgstr[1] "%d Fotos"
+
+#. %d: number of photos selected by the client
+#: admin/class-photoproof-metaboxes.php:215
+msgid "%d photo selected"
+msgid_plural "%d photos selected"
+msgstr[0] "%d Foto ausgewählt"
+msgstr[1] "%d Fotos ausgewählt"
+
+#. %d: number of photographs in the gallery
+#: templates/single-pp_gallery.php:105
+msgid "%d photograph"
+msgid_plural "%d photographs"
+msgstr[0] "%d Fotografie"
+msgstr[1] "%d Fotografien"
+
+#: admin/class-photoproof-settings.php:414
+msgid "Access & Authentication"
+msgstr "Zugang & Authentifizierung"
+
+#: templates/single-pp_gallery.php:22
+msgid "Access Denied"
+msgstr "Zugriff verweigert"
+
+#: admin/class-photoproof-settings.php:246
+msgid "Access Expiration"
+msgstr "Ablauf des Zugangs"
+
+#: admin/class-photoproof-settings.php:328
+msgid "Active color"
+msgstr "Aktive Farbe"
+
+#: admin/class-photoproof-metaboxes.php:319
+msgid "Add images"
+msgstr "Bilder hinzufügen"
+
+#: photoproof.php:214
+msgid "Add New"
+msgstr "Neu hinzufügen"
+
+#: photoproof.php:215
+msgid "Add New Gallery"
+msgstr "Neue Galerie hinzufügen"
+
+#: admin/class-photoproof-settings.php:465
+msgid "Advanced automatic deletion features are currently under development."
+msgstr ""
+"Erweiterte Funktionen zur automatischen Löschung befinden sich derzeit in "
+"der Entwicklung."
+
+#: admin/class-photoproof-metaboxes.php:298
+msgid "Applies the watermark on all images uploaded"
+msgstr "Wendet das Wasserzeichen auf alle hochgeladenen Bilder an"
+
+#: admin/class-photoproof-metaboxes.php:209
+msgid "Approved selection by client"
+msgstr "Vom Kunden genehmigte Auswahl"
+
+#: admin/class-photoproof-admin-columns.php:100
+#: admin/class-photoproof-metaboxes.php:81
+msgid "Archived"
+msgstr "Archiviert"
+
+#: templates/single-pp_gallery.php:25
+msgid "Archived Gallery"
+msgstr "Archivierte Galerie"
+
+#: admin/class-photoproof-metaboxes.php:141
+msgid "Assigned Client"
+msgstr "Zugewiesener Kunde"
+
+#: admin/class-photoproof-settings.php:254
+msgid "Auto-archiving"
+msgstr "Auto-Archivierung"
+
+#: admin/class-photoproof-settings.php:174
+msgid "Automatic numbering (0001, 0002...)."
+msgstr "Automatische Nummerierung (0001, 0002...)."
+
+#: admin/class-photoproof-settings.php:369
+msgid ""
+"Automatically applies your logo to uploaded images to prevent screenshots."
+msgstr ""
+"Wendet automatisch Ihr Logo auf hochgeladene Bilder an, um Screenshots zu "
+"verhindern."
+
+#: templates/single-pp_gallery.php:254
+msgid "Back to gallery"
+msgstr "Zurück zur Galerie"
+
+#: admin/class-photoproof-settings.php:323
+msgid "Background"
+msgstr "Hintergrund"
+
+#: admin/class-photoproof-settings.php:167
+msgid "By default, it uses your PhotoProof gallery title."
+msgstr "Standardmäßig wird der Titel Ihrer PhotoProof-Galerie verwendet."
+
+#: admin/class-photoproof-settings.php:353
+msgid "By default, photos are displayed with square corners (reportage style)."
+msgstr ""
+"Standardmäßig werden Fotos mit quadratischen Ecken angezeigt (Reportage-Stil)"
+"."
+
+#: templates/single-pp_gallery.php:207
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#. 1: File path, 2: Line number
+#: includes/class-photoproof-export.php:92
+#, php-format
+msgid "Cannot send file: headers already sent in %1$s line %2$s"
+msgstr ""
+"Datei kann nicht gesendet werden: Header bereits gesendet in %1$s Zeile %2$s"
+
+#: admin/class-photoproof-metaboxes.php:325
+msgid "Click to browse or drag and drop your files here"
+msgstr "Klicken Sie zum Durchsuchen oder ziehen Sie Ihre Dateien hierher"
+
+#: admin/class-photoproof-admin-columns.php:75
+msgid "Client"
+msgstr "Kunde"
+
+#: admin/class-photoproof-metaboxes.php:82
+msgid "Client access disabled"
+msgstr "Kunden-Zugang deaktiviert"
+
+#: admin/class-photoproof-metaboxes.php:201
+msgid "CLIENT SELECTION"
+msgstr "KUNDENAUSWAHL"
+
+#: admin/class-photoproof-metaboxes.php:380
+msgid "Client will be able to select again"
+msgstr "Der Kunde kann erneut auswählen"
+
+#: templates/single-pp_gallery.php:263
+msgid "Close"
+msgstr "Schließen"
+
+#: admin/class-photoproof-metaboxes.php:135
+msgid "Configuration"
+msgstr "Konfiguration"
+
+#: admin/class-photoproof-settings.php:81
+msgid "Configuration PhotoProof"
+msgstr "Konfiguration PhotoProof"
+
+#: templates/single-pp_gallery.php:208
+msgid "Confirm"
+msgstr "Bestätigen"
+
+#: templates/single-pp_gallery.php:232 templates/single-pp_gallery.php:245
+msgid "Confirm selection"
+msgstr "Auswahl bestätigen"
+
+#: templates/single-pp_gallery.php:201
+msgid "Confirmation"
+msgstr "Bestätigung"
+
+#: admin/class-photoproof-metaboxes.php:356
+msgid "Copied !"
+msgstr "Kopiert !"
+
+#: admin/class-photoproof-metaboxes.php:184
+msgid "Custom Prefix"
+msgstr "Benutzerdefiniertes Präfix"
+
+#. Author of the plugin
+msgid "Cédric Stoecklin"
+msgstr ""
+
+#: admin/class-photoproof-settings.php:463
+msgid "Data Protection"
+msgstr "Datenschutz"
+
+#: admin/class-photoproof-settings.php:299
+msgid "Default website logo"
+msgstr "Standard-Website-Logo"
+
+#: admin/class-photoproof-settings.php:380
+msgid "Delete"
+msgstr "Löschen"
+
+#: admin/class-photoproof-settings.php:446
+msgid "Delete photos when a gallery is deleted"
+msgstr "Fotos löschen, wenn eine Galerie gelöscht wird"
+
+#: admin/class-photoproof-admin-columns.php:97
+msgid "Draft"
+msgstr "Entwurf"
+
+#: admin/class-photoproof-metaboxes.php:66
+msgid "Draft — Private"
+msgstr "Entwurf — Privat"
+
+#: admin/class-photoproof-metaboxes.php:190
+msgid "e.g.: Smith-Wedding"
+msgstr "z.B.: Mueller-Hochzeit"
+
+#: photoproof.php:216
+msgid "Edit Gallery"
+msgstr "Galerie bearbeiten"
+
+#: admin/class-photoproof-settings.php:143
+msgid "Enable automatic renaming on upload"
+msgstr "Automatisches Umbenennen beim Hochladen aktivieren"
+
+#: admin/class-photoproof-settings.php:217
+msgid "Enable recommendation mentions"
+msgstr "Empfehlungs-Hinweise aktivieren"
+
+#: admin/class-photoproof-settings.php:355
+msgid "Enable this option for slightly rounded corners (modern style)."
+msgstr ""
+"Aktivieren Sie diese Option für leicht abgerundete Ecken (moderner Stil)."
+
+#: admin/class-photoproof-metaboxes.php:397
+msgid "Error :"
+msgstr "Fehler :"
+
+#: admin/class-photoproof-settings.php:179
+msgid "Example with brand:"
+msgstr "Beispiel mit Marke:"
+
+#. %d: Exemple
+#: admin/class-photoproof-settings.php:429
+#, php-format
+msgid "Example: %s"
+msgstr "Beispiel: %s"
+
+#: admin/class-photoproof-settings.php:226
+msgid "Favorite icon:"
+msgstr "Favoriten-Icon:"
+
+#: admin/class-photoproof-settings.php:438
+msgid "File Deletion"
+msgstr "Dateilöschung"
+
+#: admin/class-photoproof-settings.php:150
+msgid "File name structure"
+msgstr "Dateinamensstruktur"
+
+#: admin/class-photoproof-metaboxes.php:309
+msgid "Files"
+msgstr "Dateien"
+
+#. %d: Locked acces after 30 days
+#: admin/class-photoproof-settings.php:264
+msgid ""
+"Fixed setting: Client access will be automatically cut off 30 days after the "
+"publication date of each gallery."
+msgstr ""
+"Feste Einstellung: Der Kundenzugang wird 30 Tage nach dem "
+"Veröffentlichungsdatum jeder Galerie automatisch gesperrt."
+
+#. Description of the plugin
+msgid ""
+"Galerie d'épreuve pour photographe avec gestion de watermark et dossiers "
+"sécurisés."
+msgstr ""
+
+#: photoproof.php:212
+msgid "Gallery"
+msgstr "Galerie"
+
+#. %d: Galerie - Gallery
+#: admin/class-photoproof-settings.php:186
+#, php-format
+msgid "Gallery %1$s → %2$s"
+msgstr "Galerie %1$s → %2$s"
+
+#: admin/class-photoproof-settings.php:285
+msgid "Gallery main header Title"
+msgstr "Hauptüberschrift der Galerie"
+
+#: templates/single-pp_gallery.php:22
+msgid "Gallery not available"
+msgstr "Galerie nicht verfügbar"
+
+#: admin/class-photoproof-metaboxes.php:338
+msgid ""
+"Gallery published — avoid deleting photos to prevent invalidating the "
+"client's selection."
+msgstr ""
+"Galerie veröffentlicht — vermeiden Sie das Löschen von Fotos, um die Auswahl "
+"des Kunden nicht ungültig zu machen."
+
+#: admin/class-photoproof-settings.php:91
+msgid "General"
+msgstr "Allgemein"
+
+#: admin/class-photoproof-settings.php:159
+msgid "Global renaming structure:"
+msgstr "Globale Umbenennungsstruktur:"
+
+#: admin/class-photoproof-settings.php:119
+msgid "Hide gallery names in the URL "
+msgstr "Galerienamen in der URL verbergen"
+
+#: admin/class-photoproof-settings.php:221
+msgid ""
+"Highlight your favorite photos to your clients to guide their final "
+"selection."
+msgstr ""
+"Heben Sie Ihre Lieblingsfotos für Ihre Kunden hervor, um deren endgültige "
+"Auswahl zu unterstützen."
+
+#: templates/single-pp_gallery.php:255
+msgid "Home"
+msgstr "Startseite"
+
+#. If unchecked img folder are not deleted with the post - Gallery
+#: admin/class-photoproof-settings.php:455
+#, php-format
+msgid "If disabled, %s folders are kept on the server."
+msgstr "Wenn deaktiviert, bleiben die %s-Ordner auf dem Server erhalten."
+
+#: admin/class-photoproof-settings.php:450
+msgid ""
+"If enabled, physical files and attachments are permanently deleted along "
+"with the gallery."
+msgstr ""
+"Wenn aktiviert, werden physische Dateien und Anhänge zusammen mit der "
+"Galerie dauerhaft gelöscht."
+
+#: admin/class-photoproof-metaboxes.php:382
+msgid "In progress…"
+msgstr "In Bearbeitung…"
+
+#: admin/class-photoproof-metaboxes.php:378
+msgid "Keep selection"
+msgstr "Auswahl behalten"
+
+#: templates/single-pp_gallery.php:256
+msgid "Log out"
+msgstr "Abmelden"
+
+#: admin/class-photoproof-settings.php:417
+msgid "Login Page"
+msgstr "Login-Seite"
+
+#: photoproof.php:217
+msgid "New Gallery"
+msgstr "Neue Galerie"
+
+#: templates/single-pp_gallery.php:265
+msgid "Next"
+msgstr "Weiter"
+
+#: photoproof.php:220
+msgid "No galleries found"
+msgstr "Keine Galerien gefunden"
+
+#: photoproof.php:221
+msgid "No galleries found in Trash"
+msgstr "Keine Galerien im Papierkorb gefunden"
+
+#: admin/class-photoproof-settings.php:403
+msgid "No logo configured"
+msgstr "Kein Logo konfiguriert"
+
+#: templates/single-pp_gallery.php:178
+msgid "No photos in the gallery yet."
+msgstr "Noch keine Fotos in der Galerie."
+
+#: admin/class-photoproof-metaboxes.php:67
+msgid "Not visible to the client"
+msgstr "Für den Kunden nicht sichtbar"
+
+#. %d: Si vous omettez PhotoProof l'ajoutera automatiquement à la fin
+#: admin/class-photoproof-settings.php:198
+#, php-format
+msgid "Note: If you omit %s, PhotoProof will automatically add it at the end."
+msgstr ""
+"Hinweis: Wenn Sie %s weglassen, fügt PhotoProof es automatisch am Ende hinzu."
+
+#: admin/class-photoproof-settings.php:384
+msgid "Opacity :"
+msgstr "Deckkraft :"
+
+#: admin/class-photoproof-metaboxes.php:284
+msgid "Options"
+msgstr "Optionen"
+
+#: admin/class-photoproof-settings.php:135
+msgid "Organization & Automatic Renaming"
+msgstr "Organisation & Automatisches Umbenennen"
+
+#: includes/class-photoproof-helpers.php:86
+msgid "Ouvert"
+msgstr ""
+
+#: admin/class-photoproof-settings.php:341
+msgid "Photo Format (Client Gallery)"
+msgstr "Fotoformat (Kundengalerie)"
+
+#: admin/class-photoproof-settings.php:209
+msgid "Photographer's Selection (Recommendations)"
+msgstr "Auswahl des Fotografen (Empfehlungen)"
+
+#. Name of the plugin
+#: photoproof.php:213
+msgid "PhotoProof"
+msgstr ""
+
+#: photoproof.php:211
+msgid "PhotoProof Galleries"
+msgstr "PhotoProof-Galerien"
+
+#: admin/class-photoproof-admin-columns.php:74
+msgid "Photos"
+msgstr "Fotos"
+
+#: templates/single-pp_gallery.php:25
+msgid "Please contact your photographer."
+msgstr "Bitte kontaktieren Sie Ihren Fotografen."
+
+#: templates/single-pp_gallery.php:264
+msgid "Previous"
+msgstr "Zurück"
+
+#: admin/class-photoproof-metaboxes.php:324
+msgid "Publish or save the draft before uploading to see images name updated"
+msgstr ""
+"Veröffentlichen oder speichern Sie den Entwurf vor dem Hochladen, um die "
+"aktualisierten Namen zu sehen"
+
+#: admin/class-photoproof-admin-columns.php:98
+msgid "Published"
+msgstr "Veröffentlicht"
+
+#: admin/class-photoproof-metaboxes.php:71
+msgid "Published — Open"
+msgstr "Veröffentlicht — Offen"
+
+#: admin/class-photoproof-settings.php:111
+msgid "Random URL (UUID)"
+msgstr "Zufällige URL (UUID)"
+
+#: admin/class-photoproof-settings.php:312
+msgid "Remove"
+msgstr "Entfernen"
+
+#: admin/class-photoproof-metaboxes.php:245
+msgid "Reopen gallery"
+msgstr "Galerie erneut öffnen"
+
+#: admin/class-photoproof-metaboxes.php:380
+msgid "Reopen gallery and"
+msgstr "Galerie erneut öffnen und"
+
+#: admin/class-photoproof-metaboxes.php:401
+msgid "Reopen — Keep selection"
+msgstr "Erneut öffnen — Auswahl behalten"
+
+#: admin/class-photoproof-metaboxes.php:400
+msgid "Reopen — reset"
+msgstr "Erneut öffnen — zurücksetzen"
+
+#: admin/class-photoproof-metaboxes.php:252
+msgid "Reopen — with client previous selection"
+msgstr "Erneut öffnen — mit vorheriger Auswahl des Kunden"
+
+#: admin/class-photoproof-metaboxes.php:258
+msgid "Reopen — with deleted previous selection"
+msgstr "Erneut öffnen — mit gelöschter vorheriger Auswahl"
+
+#: admin/class-photoproof-metaboxes.php:377
+msgid "Reset selection"
+msgstr "Auswahl zurücksetzen"
+
+#: admin/class-photoproof-settings.php:349
+msgid "Round corners"
+msgstr "Abgerundete Ecken"
+
+#: admin/class-photoproof-settings.php:472
+msgid "Save Preferences"
+msgstr "Einstellungen speichern"
+
+#: photoproof.php:219
+msgid "Search Galleries"
+msgstr "Galerien suchen"
+
+#: admin/class-photoproof-settings.php:95
+msgid "Security & Watermark"
+msgstr "Sicherheit & Wasserzeichen"
+
+#: admin/class-photoproof-admin-columns.php:131
+msgid "sel."
+msgstr ""
+
+#: templates/single-pp_gallery.php:271
+msgid "Select"
+msgstr "Auswählen"
+
+#: admin/class-photoproof-settings.php:376
+msgid "Select logo"
+msgstr "Logo auswählen"
+
+#: templates/single-pp_gallery.php:169
+msgid "Select this photo"
+msgstr "Dieses Foto auswählen"
+
+#: templates/single-pp_gallery.php:185
+msgid "selected"
+msgstr "ausgewählt"
+
+#: admin/class-photoproof-metaboxes.php:268
+msgid "Selected photography"
+msgstr "Ausgewählte Fotografie"
+
+#: admin/class-photoproof-metaboxes.php:76
+msgid "Selection Confirmed"
+msgstr "Auswahl bestätigt"
+
+#: templates/single-pp_gallery.php:190 templates/single-pp_gallery.php:251
+msgid "Selection confirmed"
+msgstr "Auswahl bestätigt"
+
+#: templates/single-pp_gallery.php:119
+msgid ""
+"Selection confirmed — please contact your photographer for any modification."
+msgstr ""
+"Auswahl bestätigt — bitte kontaktieren Sie Ihren Fotografen für Änderungen."
+
+#: admin/class-photoproof-settings.php:19
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: admin/class-photoproof-settings.php:18
+msgid "Settings PhotoProof"
+msgstr "PhotoProof-Einstellungen"
+
+#: admin/class-photoproof-admin-columns.php:73
+#: admin/class-photoproof-metaboxes.php:162
+msgid "Status"
+msgstr "Status"
+
+#: templates/single-pp_gallery.php:222 templates/single-pp_gallery.php:241
+msgid "Summary"
+msgstr "Zusammenfassung"
+
+#: admin/class-photoproof-settings.php:333
+msgid "Text color"
+msgstr "Textfarbe"
+
+#: admin/class-photoproof-metaboxes.php:77
+msgid "The client has validated his selection"
+msgstr "Der Kunde hat seine Auswahl bestätigt"
+
+#: admin/class-photoproof-settings.php:173
+msgid "The counter."
+msgstr ""
+
+#: admin/class-photoproof-settings.php:320
+msgid "Theme Colors Scheme"
+msgstr "Themen-Farbschema"
+
+#: admin/class-photoproof-settings.php:99
+msgid "Theme Design"
+msgstr "Themen-Design"
+
+#: templates/single-pp_gallery.php:22
+msgid "This gallery is not published yet."
+msgstr "Diese Galerie ist noch nicht veröffentlicht."
+
+#: admin/class-photoproof-settings.php:162
+msgid ""
+"This setting defines the \"template\" used to name your files. You can "
+"include your brand name permanently."
+msgstr ""
+"Diese Einstellung definiert die \"Vorlage\" für die Dateibenennung. Sie "
+"können Ihren Markennamen dauerhaft einfügen."
+
+#. %d: Transforme vos liens en codes impossibles à deviner
+#: admin/class-photoproof-settings.php:126
+#, php-format
+msgid ""
+"Transforms your links (e.g., %1$s) into impossible-to-guess codes (e.g., "
+"%2$s)."
+msgstr ""
+"Verwandelt Ihre Links (z.B. %1$s) in unvorhersehbare Codes (z.B. %2$s)."
+
+#: admin/class-photoproof-metaboxes.php:397
+msgid "unknown"
+msgstr ""
+
+#: admin/class-photoproof-settings.php:308
+msgid "Upload a logo"
+msgstr "Ein Logo hochladen"
+
+#: admin/class-photoproof-metaboxes.php:318
+msgid "Upload media"
+msgstr "Medien hochladen"
+
+#: admin/class-photoproof-metaboxes.php:120
+msgid "URL"
+msgstr ""
+
+#: admin/class-photoproof-metaboxes.php:126
+msgid "URL / Copy"
+msgstr "URL / Kopieren"
+
+#: admin/class-photoproof-settings.php:424
+msgid ""
+"URL of your custom login page. If empty, WordPress will use its default "
+"login page."
+msgstr ""
+"URL Ihrer benutzerdefinierten Login-Seite. Wenn leer, wird die Standard-"
+"Login-Seite verwendet."
+
+#: templates/single-pp_gallery.php:192
+msgid "Validate selection"
+msgstr "Auswahl validieren"
+
+#: templates/single-pp_gallery.php:202
+msgid "Validate your selection?"
+msgstr "Ihre Auswahl validieren?"
+
+#: admin/class-photoproof-admin-columns.php:99
+msgid "Validated"
+msgstr "Validiert"
+
+#: includes/class-photoproof-helpers.php:86
+msgid "Validé"
+msgstr ""
+
+#: admin/class-photoproof-settings.php:166
+msgid "Variable content."
+msgstr ""
+
+#: photoproof.php:218
+msgid "View Gallery"
+msgstr "Galerie ansehen"
+
+#: admin/class-photoproof-metaboxes.php:112
+msgid "View Gallery ↗"
+msgstr ""
+
+#: admin/class-photoproof-settings.php:281
+msgid "Visual Identity (Front End)"
+msgstr "Visuelle Identität (Front End)"
+
+#: admin/class-photoproof-metaboxes.php:72
+msgid "Waiting for client selection"
+msgstr "Warten auf Kundenauswahl"
+
+#: admin/class-photoproof-settings.php:367
+msgid "Watermark Protection"
+msgstr "Wasserzeichen-Schutz"
+
+#: admin/class-photoproof-metaboxes.php:295
+msgid "Watermark protection"
+msgstr ""
+
+#: admin/class-photoproof-settings.php:268
+msgid "You can still reactivate a gallery manually if needed."
+msgstr "Sie können eine Galerie bei Bedarf manuell reaktivieren."
+
+#. %s: number of photographs, wrapped in a <strong> tag
+#: templates/single-pp_gallery.php:205
+#, php-format
+msgid "You have selected %s photograph(s). This action is final on your end."
+msgstr ""
+"Sie haben %s Fotografie(n) ausgewählt. Diese Aktion ist für Sie endgültig."
+
+#: templates/single-pp_gallery.php:252
+msgid ""
+"Your photographer has been notified. Contact me for any changes in your "
+"choice."
+msgstr ""
+"Ihr Fotograf wurde benachrichtigt. Kontaktieren Sie mich für Änderungen an "
+"Ihrer Auswahl."
+
+#. %s: number of selected photos, wrapped in a <span> tag
+#: templates/single-pp_gallery.php:227
+#, php-format
+msgid "Your selection — %s photos"
+msgstr "Ihre Auswahl — %s Fotos"
+
+#: admin/class-photoproof-metaboxes.php:144
+msgid "— No client selected —"
+msgstr "— Kein Kunde ausgewählt —"
+
+#: templates/single-pp_gallery.php:217 templates/single-pp_gallery.php:244
+msgid "← Back to edit"
+msgstr "← Zurück zum Bearbeiten"
+
+#: admin/class-photoproof-metaboxes.php:106
+#: admin/class-photoproof-metaboxes.php:272
+msgid "↓ Export CSV"
+msgstr "↓ CSV-Export"
+
+#: admin/class-photoproof-settings.php:230
+msgid "■ Dot"
+msgstr ""
+
+#: admin/class-photoproof-settings.php:236
+msgid "◆ Diamond"
+msgstr ""
+
+#: admin/class-photoproof-settings.php:233
+msgid "★ Star"
+msgstr ""
+
+#: admin/class-photoproof-metaboxes.php:169
+msgid "✅ Proofed by client (closed)"
+msgstr "✅ Vom Kunden bestätigt (geschlossen)"
+
+#: admin/class-photoproof-settings.php:239
+msgid "❤ Heart"
+msgstr ""
+
+#: admin/class-photoproof-metaboxes.php:168
+msgid "🌐 Published (Open)"
+msgstr "🌐 Veröffentlicht (Offen)"
+
+#: admin/class-photoproof-settings.php:169
+msgid ""
+"👉 If you fill in the \"Custom Name\" in a gallery, it will be used to fill "
+"this tag."
+msgstr ""
+
+#: admin/class-photoproof-metaboxes.php:167
+msgid "📝 Draft (Private)"
+msgstr "📝 Entwurf (Privat)"
+
+#: admin/class-photoproof-metaboxes.php:170
+msgid "🔒 Archived (hiden)"
+msgstr ""

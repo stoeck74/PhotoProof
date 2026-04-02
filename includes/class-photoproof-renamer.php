@@ -1,4 +1,7 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly
+}
 /**
  * Logique de renommage différé — PhotoProof
  *
@@ -131,6 +134,7 @@ class PhotoProof_Renamer {
         }
 
         // Renommage physique
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename
         if ( ! @rename( $old_file, $new_file ) ) {
             return false;
         }

@@ -101,10 +101,10 @@ Accessible via **PhotoProof → Réglages**
 
 1. **PhotoProof → Ajouter une galerie**
 2. Donner un titre
-3. Enregistrer en brouillon (nécessaire avant l'upload) ou définir le statut sur publié
+3. Enregistrer en brouillon (nécessaire avant l'upload) ou définir le statut sur publié (option pour voir les titres des images avant upload)
 4. Uploader les photos via la zone drag & drop dans la metabox
 5. Optionnel : marquer des photos comme recommandées (étoile coin haut gauche)
-6. Optionnel : renseigner le client (utilisateur WP) dans la metabox
+6. Renseigner le client (utilisateur WP) dans la metabox
 7. **Publier** → déclenche automatiquement :
    - Renommage des fichiers (`{titre}-0001.jpg`, `{titre}-0002.jpg`...)
    - Génération des watermarks dans `photoproof/gallery-{id}/watermarked/`
@@ -113,13 +113,13 @@ Accessible via **PhotoProof → Réglages**
 ### 2. Partager avec le client
 
 - Copier l'URL depuis la metabox et l'envoyer au client
-- Le client doit être être un user WordPress (compte utilisateur)
+- Le client doit être être un user WordPress (compte utilisateur - crée un compte utilisateur par client - helpers dispo pour intégrer sur une page client par exemple)
 - URL format : `https://monsite.com/galerie-epreuve/titre-galerie/`
 
 ### 3. Sélection client
 
 1. Le client voit la grille de photos (5 colonnes, object-fit: contain — pas de crop)
-2. Il clique sur les photos pour les sélectionner (cercle coin haut droit)
+2. Il clique sur les photos pour les sélectionner (cercle coin bas droit)
 3. La sélection est sauvegardée automatiquement toutes les 1.5 secondes
 4. Il clique **Valider la sélection** → confirmation irréversible
 5. Deux emails sont envoyés automatiquement :
