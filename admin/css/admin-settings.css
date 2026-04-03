@@ -1,0 +1,303 @@
+/**
+ * PhotoProof — Admin CSS
+ * Page de réglages + Metabox galerie redesignée
+ */
+
+/* ============================================================
+   1. RESET
+   ============================================================ */
+.pp-settings-page *,
+.pp-meta * { box-sizing: border-box; }
+
+/* ============================================================
+   2. PAGE DE RÉGLAGES — LAYOUT
+   ============================================================ */
+.pp-settings-page .pp-settings-container {
+    display: flex;
+    margin-top: 20px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,.07);
+    overflow: hidden;
+    min-height: 600px;
+    max-width: 1100px;
+}
+
+.pp-settings-page .pp-settings-sidebar {
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e8ecef;
+    padding: 24px 0;
+    flex-shrink: 0;
+}
+
+.pp-settings-page .pp-nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 13px 22px; cursor: pointer;
+    color: #64748b; font-size: 13px; font-weight: 500;
+    border-left: 2px solid transparent;
+    transition: background .2s, color .2s, border-color .2s;
+}
+.pp-settings-page .pp-nav-item:hover { background: #f1f5f9; color: #2271b1; }
+.pp-settings-page .pp-nav-item.active { background: #fff; color: #2271b1; border-left-color: #2271b1; font-weight: 600; }
+.pp-settings-page .pp-nav-item .dashicons { font-size: 16px; width: 16px; height: 16px; }
+
+.pp-settings-page .pp-settings-content { flex: 1; padding: 36px 40px; background: #fff; position: relative; }
+.pp-settings-page .pp-section-content { display: none; }
+.pp-settings-page .pp-section-content.active { display: block; }
+
+/* ============================================================
+   3. PAGE DE RÉGLAGES — COMPOSANTS
+   ============================================================ */
+.pp-settings-page .pp-card { background: #fafafa; border: 1px solid #e8ecef; border-radius: 10px; padding: 24px 28px; margin-bottom: 24px; }
+.pp-settings-page .pp-card h3 { margin: 0 0 18px; font-size: 15px; font-weight: 600; color: #1e293b; padding-bottom: 14px; border-bottom: 1px solid #eef0f3; }
+.pp-settings-page .pp-separator { border: none; border-top: 1px solid #eef0f3; margin: 22px 0; }
+.pp-settings-page .pp-option-row { display: flex; align-items: center; gap: 12px; }
+.pp-settings-page .pp-label-text { font-size: 13px; font-weight: 600; color: #334155; }
+.pp-settings-page .pp-explanation { font-size: 12px; color: #64748b; margin: 8px 0 0 52px; line-height: 1.6; }
+.pp-settings-page .pp-sub-panel { margin: 14px 0 0 52px; padding: 18px 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
+.pp-settings-page .pp-main-label { display: block; margin-bottom: 10px; font-size: 13px; font-weight: 600; color: #1e293b; }
+.pp-settings-page .pp-branding-grid { display: flex; gap: 32px; align-items: center; }
+.pp-settings-page .pp-branding-controls { flex: 1; }
+.pp-settings-page .pp-branding-preview { flex: 1; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 10px; padding: 24px; text-align: center; min-height: 100px; display: flex; align-items: center; justify-content: center; }
+#wm-preview-container { width: 100%; min-height: 100px; display: flex; align-items: center; justify-content: center; background: #f0f0f0; border: 1px dashed #ccc; padding: 10px; border-radius: 6px; }
+#wm-placeholder { color: #94a3b8; font-style: italic; font-size: 13px; }
+#wm-live-preview { max-width: 200px; height: auto; }
+.pp-settings-page .pp-range-group { margin-top: 20px; }
+.pp-settings-page .pp-range-group label { display: block; font-size: 12px; color: #64748b; margin-bottom: 8px; }
+.pp-settings-page .pp-color-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 24px; margin-top: 16px; }
+.pp-settings-page .pp-color-item label { display: block; margin-bottom: 8px; font-size: 12px; font-weight: 600; color: #1e293b; }
+.pp-settings-page .pp-save-bar { margin-top: 24px; padding-top: 20px; border-top: 1px solid #eef0f3; display: flex; justify-content: flex-end; }
+
+/* ============================================================
+   4. TOGGLE SWITCH iOS
+   ============================================================ */
+.pp-switch { position: relative; display: inline-block; width: 38px; height: 21px; flex-shrink: 0; vertical-align: middle; }
+.pp-switch input { opacity: 0; width: 0; height: 0; }
+.pp-slider { position: absolute; cursor: pointer; inset: 0; background-color: #cbd5e1; transition: background-color .3s; border-radius: 21px; }
+.pp-slider:before { position: absolute; content: ""; height: 15px; width: 15px; left: 3px; bottom: 3px; background-color: #fff; transition: transform .3s; border-radius: 50%; }
+input:checked + .pp-slider { background-color: #2271b1; }
+input:checked + .pp-slider:before { transform: translateX(17px); }
+
+/* ============================================================
+   5. METABOX — LAYOUT GÉNÉRAL
+   ============================================================ */
+.pp-meta {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #2c3338;
+    background: #f8f9fa;
+    border-radius: 0 0 4px 4px;
+    overflow: hidden;
+}
+
+.pp-meta-body { padding: 18px; display: flex; flex-direction: column; gap: 20px; }
+
+.pp-meta-section { display: flex; flex-direction: column; gap: 10px; }
+
+.pp-meta-section-title {
+    font-size: 9px; font-weight: 700; letter-spacing: .14em;
+    text-transform: uppercase; color: #94a3b8;
+    padding-bottom: 8px; border-bottom: 1px solid #f1f5f9;
+    margin: 0;
+}
+
+/* ============================================================
+   6. METABOX — BANDE STATUT
+   ============================================================ */
+.pp-state-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 18px; border-bottom: 2px solid;
+}
+
+.pp-state-publie    { background: #eff6ff; border-color: #3b82f6; }
+.pp-state-valide    { background: #f0fdf4; border-color: #22c55e; }
+.pp-state-brouillon { background: #f8fafc; border-color: #94a3b8; }
+.pp-state-ferme     { background: #f1f5f9; border-color: #475569; }
+
+.pp-state-left { display: flex; align-items: center; gap: 10px; }
+
+.pp-state-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.pp-state-publie    .pp-state-dot { background: #3b82f6; }
+.pp-state-valide    .pp-state-dot { background: #22c55e; }
+.pp-state-brouillon .pp-state-dot { background: #94a3b8; }
+.pp-state-ferme     .pp-state-dot { background: #475569; }
+
+.pp-state-label { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; line-height: 1.3; }
+.pp-state-publie    .pp-state-label { color: #1d4ed8; }
+.pp-state-valide    .pp-state-label { color: #166534; }
+.pp-state-brouillon .pp-state-label { color: #64748b; }
+.pp-state-ferme     .pp-state-label { color: #334155; }
+
+.pp-state-sub { font-size: 11px; margin-top: 2px; opacity: .7; }
+.pp-state-publie    .pp-state-sub { color: #1d4ed8; }
+.pp-state-valide    .pp-state-sub { color: #166534; }
+.pp-state-brouillon .pp-state-sub { color: #64748b; }
+.pp-state-ferme     .pp-state-sub { color: #334155; }
+
+.pp-state-actions { display: flex; gap: 8px; align-items: center; }
+
+.pp-btn-state-action {
+    font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+    padding: 7px 14px; border-radius: 5px; cursor: pointer; white-space: nowrap;
+    text-decoration: none; display: inline-flex; align-items: center;
+}
+.pp-state-valide    .pp-btn-state-action { border: 1px solid #22c55e; color: #166534; background: transparent; }
+.pp-state-publie    .pp-btn-state-action { border: 1px solid #3b82f6; color: #1d4ed8; background: transparent; }
+
+/* ============================================================
+   7. METABOX — URL ROW
+   ============================================================ */
+.pp-url-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 18px; background: #fff;
+    border-bottom: 1px solid #e8ecef;
+}
+.pp-url-label { font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #94a3b8; white-space: nowrap; }
+.pp-url-value { flex: 1; font-family: monospace; font-size: 11px; color: #475569; background: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 5px; padding: 6px 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ============================================================
+   8. METABOX — BOUTONS
+   ============================================================ */
+.pp-btn {
+    font-size: 12px; padding: 7px 14px; border-radius: 6px;
+    border: 1px solid #c3c4c7; background: #fff; color: #2c3338;
+    cursor: pointer; white-space: nowrap; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 4px;
+    transition: background .15s, border-color .15s; line-height: 1;
+}
+.pp-btn:hover { background: #f6f7f7; border-color: #8c8f94; }
+.pp-btn-sm { font-size: 11px; padding: 5px 11px; }
+.pp-btn-ghost { background: transparent; border-color: #dde1e6; color: #64748b; }
+.pp-btn-ghost:hover { background: #f8f9fa; border-color: #8c8f94; color: #2c3338; }
+.pp-btn-primary { background: #1e293b; color: #fff; border-color: #1e293b; }
+.pp-btn-primary:hover { background: #334155; border-color: #334155; color: #fff; }
+.pp-btn-success { background: #166534; color: #fff; border-color: #166534; }
+.pp-btn-danger { border-color: #fca5a5; color: #991b1b; }
+.pp-btn-danger:hover { background: #fef2f2; border-color: #f87171; }
+
+/* ============================================================
+   9. METABOX — GRILLE DE CHAMPS
+   ============================================================ */
+.pp-fields-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.pp-field { display: flex; flex-direction: column; gap: 6px; }
+.pp-field label { font-size: 10px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: .05em; }
+.pp-field select,
+.pp-field input[type="text"] { font-size: 13px; padding: 8px 10px; border: 1px solid #dde1e6; border-radius: 6px; background: #fff; color: #2c3338; width: 100%; transition: border-color .15s, box-shadow .15s; }
+.pp-field select:focus,
+.pp-field input[type="text"]:focus { border-color: #2271b1; box-shadow: 0 0 0 2px rgba(34,113,177,.15); outline: none; }
+
+/* ============================================================
+   10. METABOX — CARTE SÉLECTION
+   ============================================================ */
+.pp-sel-card {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px; border: 1px solid #e8ecef;
+    border-left: 3px solid #3b82f6; border-radius: 8px; background: #f8faff;
+}
+.pp-sel-count { display: flex; align-items: baseline; gap: 8px; }
+.pp-sel-count strong { font-size: 30px; font-weight: 300; color: #1e40af; line-height: 1; }
+.pp-sel-count span { font-size: 12px; color: #3b82f6; }
+
+/* ============================================================
+   11. METABOX — ÉTAT VALIDÉ
+   ============================================================ */
+.pp-validated-banner {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 18px; background: #f0fdf4;
+    border: 1px solid #bbf7d0; border-left: 3px solid #22c55e; border-radius: 8px;
+}
+.pp-validated-icon { font-size: 18px; color: #22c55e; flex-shrink: 0; }
+.pp-validated-banner div { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.pp-validated-banner strong { font-size: 13px; color: #166534; }
+.pp-validated-banner span { font-size: 11px; color: #15803d; }
+
+/* Récap miniatures */
+.pp-selection-recap {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+    gap: 6px; padding: 12px; background: #f8f9fa;
+    border: 1px solid #e8ecef; border-radius: 8px;
+    max-height: 220px; overflow-y: auto;
+}
+.pp-recap-thumb { display: flex; flex-direction: column; gap: 3px; align-items: center; }
+.pp-recap-img { width: 100%; height: 60px; object-fit: cover; border-radius: 4px; border: 1px solid #e8ecef; display: block; }
+.pp-recap-name { font-size: 9px; color: #64748b; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+
+/* Boutons réouverture */
+.pp-reopen-actions { margin-top: 4px; }
+.pp-reopen-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ============================================================
+   12. METABOX — TOGGLE ROW
+   ============================================================ */
+.pp-toggle-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 16px; border: 1px solid #e8ecef; border-radius: 8px; background: #fff;
+}
+.pp-toggle-text { display: flex; flex-direction: column; gap: 2px; }
+.pp-toggle-title { font-size: 13px; font-weight: 600; color: #1e293b; }
+.pp-toggle-sub { font-size: 11px; color: #94a3b8; }
+
+/* ============================================================
+   13. METABOX — ZONE D'UPLOAD
+   ============================================================ */
+.pp-upload-zone {
+    border: 1.5px dashed #dde1e6; border-radius: 10px; padding: 28px 20px;
+    text-align: center; cursor: pointer;
+    transition: border-color .2s, background .2s; background: #fafafa;
+}
+.pp-upload-zone:hover { border-color: #2271b1; background: #f0f6fb; }
+.pp-upload-zone.pp-upload-dragover { border-color: #2271b1; background: #e8f0f8; }
+.pp-upload-icon { width: 32px; height: 32px; margin: 0 auto 10px; display: block; color: #94a3b8; transition: color .2s; }
+.pp-upload-zone:hover .pp-upload-icon { color: #2271b1; }
+.pp-upload-title { font-size: 13px; font-weight: 600; color: #1e293b; margin-bottom: 4px; }
+.pp-upload-sub { font-size: 11px; color: #94a3b8; }
+
+/* ============================================================
+   14. METABOX — GRILLE PHOTOS
+   ============================================================ */
+.pp-gallery-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 8px; margin-top: 12px;
+}
+.pp-thumb { position: relative; border-radius: 6px; overflow: hidden; border: 1px solid #e8ecef; background: #f8f9fa; cursor: pointer; }
+.pp-thumb img { width: 100%; height: 90px; object-fit: cover; display: block; }
+.pp-thumb-info { padding: 5px 7px; font-size: 10px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: #fff; }
+.pp-thumb-delete { position: absolute; top: 5px; right: 5px; width: 20px; height: 20px; border-radius: 50%; background: rgba(0,0,0,.55); color: #fff; font-size: 13px; line-height: 20px; text-align: center; cursor: pointer; opacity: 0; transition: opacity .2s; border: none; padding: 0; }
+.pp-thumb:hover .pp-thumb-delete { opacity: 1; }
+
+/* Bouton recommandation */
+.pp-thumb-reco { position: absolute; top: 5px; left: 5px; width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.6); background: rgba(0,0,0,.35); color: rgba(255,255,255,.5); font-size: 11px; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transition: opacity .2s, background .2s, border-color .2s, color .2s; padding: 0; }
+.pp-thumb:hover .pp-thumb-reco { opacity: 1; }
+.pp-thumb-reco.pp-reco-active { opacity: 1; background: #2271b1; border-color: #2271b1; color: #fff; }
+
+/* Progress bar upload */
+.pp-progress-wrap { margin-top: 10px; padding: 10px 14px; background: #f8f9fa; border: 1px solid #e8ecef; border-radius: 8px; }
+.pp-progress-track { height: 4px; background: #e2e8f0; border-radius: 2px; overflow: hidden; margin-bottom: 6px; }
+.pp-progress-fill { height: 100%; background: #2271b1; border-radius: 2px; width: 0%; transition: width .3s ease; }
+.pp-progress-label { font-size: 11px; color: #64748b; letter-spacing: .02em; }
+
+/* ============================================================
+   15. METABOX — ALERTE
+   ============================================================ */
+.pp-alert { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; background: #fffbeb; border: 1px solid #fcd34d; border-radius: 6px; }
+.pp-alert-dot { width: 6px; height: 6px; border-radius: 50%; background: #d97706; margin-top: 5px; flex-shrink: 0; }
+.pp-alert-text { font-size: 12px; color: #92400e; line-height: 1.6; }
+
+/* ============================================================
+   16. RESPONSIVE
+   ============================================================ */
+@media (max-width: 900px) {
+    .pp-fields-row { grid-template-columns: 1fr; }
+    .pp-settings-page .pp-settings-container { flex-direction: column; }
+    .pp-settings-page .pp-settings-sidebar { width: 100%; border-right: none; border-bottom: 1px solid #e8ecef; display: flex; overflow-x: auto; padding: 0; }
+    .pp-settings-page .pp-nav-item { flex-shrink: 0; border-left: none; border-bottom: 2px solid transparent; }
+    .pp-settings-page .pp-nav-item.active { border-left-color: transparent; border-bottom-color: #2271b1; }
+}
+
+/* ============================================================
+   17. FRONT-END — ÉTAT VERROUILLÉ
+   ============================================================ */
+.pp-photo-dimmed { opacity: 0.35; pointer-events: none; }
+.pp-locked-banner { display: flex; align-items: center; gap: 10px; padding: 12px 18px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; margin-bottom: 20px; font-size: 13px; color: #166534; }
+.pp-locked-icon { font-size: 16px; color: #22c55e; flex-shrink: 0; }
+.pp-bar-locked .pp-btn-validate.pp-btn-confirmed { background: #22c55e; cursor: default; }

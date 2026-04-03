@@ -1,0 +1,456 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PhotoProof\n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Domain: photoproof"
+
+msgid "%d photo"
+msgid_plural "%d photos"
+msgstr[0] "%d foto"
+msgstr[1] "%d fotos"
+
+msgid "%d photo selected"
+msgid_plural "%d photos selected"
+msgstr[0] "%d foto seleccionada"
+msgstr[1] "%d fotos seleccionadas"
+
+msgid "%d photograph"
+msgid_plural "%d photographs"
+msgstr[0] "%d fotografía"
+msgstr[1] "%d fotografías"
+
+msgid "Access & Authentication"
+msgstr "Acceso y Autenticación"
+
+msgid "Access Denied"
+msgstr "Acceso denegado"
+
+msgid "Access Expiration"
+msgstr "Expiración del acceso"
+
+msgid "Active color"
+msgstr "Color activo"
+
+msgid "Add images"
+msgstr "Añadir imágenes"
+
+msgid "Add New"
+msgstr "Añadir nueva"
+
+msgid "Add New Gallery"
+msgstr "Añadir nueva galería"
+
+msgid "Advanced automatic deletion features are currently under development."
+msgstr "Las funciones avanzadas de eliminación automática están actualmente en desarrollo."
+
+msgid "Applies the watermark on all images uploaded"
+msgstr "Aplica la marca de agua en todas las imágenes subidas"
+
+msgid "Approved selection by client"
+msgstr "Selección aprobada por el cliente"
+
+msgid "Archived"
+msgstr "Archivado"
+
+msgid "Archived Gallery"
+msgstr "Galería archivada"
+
+msgid "Assigned Client"
+msgstr "Cliente asignado"
+
+msgid "Auto-archiving"
+msgstr "Auto-archivado"
+
+msgid "Automatic numbering (0001, 0002...)."
+msgstr "Numeración automática (0001, 0002...)."
+
+msgid "Automatically applies your logo to uploaded images to prevent screenshots."
+msgstr "Aplica automáticamente su logotipo a las imágenes subidas para evitar capturas de pantalla."
+
+msgid "Back to gallery"
+msgstr "Volver a la galería"
+
+msgid "Background"
+msgstr "Fondo"
+
+msgid "By default, it uses your PhotoProof gallery title."
+msgstr "Por defecto, utiliza el título de su galería PhotoProof."
+
+msgid "By default, photos are displayed with square corners (reportage style)."
+msgstr "Por defecto, las fotos se muestran con esquinas cuadradas (estilo reportaje)."
+
+msgid "Cancel"
+msgstr "Cancelar"
+
+msgid "Cannot send file: headers already sent in %1$s line %2$s"
+msgstr "No se puede enviar el archivo: encabezados ya enviados en %1$s línea %2$s"
+
+msgid "Click to browse or drag and drop your files here"
+msgstr "Haga clic para buscar o arrastre y suelte sus archivos aquí"
+
+msgid "Client"
+msgstr "Cliente"
+
+msgid "Client access disabled"
+msgstr "Acceso de cliente desactivado"
+
+msgid "CLIENT SELECTION"
+msgstr "SELECCIÓN DEL CLIENTE"
+
+msgid "Client will be able to select again"
+msgstr "El cliente podrá seleccionar de nuevo"
+
+msgid "Close"
+msgstr "Cerrar"
+
+msgid "Configuration"
+msgstr "Configuración"
+
+msgid "Configuration PhotoProof"
+msgstr "Configuración PhotoProof"
+
+msgid "Confirm"
+msgstr "Confirmar"
+
+msgid "Confirm selection"
+msgstr "Confirmar selección"
+
+msgid "Confirmation"
+msgstr "Confirmación"
+
+msgid "Copied !"
+msgstr "¡Copiado!"
+
+msgid "Custom Prefix"
+msgstr "Prefijo personalizado"
+
+msgid "Data Protection"
+msgstr "Protección de datos"
+
+msgid "Default website logo"
+msgstr "Logotipo predeterminado del sitio"
+
+msgid "Delete"
+msgstr "Eliminar"
+
+msgid "Delete photos when a gallery is deleted"
+msgstr "Eliminar fotos cuando se elimine una galería"
+
+msgid "Draft"
+msgstr "Borrador"
+
+msgid "Draft — Private"
+msgstr "Borrador — Privado"
+
+msgid "e.g.: Smith-Wedding"
+msgstr "ej.: Boda-Garcia"
+
+msgid "Edit Gallery"
+msgstr "Editar galería"
+
+msgid "Enable automatic renaming on upload"
+msgstr "Activar renombramiento automático al subir"
+
+msgid "Enable recommendation mentions"
+msgstr "Activar menciones de recomendación"
+
+msgid "Enable this option for slightly rounded corners (modern style)."
+msgstr "Active esta opción para esquinas ligeramente redondeadas (estilo moderno)."
+
+msgid "Error :"
+msgstr "Error :"
+
+msgid "Example with brand:"
+msgstr "Ejemplo con marca:"
+
+msgid "Example: %s"
+msgstr "Ejemplo: %s"
+
+msgid "Favorite icon:"
+msgstr "Icono de favorito:"
+
+msgid "File Deletion"
+msgstr "Eliminación de archivos"
+
+msgid "File name structure"
+msgstr "Estructura del nombre de archivo"
+
+msgid "Files"
+msgstr "Archivos"
+
+msgid "Fixed setting: Client access will be automatically cut off 30 days after the publication date of each gallery."
+msgstr "Ajuste fijo: El acceso del cliente se cortará automáticamente 30 días después de la fecha de publicación de cada galería."
+
+msgid "Gallery"
+msgstr "Galería"
+
+msgid "Gallery %1$s → %2$s"
+msgstr "Galería %1$s → %2$s"
+
+msgid "Gallery main header Title"
+msgstr "Título del encabezado principal de la galería"
+
+msgid "Gallery not available"
+msgstr "Galería no disponible"
+
+msgid "Gallery published — avoid deleting photos to prevent invalidating the client's selection."
+msgstr "Galería publicada — evite borrar fotos para no invalidar la selección del cliente."
+
+msgid "General"
+msgstr "General"
+
+msgid "Global renaming structure:"
+msgstr "Estructura de renombramiento global:"
+
+msgid "Hide gallery names in the URL "
+msgstr "Ocultar nombres de galería en la URL"
+
+msgid "Highlight your favorite photos to your clients to guide their final selection."
+msgstr "Destaque sus fotos favoritas a sus clientes para guiar su selección final."
+
+msgid "Home"
+msgstr "Inicio"
+
+msgid "If disabled, %s folders are kept on the server."
+msgstr "Si se desactiva, las carpetas %s se mantienen en el servidor."
+
+msgid "If enabled, physical files and attachments are permanently deleted along with the gallery."
+msgstr "Si se activa, los archivos físicos y adjuntos se eliminan permanentemente junto con la galería."
+
+msgid "In progress…"
+msgstr "En progreso…"
+
+msgid "Keep selection"
+msgstr "Mantener selección"
+
+msgid "Log out"
+msgstr "Cerrar sesión"
+
+msgid "Login Page"
+msgstr "Página de inicio de sesión"
+
+msgid "New Gallery"
+msgstr "Nueva galería"
+
+msgid "Next"
+msgstr "Siguiente"
+
+msgid "No galleries found"
+msgstr "No se encontraron galerías"
+
+msgid "No galleries found in Trash"
+msgstr "No se encontraron galerías en la papelera"
+
+msgid "No logo configured"
+msgstr "No hay logotipo configurado"
+
+msgid "No photos in the gallery yet."
+msgstr "Aún no hay fotos en la galería."
+
+msgid "Not visible to the client"
+msgstr "No visible para el cliente"
+
+msgid "Note: If you omit %s, PhotoProof will automatically add it at the end."
+msgstr "Nota: Si omite %s, PhotoProof lo añadirá automáticamente al final."
+
+msgid "Opacity :"
+msgstr "Opacidad :"
+
+msgid "Options"
+msgstr "Opciones"
+
+msgid "Organization & Automatic Renaming"
+msgstr "Organización y renombramiento automático"
+
+msgid "Photo Format (Client Gallery)"
+msgstr "Formato de foto (Galería de clientes)"
+
+msgid "Photographer's Selection (Recommendations)"
+msgstr "Selección del fotógrafo (Recomendaciones)"
+
+msgid "PhotoProof Galleries"
+msgstr "Galerías PhotoProof"
+
+msgid "Photos"
+msgstr "Fotos"
+
+msgid "Please contact your photographer."
+msgstr "Por favor, contacte con su fotógrafo."
+
+msgid "Previous"
+msgstr "Anterior"
+
+msgid "Publish or save the draft before uploading to see images name updated"
+msgstr "Publique o guarde el borrador antes de subir para ver los nombres actualizados"
+
+msgid "Published"
+msgstr "Publicado"
+
+msgid "Published — Open"
+msgstr "Publicado — Abierto"
+
+msgid "Random URL (UUID)"
+msgstr "URL aleatoria (UUID)"
+
+msgid "Remove"
+msgstr "Eliminar"
+
+msgid "Reopen gallery"
+msgstr "Reabrir galería"
+
+msgid "Reopen gallery and"
+msgstr "Reabrir galería y"
+
+msgid "Reopen — Keep selection"
+msgstr "Reabrir — Mantener selección"
+
+msgid "Reopen — reset"
+msgstr "Reabrir — reiniciar"
+
+msgid "Reopen — with client previous selection"
+msgstr "Reabrir — con la selección previa del cliente"
+
+msgid "Reopen — with deleted previous selection"
+msgstr "Reabrir — con la selección previa eliminada"
+
+msgid "Reset selection"
+msgstr "Reiniciar selección"
+
+msgid "Round corners"
+msgstr "Esquinas redondeadas"
+
+msgid "Save Preferences"
+msgstr "Guardar preferencias"
+
+msgid "Search Galleries"
+msgstr "Buscar galerías"
+
+msgid "Security & Watermark"
+msgstr "Seguridad y marca de agua"
+
+msgid "Select"
+msgstr "Seleccionar"
+
+msgid "Select logo"
+msgstr "Seleccionar logotipo"
+
+msgid "Select this photo"
+msgstr "Seleccionar esta foto"
+
+msgid "selected"
+msgstr "seleccionado"
+
+msgid "Selected photography"
+msgstr "Fotografía seleccionada"
+
+msgid "Selection Confirmed"
+msgstr "Selección confirmada"
+
+msgid "Selection confirmed"
+msgstr "Selección confirmada"
+
+msgid "Selection confirmed — please contact your photographer for any modification."
+msgstr "Selección confirmada — por favor, contacte con su fotógrafo para cualquier modificación."
+
+msgid "Settings"
+msgstr "Ajustes"
+
+msgid "Settings PhotoProof"
+msgstr "Ajustes PhotoProof"
+
+msgid "Status"
+msgstr "Estado"
+
+msgid "Summary"
+msgstr "Resumen"
+
+msgid "Text color"
+msgstr "Color de texto"
+
+msgid "The client has validated his selection"
+msgstr "El cliente ha validado su selección"
+
+msgid "Theme Colors Scheme"
+msgstr "Esquema de colores del tema"
+
+msgid "Theme Design"
+msgstr "Diseño del tema"
+
+msgid "This gallery is not published yet."
+msgstr "Esta galería aún no está publicada."
+
+msgid "This setting defines the \"template\" used to name your files. You can include your brand name permanently."
+msgstr "Este ajuste define la \"plantilla\" utilizada para nombrar sus archivos. Puede incluir su marca de forma permanente."
+
+msgid "Transforms your links (e.g., %1$s) into impossible-to-guess codes (e.g., %2$s)."
+msgstr "Transforma sus enlaces (ej., %1$s) en códigos imposibles de adivinar (ej., %2$s)."
+
+msgid "Upload a logo"
+msgstr "Subir un logotipo"
+
+msgid "Upload media"
+msgstr "Subir medios"
+
+msgid "URL / Copy"
+msgstr "URL / Copiar"
+
+msgid "URL of your custom login page. If empty, WordPress will use its default login page."
+msgstr "URL de su página de inicio de sesión personalizada. Si está vacío, WordPress usará la página por defecto."
+
+msgid "Validate selection"
+msgstr "Validar selección"
+
+msgid "Validate your selection?"
+msgstr "¿Validar su selección?"
+
+msgid "Validated"
+msgstr "Validado"
+
+msgid "View Gallery"
+msgstr "Ver galería"
+
+msgid "Visual Identity (Front End)"
+msgstr "Identidad visual (Front End)"
+
+msgid "Waiting for client selection"
+msgstr "Esperando selección del cliente"
+
+msgid "Watermark Protection"
+msgstr "Protección de marca de agua"
+
+msgid "You can still reactivate a gallery manually if needed."
+msgstr "Todavía puede reactivar una galería manualmente si es necesario."
+
+msgid "You have selected %s photograph(s). This action is final on your end."
+msgstr "Ha seleccionado %s fotografía(s). Esta acción es definitiva por su parte."
+
+msgid "Your photographer has been notified. Contact me for any changes in your choice."
+msgstr "Su fotógrafo ha sido notificado. Contacte conmigo para cualquier cambio en su elección."
+
+msgid "Your selection — %s photos"
+msgstr "Su selección — %s fotos"
+
+msgid "— No client selected —"
+msgstr "— Ningún cliente seleccionado —"
+
+msgid "← Back to edit"
+msgstr "← Volver a editar"
+
+msgid "↓ Export CSV"
+msgstr "↓ Exportar CSV"
+
+msgid "✅ Proofed by client (closed)"
+msgstr "✅ Validada por el cliente (cerrada)"
+
+msgid "🌐 Published (Open)"
+msgstr "🌐 Publicada (Abierta)"
+
+msgid "📝 Draft (Private)"
+msgstr "📝 Borrador (Privado)"
+
+msgid "🔒 Archived (hiden)"
+msgstr "🔒 Archivada (oculta)"
