@@ -22,10 +22,13 @@ PhotoProof is a WordPress plugin for photographers. It allows you to create secu
 
 == Changelog ==
 
+<<<<<<< HEAD
 = 0.3.0 =
 * Multilingual implementation
 English - French - Spanish (AI trans) - Italian (IA) - German (IA)
 
+=======
+>>>>>>> 9adcf1474e56712296c316ba958008fc1aa436c7
 = 0.2.0 =
 * Animated selection tray
 * Recap panel with expand animation
