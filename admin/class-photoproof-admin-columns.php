@@ -28,10 +28,8 @@ class PhotoProof_Admin_Columns {
      */
     public function auto_set_publie_on_publish( $post_id, $post ) {
         global $wpdb;
-        $table = $wpdb->prefix . 'photoproof_galleries';
-
-        $existing = $wpdb->get_row( $wpdb->prepare(
-            "SELECT id, status FROM $table WHERE post_id = %d",
+        $existing = $wpdb->get_row( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+            "SELECT id, status FROM {$wpdb->prefix}photoproof_galleries WHERE post_id = %d",
             $post_id
         ) );
 
@@ -40,8 +38,8 @@ class PhotoProof_Admin_Columns {
 
         if ( $existing ) {
             if ( ! in_array( $existing->status, $protected, true ) ) {
-                $wpdb->update(
-                    $table,
+                $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+                    $wpdb->prefix . 'photoproof_galleries',
                     array( 'status' => 'publie' ),
                     array( 'post_id' => $post_id ),
                     array( '%s' ),
@@ -50,8 +48,8 @@ class PhotoProof_Admin_Columns {
             }
         } else {
             // No row yet → create it
-            $wpdb->insert(
-                $table,
+            $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+                $wpdb->prefix . 'photoproof_galleries',
                 array(
                     'post_id'     => $post_id,
                     'status'      => 'publie',
@@ -85,7 +83,7 @@ class PhotoProof_Admin_Columns {
         global $wpdb;
 
         if ( $column === 'pp_status' ) {
-            $row = $wpdb->get_row( $wpdb->prepare(
+            $row = $wpdb->get_row( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
                 "SELECT status FROM {$wpdb->prefix}photoproof_galleries WHERE post_id = %d",
                 $post_id
             ) );
@@ -111,7 +109,7 @@ class PhotoProof_Admin_Columns {
         }
 
         if ( $column === 'pp_photos' ) {
-            $count = $wpdb->get_var( $wpdb->prepare(
+            $count = $wpdb->get_var( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
                 "SELECT COUNT(*) FROM {$wpdb->posts}
                  WHERE post_type = 'attachment'
                  AND post_status = 'inherit'
@@ -133,7 +131,7 @@ class PhotoProof_Admin_Columns {
         }
 
         if ( $column === 'pp_client' ) {
-            $row = $wpdb->get_row( $wpdb->prepare(
+            $row = $wpdb->get_row( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
                 "SELECT client_id FROM {$wpdb->prefix}photoproof_galleries WHERE post_id = %d",
                 $post_id
             ) );

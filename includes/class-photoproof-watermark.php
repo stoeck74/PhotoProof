@@ -104,8 +104,6 @@ class PhotoProof_Watermark {
         if ( extension_loaded( 'imagick' ) ) {
             return $this->apply_watermark_imagick( $source_path, $watermark_path, $dest_path, $opacity );
         }
-
-        error_log( 'PhotoProof Watermark : ni GD ni Imagick disponible.' );
         return false;
     }
 

@@ -176,7 +176,7 @@ class PhotoProof_Public {
         }
 
         // ── TRAITEMENT DES IDs ────────────────────────────────────────
-        $raw_ids      = isset( $_POST['selected_ids'] ) ? (array) $_POST['selected_ids'] : array();
+        $raw_ids      = isset( $_POST['selected_ids'] ) ? array_map( 'sanitize_text_field', wp_unslash( (array) $_POST['selected_ids'] ) ) : array();
         $selected_ids = array_values( array_unique( array_filter( array_map( 'intval', $raw_ids ) ) ) );
 
         // Vérifier que chaque attachement appartient bien à cette galerie

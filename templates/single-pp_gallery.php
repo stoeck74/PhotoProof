@@ -7,6 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Hero header avec première photo en fond + grille 5 colonnes
  */
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- template file, variables are locally scoped
 global $post, $wpdb;
 
 // ── 1. VÉRIFICATION D'ACCÈS ───────────────────────────────────────────────
@@ -63,7 +64,7 @@ if ( has_post_thumbnail( $post->ID ) ) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title><?php the_title(); ?> — <?php echo esc_html( $site_title ); ?></title>
- <?php wp_head(); ?>
+    <?php wp_head(); ?>
 </head>
 <body class="pp-standalone">
 <?php wp_body_open(); ?>
@@ -72,10 +73,7 @@ if ( has_post_thumbnail( $post->ID ) ) {
 
     <!-- ── HERO HEADER ── -->
     <header class="pp-hero" <?php if ( $hero_url ) : ?>style="--pp-hero-img: url('<?php echo esc_url( $hero_url ); ?>');"<?php endif; ?>>
-<?php
-global $wp_scripts;
-var_dump( array_keys( $wp_scripts->queue ) );
-?>
+
         <?php if ( $hero_url ) : ?>
             <div class="pp-hero-bg"></div>
         <?php endif; ?>
@@ -203,7 +201,7 @@ var_dump( array_keys( $wp_scripts->queue ) );
     <div class="pp-confirm-box">
         <div class="pp-confirm-eyebrow"><?php esc_html_e( 'Confirmation', 'photoproof' ); ?></div>
         <h2><?php esc_html_e( 'Validate your selection?', 'photoproof' ); ?></h2>
-        <p><?php 
+        <p><?php
         /* translators: %s: number of photographs, wrapped in a <strong> tag */
         echo wp_kses_post( sprintf( __( 'You have selected %s photograph(s). This action is final on your end.', 'photoproof' ), '<strong id="pp-confirm-count">' . intval( $count_selected ) . '</strong>' ) ); ?></p>
         <div class="pp-confirm-actions">
@@ -225,7 +223,7 @@ var_dump( array_keys( $wp_scripts->queue ) );
                 <?php esc_html_e( 'Summary', 'photoproof' ); ?>
             </p>
             <h2 class="pp-recap-title">
-                <?php 
+                <?php
                 /* translators: %s: number of selected photos, wrapped in a <span> tag */
                 echo wp_kses_post( sprintf( __( 'Your selection — %s photos', 'photoproof' ), '<span id="pp-recap-count">0</span>' ) ); ?>
             </h2>

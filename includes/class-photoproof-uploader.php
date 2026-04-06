@@ -87,29 +87,11 @@ class PhotoProof_Uploader {
         $metadata = wp_generate_attachment_metadata( $attachment_id, $uploaded['file'] );
         wp_update_attachment_metadata( $attachment_id, $metadata );
 
-
-$metadata = wp_generate_attachment_metadata( $attachment_id, $uploaded['file'] );
-wp_update_attachment_metadata( $attachment_id, $metadata );
-
-// DEBUG temporaire
-error_log( 'PP Upload — attachment_id: ' . $attachment_id . ' post_id: ' . $post_id );
-
-update_post_meta( $attachment_id, '_pp_gallery_photo', '1' );
-
-error_log( 'PP Upload — meta posé sur: ' . $attachment_id );
-
-
-
-
-
-
-
-
         // Marquer comme photo PhotoProof — exclue de la médiathèque standard
         update_post_meta( $attachment_id, '_pp_gallery_photo', '1' );
 
         // Stocker le nom cible pour le renommage différé
-        do_action( 'pp_attachment_uploaded', $attachment_id, $post_id );
+        do_action( 'pp_attachment_uploaded', $attachment_id, $post_id ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 
         // Mettre à jour la liste des photos de la galerie
         $existing = get_post_meta( $post_id, '_pp_gallery_photos', true );
@@ -206,7 +188,7 @@ error_log( 'PP Upload — meta posé sur: ' . $attachment_id );
 
         $post_id       = isset( $_POST['post_id'] )       ? intval( $_POST['post_id'] )       : 0;
         $attachment_id = isset( $_POST['attachment_id'] ) ? intval( $_POST['attachment_id'] ) : 0;
-        $recommended   = isset( $_POST['recommended'] ) && $_POST['recommended'] === '1';
+        $recommended   = isset( $_POST['recommended'] ) && sanitize_text_field( wp_unslash( $_POST['recommended'] ) ) === '1';
 
         if ( ! $post_id || ! $attachment_id ) {
             wp_send_json_error( array( 'message' => 'Paramètres invalides.' ) );
