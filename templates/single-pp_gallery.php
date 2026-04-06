@@ -63,7 +63,7 @@ if ( has_post_thumbnail( $post->ID ) ) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title><?php the_title(); ?> — <?php echo esc_html( $site_title ); ?></title>
-    <?php wp_head(); ?>
+ <?php wp_head(); ?>
 </head>
 <body class="pp-standalone">
 <?php wp_body_open(); ?>
@@ -72,7 +72,10 @@ if ( has_post_thumbnail( $post->ID ) ) {
 
     <!-- ── HERO HEADER ── -->
     <header class="pp-hero" <?php if ( $hero_url ) : ?>style="--pp-hero-img: url('<?php echo esc_url( $hero_url ); ?>');"<?php endif; ?>>
-
+<?php
+global $wp_scripts;
+var_dump( array_keys( $wp_scripts->queue ) );
+?>
         <?php if ( $hero_url ) : ?>
             <div class="pp-hero-bg"></div>
         <?php endif; ?>

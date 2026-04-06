@@ -8,32 +8,120 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Déclenché quand un client valide sa sélection :
  * - Mail au photographe : liste des fichiers sélectionnés
  * - Mail au client : confirmation de réception
+ *
+ * Templates éditables via Settings > Emails
+ * Variables : {client_name}, {gallery_title}, {count}, {file_list}, {gallery_url}, {studio_name}
  */
 class PhotoProof_Mailer {
 
     public function __construct() {
-        // Déclenché depuis save_client_selection() après confirmation
         add_action( 'pp_gallery_selection_confirmed', array( $this, 'send_emails' ), 10, 2 );
+    }
+
+    /**
+     * Remplace les variables {placeholder} dans un template
+     */
+    private function parse_template( $template, $vars ) {
+        foreach ( $vars as $key => $value ) {
+            $template = str_replace( '{' . $key . '}', $value, $template );
+        }
+        return $template;
+    }
+
+    /**
+     * Retourne les headers HTML pour wp_mail
+     */
+    private function get_html_headers() {
+        return array( 'Content-Type: text/html; charset=UTF-8' );
+    }
+
+    /**
+     * Génère le wrapper HTML commun (header + footer)
+     */
+    private function wrap_html( $body_content, $accent_color = '#2271b1' ) {
+        $logo_id    = get_option( 'pp_custom_logo' );
+        $studio     = esc_html( get_option( 'pp_custom_title', get_option( 'blogname' ) ) );
+        $logo_html  = '';
+
+        if ( $logo_id ) {
+            $logo_url  = wp_get_attachment_image_url( $logo_id, 'medium' );
+            $logo_html = '<img src="' . esc_url( $logo_url ) . '" alt="' . $studio . '" style="max-height:50px; max-width:160px;">';
+        } else {
+            $logo_html = '<span style="color:#ffffff; font-size:18px; font-weight:600;">' . $studio . '</span>';
+        }
+
+        return '<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0; padding:0; background:#f5f4f2; font-family:-apple-system,BlinkMacSystemFont,arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f4f2; padding:40px 20px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:12px; overflow:hidden; max-width:600px;">
+
+    <!-- HEADER -->
+    <tr><td style="background:#1e293b; padding:28px 40px; text-align:center;">' . $logo_html . '</td></tr>
+    <tr><td style="background:' . esc_attr( $accent_color ) . '; height:3px;"></td></tr>
+
+    <!-- BODY -->
+    <tr><td style="padding:40px;">' . $body_content . '</td></tr>
+
+    <!-- FOOTER -->
+    <tr><td style="padding:20px 40px; border-top:1px solid #e2e8f0; text-align:center;">
+        <p style="margin:0; font-size:11px; color:#94a3b8;">' . $studio . ' — PhotoProof</p>
+    </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>';
+    }
+
+    /**
+     * Génère la liste des fichiers en HTML
+     */
+    private function build_file_list_html( $selected_ids ) {
+        $lines = '';
+        foreach ( $selected_ids as $att_id ) {
+            $target   = get_post_meta( $att_id, '_pp_target_filename', true );
+            $filename = $target ?: basename( get_attached_file( $att_id ) );
+            $lines   .= '<tr><td style="font-size:13px; color:#475569; font-family:monospace; padding:4px 0;">' . esc_html( $filename ) . '</td></tr>';
+        }
+        return $lines;
+    }
+
+    /**
+     * Génère la liste des fichiers en texte brut (pour {file_list})
+     */
+    private function build_file_list_text( $selected_ids ) {
+        $list = '';
+        foreach ( $selected_ids as $att_id ) {
+            $target   = get_post_meta( $att_id, '_pp_target_filename', true );
+            $filename = $target ?: basename( get_attached_file( $att_id ) );
+            $list    .= '- ' . $filename . "
+";
+        }
+        return $list;
     }
 
     /**
      * Envoie les deux emails de confirmation
      *
-     * @param int $post_id      ID de la galerie
-     * @param int $client_id    ID de l'utilisateur client (peut être 0 si non connecté)
+     * @param int $post_id   ID de la galerie
+     * @param int $client_id ID de l'utilisateur client
      */
     public function send_emails( $post_id, $client_id ) {
-        $gallery_title   = get_the_title( $post_id );
-        $selected_ids    = get_post_meta( $post_id, '_pp_selected_photos', true );
-        $selected_ids    = is_array( $selected_ids ) ? $selected_ids : array();
-        $count           = count( $selected_ids );
 
-        // Infos photographe
+        $gallery_title = get_the_title( $post_id );
+        $selected_ids  = get_post_meta( $post_id, '_pp_selected_photos', true );
+        $selected_ids  = is_array( $selected_ids ) ? $selected_ids : array();
+        $count         = count( $selected_ids );
+        $studio_name   = get_option( 'pp_custom_title', get_option( 'blogname' ) );
+        $accent_color  = sanitize_hex_color( get_option( 'pp_color_active', '#2271b1' ) ) ?: '#2271b1';
+
         $photographer_email = get_option( 'admin_email' );
-        $photographer_name  = get_option( 'blogname' );
 
-        // Infos client
-        $client_name  = 'Client';
+        $client_name  = __( 'Client', 'photoproof' );
         $client_email = '';
 
         if ( $client_id ) {
@@ -44,46 +132,94 @@ class PhotoProof_Mailer {
             }
         }
 
-        // Liste des fichiers sélectionnés
-        $file_list = '';
-        foreach ( $selected_ids as $att_id ) {
-            $target   = get_post_meta( $att_id, '_pp_target_filename', true );
-            $filename = $target ?: basename( get_attached_file( $att_id ) );
-            $file_list .= '- ' . $filename . "\n";
-        }
+        $file_list_text = $this->build_file_list_text( $selected_ids );
+        $file_list_html = $this->build_file_list_html( $selected_ids );
+        $gallery_url    = get_permalink( $post_id );
 
-        // ── MAIL PHOTOGRAPHE ──────────────────────────────────────────
-        $subject_photo = sprintf(
-            '[PhotoProof] %s a validé la galerie "%s"',
-            $client_name,
-            $gallery_title
+        $vars = array(
+            'client_name'   => esc_html( $client_name ),
+            'gallery_title' => esc_html( $gallery_title ),
+            'count'         => $count,
+            'file_list'     => $file_list_text,
+            'gallery_url'   => esc_url( $gallery_url ),
+            'studio_name'   => esc_html( $studio_name ),
         );
 
-        $body_photo  = sprintf( "Bonjour,\n\n" );
-        $body_photo .= sprintf( "%s a confirmé sa sélection pour la galerie \"%s\".\n\n", $client_name, $gallery_title );
-        $body_photo .= sprintf( "%d photo(s) sélectionnée(s) :\n", $count );
-        $body_photo .= "--------------------------------------\n";
-        $body_photo .= $file_list;
-        $body_photo .= "--------------------------------------\n\n";
-        $body_photo .= sprintf( "Voir la galerie : %s\n\n", get_permalink( $post_id ) );
-        $body_photo .= "— PhotoProof";
+        // ── MAIL PHOTOGRAPHE ──────────────────────────────────────────
 
-        wp_mail( $photographer_email, $subject_photo, $body_photo );
+        $default_subject_photo = '[PhotoProof] {client_name} validated the gallery "{gallery_title}"';
+
+        $body_photo_html =
+            '<p style="margin:0 0 20px; font-size:15px; color:#1e293b; line-height:1.6;">' .
+            esc_html__( 'Hello,', 'photoproof' ) .
+            '</p><p style="margin:0 0 20px; font-size:15px; color:#1e293b; line-height:1.6;">' .
+            '<strong>' . esc_html( $client_name ) . '</strong> ' .
+            esc_html__( 'has confirmed their selection for the gallery', 'photoproof' ) .
+            ' <strong>"' . esc_html( $gallery_title ) . '"</strong>.</p>' .
+            '<p style="margin:0 0 12px; font-size:15px; color:#1e293b;"><strong>' .
+            sprintf(
+                /* translators: %d: number of selected photos */
+                esc_html( _n( '%d photo selected:', '%d photos selected:', $count, 'photoproof' ) ),
+                $count
+            ) .
+            '</strong></p>' .
+            '<table width="100%" cellpadding="12" cellspacing="0" style="background:#f8fafc; border-radius:8px; border:1px solid #e2e8f0; margin-bottom:28px;">' .
+            $file_list_html .
+            '</table>' .
+            '<p style="text-align:center;">' .
+            '<a href="' . esc_url( $gallery_url ) . '" style="display:inline-block; background:' . esc_attr( $accent_color ) . '; color:#ffffff; text-decoration:none; padding:14px 32px; border-radius:8px; font-size:13px; font-weight:600; letter-spacing:.06em; text-transform:uppercase;">' .
+            esc_html__( 'View gallery', 'photoproof' ) .
+            '</a></p>';
+
+        $subject_photo = apply_filters( 'pp_email_photographer_subject',
+            $this->parse_template( get_option( 'pp_email_photographer_subject', $default_subject_photo ), $vars ),
+            $post_id, $client_id
+        );
+        $body_photo = apply_filters( 'pp_email_photographer_body',
+            $this->wrap_html( $body_photo_html, $accent_color ),
+            $post_id, $client_id
+        );
+
+        wp_mail( $photographer_email, $subject_photo, $body_photo, $this->get_html_headers() );
 
         // ── MAIL CLIENT ───────────────────────────────────────────────
-        if ( $client_email ) {
-            $subject_client = sprintf(
-                'Votre sélection pour "%s" a bien été reçue',
-                $gallery_title
-            );
 
-            $body_client  = sprintf( "Bonjour %s,\n\n", $client_name );
-            $body_client .= sprintf( "Nous avons bien reçu votre sélection de %d photo(s) pour la galerie \"%s\".\n\n", $count, $gallery_title );
-            $body_client .= "Nous allons maintenant prendre en charge le traitement final de vos images retenues et reviendrons vers vous très prochainement.\n\n";
-            $body_client .= "Merci pour votre confiance.\n\n";
-            $body_client .= sprintf( "— %s", $photographer_name );
-
-            wp_mail( $client_email, $subject_client, $body_client );
+        if ( ! $client_email ) {
+            return;
         }
+
+        $default_subject_client = 'Your selection for "{gallery_title}" has been received';
+
+        $default_body_content =
+            esc_html__( 'Hello', 'photoproof' ) . ' ' . esc_html( $client_name ) . ',<br><br>' .
+            sprintf(
+                /* translators: %1$d: count, %2$s: gallery title */
+                esc_html__( 'We have received your selection of %1$d photo(s) for the gallery "%2$s".', 'photoproof' ),
+                $count,
+                esc_html( $gallery_title )
+            ) . '<br><br>' .
+            esc_html__( 'We will now handle the final processing of your selected images and will get back to you very soon.', 'photoproof' ) . '<br><br>' .
+            esc_html__( 'Thank you for your trust.', 'photoproof' ) . '<br><br>' .
+            '— ' . esc_html( $studio_name );
+
+        $custom_body = get_option( 'pp_email_client_body', '' );
+        if ( $custom_body ) {
+            $body_content = nl2br( esc_html( $this->parse_template( $custom_body, $vars ) ) );
+        } else {
+            $body_content = $default_body_content;
+        }
+
+        $body_client_html = '<p style="margin:0; font-size:15px; color:#1e293b; line-height:1.8;">' . $body_content . '</p>';
+
+        $subject_client = apply_filters( 'pp_email_client_subject',
+            $this->parse_template( get_option( 'pp_email_client_subject', $default_subject_client ), $vars ),
+            $post_id, $client_id
+        );
+        $body_client = apply_filters( 'pp_email_client_body',
+            $this->wrap_html( $body_client_html, $accent_color ),
+            $post_id, $client_id
+        );
+
+        wp_mail( $client_email, $subject_client, $body_client, $this->get_html_headers() );
     }
 }

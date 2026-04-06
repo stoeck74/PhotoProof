@@ -266,4 +266,39 @@ jQuery(document).ready(function ($) {
         gsap.to(this, { scale: 1, y: 0, duration: 0.25, ease: 'power2.inOut' });
     });
 
+// ── 12. BRIDGE GUTENBERG ──────────────────────────────────────────
+// On détecte si on est dans l'éditeur de blocs
+if ( window.wp && wp.data && wp.data.subscribe ) {
+    const { select, subscribe } = wp.data;
+    let isSavingPost = false;
+
+    // On s'abonne aux changements d'état de l'éditeur
+    const unsubscribe = subscribe(() => {
+        const saving = select('core/editor').isSavingPost();
+        const success = select('core/editor').didPostSaveRequestSucceed();
+
+        // Logique : Si on était en train de sauvegarder et que c'est fini avec succès
+        if (isSavingPost && !saving && success) {
+            isSavingPost = false;
+            
+            // OPTION A : La méthode radicale (Reload complet)
+            // C'est la plus sûre pour que PHP reconstruise ta barre de statut proprement
+            window.location.reload();
+            
+            // OPTION B : Si tu veux éviter le reload, il faudrait transformer 
+            // toute ta metabox en API REST, ce qui est beaucoup plus lourd.
+        }
+        isSavingPost = saving;
+    });
+}
+
+
+
+
+
+
+
+
+    
 });
+

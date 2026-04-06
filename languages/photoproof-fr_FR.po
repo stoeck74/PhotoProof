@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PhotoProof\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-04-01 21:49+0000\n"
-"PO-Revision-Date: 2026-04-02 15:05+0000\n"
+"PO-Revision-Date: 2026-04-06 22:55+0000\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
 "Language: fr_FR\n"
@@ -99,7 +99,7 @@ msgstr "Auto-archivage"
 msgid "Automatic numbering (0001, 0002...)."
 msgstr "Numérotation automatique (0001, 0002...)."
 
-#: admin/class-photoproof-settings.php:369
+#: admin/class-photoproof-settings.php:200
 msgid ""
 "Automatically applies your logo to uploaded images to prevent screenshots."
 msgstr ""
@@ -113,6 +113,10 @@ msgstr "Retour à la galerie"
 #: admin/class-photoproof-settings.php:323
 msgid "Background"
 msgstr "Arrière-plan"
+
+#: admin/class-photoproof-settings.php:523
+msgid "Body"
+msgstr "Corps du message"
 
 #: admin/class-photoproof-settings.php:167
 msgid "By default, it uses your PhotoProof gallery title."
@@ -145,6 +149,10 @@ msgstr "Client"
 #: admin/class-photoproof-metaboxes.php:82
 msgid "Client access disabled"
 msgstr "Accès client désactivé"
+
+#: admin/class-photoproof-settings.php:494
+msgid "Client name"
+msgstr "Nom du client"
 
 #: admin/class-photoproof-metaboxes.php:201
 msgid "CLIENT SELECTION"
@@ -222,6 +230,22 @@ msgstr "ex : Mariage-Dupont"
 msgid "Edit Gallery"
 msgstr "Modifier la galerie"
 
+#: admin/class-photoproof-settings.php:547
+msgid "Email to client"
+msgstr "Email au client"
+
+#: admin/class-photoproof-settings.php:504
+msgid "Email to photographer"
+msgstr "Email au photographe"
+
+#: admin/class-photoproof-settings.php:490
+msgid "Email variables"
+msgstr "Variables pour l'email"
+
+#: admin/class-photoproof-settings.php:100
+msgid "Emails"
+msgstr "Email"
+
 #: admin/class-photoproof-settings.php:143
 msgid "Enable automatic renaming on upload"
 msgstr "Activer le renommage automatique au téléversement"
@@ -264,8 +288,7 @@ msgstr "Structure du nom de fichier"
 msgid "Files"
 msgstr "Fichiers"
 
-#. %d: Locked acces after 30 days
-#: admin/class-photoproof-settings.php:264
+#: admin/class-photoproof-settings.php:135
 msgid ""
 "Fixed setting: Client access will be automatically cut off 30 days after the "
 "publication date of each gallery."
@@ -307,6 +330,14 @@ msgstr ""
 "Galerie publiée — évitez de supprimer des photos pour ne pas invalider la "
 "sélection du client."
 
+#: admin/class-photoproof-settings.php:495
+msgid "Gallery title"
+msgstr "Titre de la galerie"
+
+#: admin/class-photoproof-settings.php:498
+msgid "Gallery URL"
+msgstr "URL de la galerie"
+
 #: admin/class-photoproof-settings.php:91
 msgid "General"
 msgstr "Général"
@@ -315,11 +346,23 @@ msgstr "Général"
 msgid "Global renaming structure:"
 msgstr "Structure de renommage globale :"
 
+#: includes/class-photoproof-mailer.php:82
+msgid "has confirmed their selection for the gallery"
+msgstr "A confirmé la sélection de la galerie"
+
+#: includes/class-photoproof-mailer.php:100
+msgid "Hello"
+msgstr "Bonjour"
+
+#: includes/class-photoproof-mailer.php:80
+msgid "Hello,"
+msgstr "Bonjour"
+
 #: admin/class-photoproof-settings.php:119
 msgid "Hide gallery names in the URL "
 msgstr "Masquer le nom des galeries dans l'URL"
 
-#: admin/class-photoproof-settings.php:221
+#: admin/class-photoproof-settings.php:125
 msgid ""
 "Highlight your favorite photos to your clients to guide their final "
 "selection."
@@ -337,7 +380,7 @@ msgstr "Accueil"
 msgid "If disabled, %s folders are kept on the server."
 msgstr "Si désactivé, les dossiers %s sont conservés sur le serveur."
 
-#: admin/class-photoproof-settings.php:450
+#: admin/class-photoproof-settings.php:240
 msgid ""
 "If enabled, physical files and attachments are permanently deleted along "
 "with the gallery."
@@ -352,6 +395,10 @@ msgstr "En cours…"
 #: admin/class-photoproof-metaboxes.php:378
 msgid "Keep selection"
 msgstr "Garder la sélection"
+
+#: admin/class-photoproof-settings.php:497
+msgid "List of selected filenames"
+msgstr "Liste des images retenues"
 
 #: templates/single-pp_gallery.php:256
 msgid "Log out"
@@ -395,6 +442,10 @@ msgstr "Non visible par le client"
 msgid "Note: If you omit %s, PhotoProof will automatically add it at the end."
 msgstr ""
 "Note : Si vous omettez %s, PhotoProof l'ajoutera automatiquement à la fin."
+
+#: admin/class-photoproof-settings.php:496
+msgid "Number of selected photos"
+msgstr "Nombre de photographie sélectionné"
 
 #: admin/class-photoproof-settings.php:384
 msgid "Opacity :"
@@ -546,6 +597,14 @@ msgstr ""
 "Sélection confirmée — veuillez contacter votre photographe pour toute "
 "modification."
 
+#: admin/class-photoproof-settings.php:549
+msgid "Sent to the client after they confirm their selection."
+msgstr "Envoyé au client après validation de la galerie"
+
+#: admin/class-photoproof-settings.php:506
+msgid "Sent to you when a client confirms their selection."
+msgstr "Envoyé au photographe après la sélection de la galerie par le client"
+
 #: admin/class-photoproof-settings.php:19
 msgid "Settings"
 msgstr "Réglages"
@@ -559,6 +618,10 @@ msgstr "Réglages PhotoProof"
 msgid "Status"
 msgstr "Statut"
 
+#: admin/class-photoproof-settings.php:511
+msgid "Subject"
+msgstr "Objet"
+
 #: templates/single-pp_gallery.php:222 templates/single-pp_gallery.php:241
 msgid "Summary"
 msgstr "Résumé"
@@ -566,6 +629,10 @@ msgstr "Résumé"
 #: admin/class-photoproof-settings.php:333
 msgid "Text color"
 msgstr "Couleur du texte"
+
+#: includes/class-photoproof-mailer.php:106
+msgid "Thank you for your trust."
+msgstr "Merci de votre confiance"
 
 #: admin/class-photoproof-metaboxes.php:77
 msgid "The client has validated his selection"
@@ -587,7 +654,7 @@ msgstr "Design du thème"
 msgid "This gallery is not published yet."
 msgstr "Cette galerie n'est pas encore publiée."
 
-#: admin/class-photoproof-settings.php:162
+#: admin/class-photoproof-settings.php:110
 msgid ""
 "This setting defines the \"template\" used to name your files. You can "
 "include your brand name permanently."
@@ -595,9 +662,7 @@ msgstr ""
 "Ce réglage définit le \"modèle\" utilisé pour nommer vos fichiers. Vous "
 "pouvez inclure votre nom de marque de façon permanente."
 
-#. %d: Transforme vos liens en codes impossibles à deviner
-#: admin/class-photoproof-settings.php:126
-#, php-format
+#: admin/class-photoproof-settings.php:102
 msgid ""
 "Transforms your links (e.g., %1$s) into impossible-to-guess codes (e.g., "
 "%2$s)."
@@ -624,13 +689,17 @@ msgstr "URL"
 msgid "URL / Copy"
 msgstr "URL / Copier"
 
-#: admin/class-photoproof-settings.php:424
+#: admin/class-photoproof-settings.php:220
 msgid ""
 "URL of your custom login page. If empty, WordPress will use its default "
 "login page."
 msgstr ""
 "URL de votre page de connexion personnalisée. Si vide, WordPress utilisera "
 "la page par défaut."
+
+#: admin/class-photoproof-settings.php:492
+msgid "Use these variables in your email templates:"
+msgstr "Vous pouvez utiliser ces variables dans l'email"
 
 #: templates/single-pp_gallery.php:192
 msgid "Validate selection"
@@ -656,6 +725,10 @@ msgstr "Contenu variable."
 msgid "View Gallery"
 msgstr "Voir la galerie"
 
+#: includes/class-photoproof-mailer.php:88
+msgid "View gallery"
+msgstr "Voir la galerie"
+
 #: admin/class-photoproof-metaboxes.php:112
 msgid "View Gallery ↗"
 msgstr "Voir la galerie ↗"
@@ -675,6 +748,20 @@ msgstr "Protection par Filigrane"
 #: admin/class-photoproof-metaboxes.php:295
 msgid "Watermark protection"
 msgstr "Protection filigrane"
+
+#: includes/class-photoproof-mailer.php:102
+msgid ""
+"We have received your selection of %1$d photo(s) for the gallery \"%2$s\"."
+msgstr ""
+"Nous avons bien reçu la sélection de %1$d photo(s) pour la galerie \"%2$s\"."
+
+#: includes/class-photoproof-mailer.php:104
+msgid ""
+"We will now handle the final processing of your selected images and will get "
+"back to you very soon."
+msgstr ""
+"Nous allons maintenant procéder au post traitement des images sélectionnées "
+"et reviendrons vers vous rapidement"
 
 #: admin/class-photoproof-settings.php:268
 msgid "You can still reactivate a gallery manually if needed."
@@ -701,6 +788,10 @@ msgstr ""
 #, php-format
 msgid "Your selection — %s photos"
 msgstr "Votre sélection — %s photos"
+
+#: admin/class-photoproof-settings.php:499
+msgid "Your studio name (from settings)"
+msgstr "Le nom choisit dans l'onglet Design du thème"
 
 #: admin/class-photoproof-metaboxes.php:144
 msgid "— No client selected —"
@@ -739,7 +830,7 @@ msgstr "❤ Cœur"
 msgid "🌐 Published (Open)"
 msgstr "🌐 Publiée (Ouverte)"
 
-#: admin/class-photoproof-settings.php:169
+#: admin/class-photoproof-settings.php:115
 msgid ""
 "👉 If you fill in the \"Custom Name\" in a gallery, it will be used to fill "
 "this tag."

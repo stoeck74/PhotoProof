@@ -723,3 +723,124 @@ msgstr ""
 #: admin/class-photoproof-metaboxes.php:170
 msgid "🔒 Archived (hiden)"
 msgstr ""
+
+#: admin/class-photoproof-settings.php:100
+msgid "Emails"
+msgstr ""
+
+#: admin/class-photoproof-settings.php:102
+msgid "Transforms your links (e.g., %1$s) into impossible-to-guess codes (e.g., %2$s)."
+msgstr ""
+
+#: admin/class-photoproof-settings.php:110
+msgid "This setting defines the \"template\" used to name your files. You can include your brand name permanently."
+msgstr ""
+
+#: admin/class-photoproof-settings.php:115
+msgid "👉 If you fill in the \"Custom Name\" in a gallery, it will be used to fill this tag."
+msgstr ""
+
+#: admin/class-photoproof-settings.php:125
+msgid "Highlight your favorite photos to your clients to guide their final selection."
+msgstr ""
+
+#: admin/class-photoproof-settings.php:135
+msgid "Fixed setting: Client access will be automatically cut off 30 days after the publication date of each gallery."
+msgstr ""
+
+#: admin/class-photoproof-settings.php:200
+msgid "Automatically applies your logo to uploaded images to prevent screenshots."
+msgstr ""
+
+#: admin/class-photoproof-settings.php:220
+msgid "URL of your custom login page. If empty, WordPress will use its default login page."
+msgstr ""
+
+#: admin/class-photoproof-settings.php:240
+msgid "If enabled, physical files and attachments are permanently deleted along with the gallery."
+msgstr ""
+
+#: admin/class-photoproof-settings.php:490
+msgid "Email variables"
+msgstr ""
+
+#: admin/class-photoproof-settings.php:492
+msgid "Use these variables in your email templates:"
+msgstr ""
+
+#: admin/class-photoproof-settings.php:494
+msgid "Client name"
+msgstr ""
+
+#: admin/class-photoproof-settings.php:495
+msgid "Gallery title"
+msgstr ""
+
+#: admin/class-photoproof-settings.php:496
+msgid "Number of selected photos"
+msgstr ""
+
+#: admin/class-photoproof-settings.php:497
+msgid "List of selected filenames"
+msgstr ""
+
+#: admin/class-photoproof-settings.php:498
+msgid "Gallery URL"
+msgstr ""
+
+#: admin/class-photoproof-settings.php:499
+msgid "Your studio name (from settings)"
+msgstr ""
+
+#: admin/class-photoproof-settings.php:504
+msgid "Email to photographer"
+msgstr ""
+
+#: admin/class-photoproof-settings.php:506
+msgid "Sent to you when a client confirms their selection."
+msgstr ""
+
+#: admin/class-photoproof-settings.php:511
+msgid "Subject"
+msgstr ""
+
+#: admin/class-photoproof-settings.php:523
+msgid "Body"
+msgstr ""
+
+#: admin/class-photoproof-settings.php:547
+msgid "Email to client"
+msgstr ""
+
+#: admin/class-photoproof-settings.php:549
+msgid "Sent to the client after they confirm their selection."
+msgstr ""
+
+#: includes/class-photoproof-mailer.php:80
+msgid "Hello,"
+msgstr ""
+
+#: includes/class-photoproof-mailer.php:82
+msgid "has confirmed their selection for the gallery"
+msgstr ""
+
+#: includes/class-photoproof-mailer.php:88
+msgid "View gallery"
+msgstr ""
+
+#: includes/class-photoproof-mailer.php:100
+msgid "Hello"
+msgstr ""
+
+#: includes/class-photoproof-mailer.php:102
+msgid "We have received your selection of %1$d photo(s) for the gallery \"%2$s\"."
+msgstr ""
+
+#: includes/class-photoproof-mailer.php:104
+msgid "We will now handle the final processing of your selected images and will get back to you very soon."
+msgstr ""
+
+#: includes/class-photoproof-mailer.php:106
+msgid "Thank you for your trust."
+msgstr ""
+

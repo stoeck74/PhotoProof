@@ -118,8 +118,15 @@ class PhotoProof {
 
     private function define_admin_hooks() {
         add_action( 'init', array( $this, 'register_gallery_post_type' ) );
+        
 
-        add_action( 'update_option_pp_use_random_urls', 'flush_rewrite_rules' );
+add_action( 'update_option_pp_use_random_urls', function( $old, $new ) {
+    if ( $old !== $new ) {
+        // flush_rewrite_rules( false ) ne touche pas au .htaccess, 
+        // il met juste à jour l'option 'rewrite_rules' en base de données.
+        flush_rewrite_rules( false );
+    }
+}, 10, 2 );
 
         // Filtre médiathèque standard
         add_action( 'pre_get_posts', function( $query ) {

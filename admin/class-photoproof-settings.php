@@ -73,6 +73,12 @@ class PhotoProof_Settings {
 
         // URL
         register_setting( 'pp_settings_group', 'pp_login_url', array( 'sanitize_callback' => 'esc_url_raw' ) );
+
+        // Emails
+        register_setting( 'pp_settings_group', 'pp_email_photographer_subject', array( 'sanitize_callback' => 'sanitize_text_field' ) );
+        register_setting( 'pp_settings_group', 'pp_email_photographer_body',    array( 'sanitize_callback' => 'sanitize_textarea_field' ) );
+        register_setting( 'pp_settings_group', 'pp_email_client_subject',       array( 'sanitize_callback' => 'sanitize_text_field' ) );
+        register_setting( 'pp_settings_group', 'pp_email_client_body',          array( 'sanitize_callback' => 'sanitize_textarea_field' ) );
     }
 
     public function render_settings_page() {
@@ -97,6 +103,10 @@ class PhotoProof_Settings {
                         <div class="pp-nav-item" data-target="design">
                             <span class="dashicons dashicons-admin-appearance"></span>
                             <?php esc_html_e( 'Theme Design', 'photoproof' ); ?>
+                        </div>
+                        <div class="pp-nav-item" data-target="emails">
+                            <span class="dashicons dashicons-email-alt"></span>
+                            <?php esc_html_e( 'Emails', 'photoproof' ); ?>
                         </div>
                     </div>
 
@@ -468,6 +478,111 @@ class PhotoProof_Settings {
                             </div><!-- /.pp-card -->
                         </div><!-- /#section-securite -->
 
+                        <!-- ========================
+                             SECTION : EMAILS
+                        ======================== -->
+                        <div id="section-emails" class="pp-section-content">
+
+                            <div class="pp-card">
+                                <h3><?php esc_html_e( 'Email variables', 'photoproof' ); ?></h3>
+                                <p class="pp-explanation" style="margin:0;">
+                                    <?php esc_html_e( 'Use these variables in your email templates:', 'photoproof' ); ?>
+                                    <br><br>
+                                    <code>{client_name}</code> — <?php esc_html_e( 'Client name', 'photoproof' ); ?><br>
+                                    <code>{gallery_title}</code> — <?php esc_html_e( 'Gallery title', 'photoproof' ); ?><br>
+                                    <code>{count}</code> — <?php esc_html_e( 'Number of selected photos', 'photoproof' ); ?><br>
+                                    <code>{file_list}</code> — <?php esc_html_e( 'List of selected filenames', 'photoproof' ); ?><br>
+                                    <code>{gallery_url}</code> — <?php esc_html_e( 'Gallery URL', 'photoproof' ); ?><br>
+                                    <code>{studio_name}</code> — <?php esc_html_e( 'Your studio name (from settings)', 'photoproof' ); ?>
+                                </p>
+                            </div>
+
+                            <div class="pp-card">
+                                <h3><?php esc_html_e( 'Email to photographer', 'photoproof' ); ?></h3>
+                                <p class="pp-explanation">
+                                    <?php esc_html_e( 'Sent to you when a client confirms their selection.', 'photoproof' ); ?>
+                                </p>
+
+                                <div class="pp-option-row" style="flex-direction: column; align-items: flex-start; gap: 10px; margin-bottom: 16px;">
+                                    <label class="pp-main-label" for="pp_email_photographer_subject">
+                                        <?php esc_html_e( 'Subject', 'photoproof' ); ?>
+                                    </label>
+                                    <input type="text"
+                                        name="pp_email_photographer_subject"
+                                        id="pp_email_photographer_subject"
+                                        class="regular-text"
+                                        style="width:100%;"
+                                        value="<?php echo esc_attr( get_option( 'pp_email_photographer_subject', '[PhotoProof] {client_name} validated the gallery "{gallery_title}"' ) ); ?>">
+                                </div>
+
+                                <div class="pp-option-row" style="flex-direction: column; align-items: flex-start; gap: 10px;">
+                                    <label class="pp-main-label" for="pp_email_photographer_body">
+                                        <?php esc_html_e( 'Body', 'photoproof' ); ?>
+                                    </label>
+                                    <textarea
+                                        name="pp_email_photographer_body"
+                                        id="pp_email_photographer_body"
+                                        rows="10"
+                                        style="width:100%; font-family: monospace; font-size: 13px;"
+                                    ><?php echo esc_textarea( get_option( 'pp_email_photographer_body',
+                                        "Hello,
+
+{client_name} has confirmed their selection for the gallery '{gallery_title}'.
+
+{count} photo(s) selected:
+--------------------------------------
+{file_list}--------------------------------------
+
+View gallery: {gallery_url}
+
+— PhotoProof"
+                                    ) ); ?></textarea>
+                                </div>
+                            </div>
+
+                            <div class="pp-card">
+                                <h3><?php esc_html_e( 'Email to client', 'photoproof' ); ?></h3>
+                                <p class="pp-explanation">
+                                    <?php esc_html_e( 'Sent to the client after they confirm their selection.', 'photoproof' ); ?>
+                                </p>
+
+                                <div class="pp-option-row" style="flex-direction: column; align-items: flex-start; gap: 10px; margin-bottom: 16px;">
+                                    <label class="pp-main-label" for="pp_email_client_subject">
+                                        <?php esc_html_e( 'Subject', 'photoproof' ); ?>
+                                    </label>
+                                    <input type="text"
+                                        name="pp_email_client_subject"
+                                        id="pp_email_client_subject"
+                                        class="regular-text"
+                                        style="width:100%;"
+                                        value="<?php echo esc_attr( get_option( 'pp_email_client_subject', 'Your selection for "{gallery_title}" has been received' ) ); ?>">
+                                </div>
+
+                                <div class="pp-option-row" style="flex-direction: column; align-items: flex-start; gap: 10px;">
+                                    <label class="pp-main-label" for="pp_email_client_body">
+                                        <?php esc_html_e( 'Body', 'photoproof' ); ?>
+                                    </label>
+                                    <textarea
+                                        name="pp_email_client_body"
+                                        id="pp_email_client_body"
+                                        rows="10"
+                                        style="width:100%; font-family: monospace; font-size: 13px;"
+                                    ><?php echo esc_textarea( get_option( 'pp_email_client_body',
+                                        "Hello {client_name},
+
+We have received your selection of {count} photo(s) for the gallery '{gallery_title}'.
+
+We will now handle the final processing of your selected images and will get back to you very soon.
+
+Thank you for your trust.
+
+— {studio_name}"
+                                    ) ); ?></textarea>
+                                </div>
+                            </div>
+
+                        </div><!-- /#section-emails -->
+
                         <div class="pp-save-bar">
                             <?php submit_button( __( 'Save Preferences', 'photoproof' ), 'primary', 'submit', false ); ?>
                         </div>
@@ -500,7 +615,7 @@ class PhotoProof_Settings {
                 if (active) window.location.hash = active;
             });
         })();
-        </script>
+       </script>
         <?php
     }
 }
