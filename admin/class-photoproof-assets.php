@@ -78,7 +78,7 @@ class PhotoProof_Assets {
 
             $post_id = ( is_object( $post ) && $post->ID ) ? $post->ID : 0;
 
-            $icons     = array( 'dot' => '●', 'star' => '★', 'heart' => '❤' );
+            $icons     = array( 'dot' => '●', 'star' => '★', 'diamond' => '◆', 'heart' => '❤' );
             $icon_key  = get_option( 'pp_global_recommendation_icon', 'star' );
             $reco_icon = isset( $icons[ $icon_key ] ) ? $icons[ $icon_key ] : '★';
 

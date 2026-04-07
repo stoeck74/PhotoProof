@@ -302,7 +302,7 @@ html, body {
     transition: opacity .2s, transform .15s;
 }
 .pp-btn-validate:active { transform: scale(.98); }
-.pp-btn-validate:disabled { background: rgba(0,0,0,.1); color: rgba(0,0,0,.3); cursor: default; transform: none; opacity: 1; }
+.pp-btn-validate:disabled { background: rgba(0,0,0,.1); color: rgba(255,255,255,0.3); cursor: default; transform: none; opacity: 1; }
 .pp-btn-validate.pp-btn-confirmed { background: #22c55e; cursor: default; transform: none; }
 
 /* ============================================================
