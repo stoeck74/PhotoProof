@@ -1,363 +1,298 @@
-# PhotoProof — Plugin WordPress
+# PhotoProof — WordPress Proofing Plugin
 
-Galerie d'épreuve pour photographes. Permet de créer des galeries sécurisées, de les partager avec des clients, et de gérer leur sélection de photos.
+Photography proofing plugin for WordPress. Create secure client galleries with watermark protection, selection workflow, automated file renaming and email notifications.
 
-**Auteur :** Cédric Stoecklin  
-**Version :** 0.1.0
+**Author:** Cédric Stoecklin
+**Version:** 1.0.0
+**License:** GPL-2.0-or-later
 
 ---
 
-## Structure des fichiers
+## Features
+
+- **Standalone gallery template** — distraction-free page, fully isolated from your theme (compatible with Barba.js, page builders, etc.)
+- **Client selection workflow** — click to select, auto-saved every 1.5s, confirm with a single button
+- **Watermark protection** — automatic logo overlay on all images (GD or Imagick), adjustable opacity, originals untouched
+- **Automatic file renaming** — configurable pattern (`{gallery_title}-{index}`), with optional custom prefix per gallery
+- **Private UUID links** — replace gallery slugs with impossible-to-guess UUIDs, no permalink flush needed
+- **Access expiration** — auto-archive galleries after 30 days
+- **Email notifications** — customizable templates for photographer and client, sent on selection validation
+- **Photographer recommendations** — mark your favorites to guide the client (configurable icon)
+- **CSV export** — download the validated selection as a spreadsheet
+- **Client dashboard** — `[pp_galleries_client]` shortcode + PHP template tags
+- **Multilingual** — ships with French, German, Spanish and Italian translations
+- **Customizable design** — background, accent, text colors, custom logo, rounded corners option
+
+---
+
+## File Structure
 
 ```
 photoproof/
-├── photoproof.php                          ← Point d'entrée principal
+├── photoproof.php                          ← Main entry point
+├── readme.txt                              ← WordPress.org readme
+├── uninstall.php                           ← Clean uninstall
 ├── admin/
-│   ├── class-photoproof-settings.php       ← Page de réglages
-│   ├── class-photoproof-metaboxes.php      ← Metabox d'édition galerie
-│   ├── class-photoproof-assets.php         ← Scripts/styles admin
-│   ├── class-photoproof-admin-columns.php  ← Colonnes liste galeries + auto-publish
+│   ├── class-photoproof-settings.php       ← Settings page
+│   ├── class-photoproof-metaboxes.php      ← Gallery editor metabox
+│   ├── class-photoproof-assets.php         ← Admin scripts/styles
+│   ├── class-photoproof-admin-columns.php  ← Admin columns + auto-publish
 │   ├── css/admin-settings.css
 │   └── js/
-│       ├── admin-gallery.js                ← Upload drag & drop + recommandations
-│       ├── admin-settings.js               ← Interface réglages
-│       └── vendor/gsap.min.js              ← GSAP (à télécharger sur cdnjs)
+│       ├── admin-gallery.js                ← Drag & drop upload + recommendations
+│       ├── admin-settings.js               ← Settings UI
+│       └── vendor/gsap.min.js
 ├── includes/
-│   ├── class-photoproof-uploader.php       ← Upload custom + AJAX
-│   ├── class-photoproof-renamer.php        ← Renommage différé à la publication
-│   ├── class-photoproof-watermark.php      ← Génération watermarks GD/Imagick
-│   ├── class-photoproof-router.php         ← URLs UUID
-│   ├── class-photoproof-export.php         ← Export CSV sélection
-│   ├── class-photoproof-expiration.php     ← Expiration automatique galeries
-│   ├── class-photoproof-mailer.php         ← Emails confirmation/réouverture
+│   ├── class-photoproof-uploader.php       ← Custom upload + AJAX
+│   ├── class-photoproof-renamer.php        ← Deferred renaming on save
+│   ├── class-photoproof-watermark.php      ← Watermark generation (GD/Imagick)
+│   ├── class-photoproof-router.php         ← UUID routing (parse_request, no rewrite rules)
+│   ├── class-photoproof-export.php         ← CSV export
+│   ├── class-photoproof-expiration.php     ← Auto-expiration + cron
+│   ├── class-photoproof-mailer.php         ← Email notifications
 │   └── class-photoproof-helpers.php        ← Template tags + shortcode
 ├── public/
 │   ├── class-photoproof-public.php         ← Front-end AJAX + assets
-│   ├── css/photoproof-public.css           ← Styles galerie client
-│   └── js/photoproof-public.js             ← Sélection, lightbox, sauvegarde
-└── templates/
-    └── single-pp_gallery.php               ← Template standalone galerie client
+│   ├── css/photoproof-public.css           ← Client gallery styles
+│   └── js/
+│       ├── photoproof-public.js            ← Selection, lightbox, auto-save
+│       └── photoproof-selection-anim.js    ← Selection tray animations
+├── templates/
+│   └── single-pp_gallery.php              ← Standalone gallery template
+└── languages/
+    ├── photoproof.pot
+    ├── photoproof-fr_FR.po / .mo / .l10n.php
+    ├── photoproof-de_DE.po / .mo / .l10n.php
+    ├── photoproof-es_ES.po / .mo / .l10n.php
+    └── photoproof-it_IT.po / .mo / .l10n.php
 ```
 
 ---
 
 ## Installation
 
-1. Copier le dossier `photoproof/` dans `wp-content/plugins/`
-2. Activer le plugin dans **Extensions**
-3. Aller dans **Réglages → Permaliens** et cliquer **Enregistrer** (flush rewrite rules) a vérifier si encore utile
+1. Copy the `photoproof/` folder to `wp-content/plugins/`
+2. Activate the plugin in **Plugins**
+3. Go to **PhotoProof → Settings** to configure watermark, renaming, colors and emails
+4. Create your first gallery under **PhotoProof → Add New**
 
 ---
 
-## Table de base de données
+## Database Table
 
-Le plugin crée automatiquement la table `wp_photoproof_galleries` :
+The plugin creates `wp_photoproof_galleries` on activation:
 
-| Colonne | Type | Description |
-|---------|------|-------------|
+| Column | Type | Description |
+|--------|------|-------------|
 | `id` | bigint | Auto-increment |
-| `post_id` | bigint | ID de la galerie WP |
-| `client_id` | bigint | ID de l'utilisateur client WP |
-| `folder_path` | varchar | Chemin relatif du dossier |
+| `post_id` | bigint | Gallery post ID |
+| `client_id` | bigint | Assigned WP user ID (nullable) |
+| `folder_path` | varchar | Relative folder path |
 | `status` | varchar | `brouillon` / `publie` / `valide` / `ferme` |
-| `watermark_settings` | text | Réservé usage futur |
-| `selection_data` | longtext | Réservé usage futur |
-| `created_at` | datetime | Date de création |
+| `watermark_settings` | text | Watermark active flag |
+| `selection_data` | longtext | Reserved |
+| `created_at` | datetime | Creation date |
 
 ---
 
-## Réglages (Settings)
+## Gallery Statuses
 
-Accessible via **PhotoProof → Réglages**
-
-### Général
-- **URLs aléatoires (UUID)** — masque le slug dans l'URL publique -> a finaliser ne fonctionne pas encore
-- **Renommage automatique** — renomme les fichiers à la publication selon un pattern `{gallery_title}-{index}`
-- **Recommandations** — active les badges photographe sur les photos (icône configurable : dot / étoile / cœur)
-- **Expiration** — archive automatiquement les galeries 30 jours après publication
-
-### Filigrane
-- **Logo watermark** — PNG avec transparence recommandé
-- **Opacité** — 10 à 100%
-
-### Design Thème
-- **Titre en-tête** — affiché dans le header de la galerie client
-- **Logo** — affiché dans le header de la galerie client
-- **Couleur de fond** — `--pp-bg`
-- **Couleur active** — `--pp-active` (sélection, boutons)
-- **Couleur texte** — `--pp-text`
-- **Coins arrondis** — arrondit les images dans la grille client
-
-### Sécurité
-- **Acces et login** — renseigner sa page de login/ou par defaut va sur wp-login
-- **Suppression des fichiers** — Efface les images des galeries supprimées ou concerver toutes les données
-- **Bloquer le téléchargement via clic droit** A faire 
-- **Prevoir d'autre check et nettoyage** 
----
-
-## Flux de travail
-
-### 1. Créer une galerie
-
-1. **PhotoProof → Ajouter une galerie**
-2. Donner un titre
-3. Enregistrer en brouillon (nécessaire avant l'upload) ou définir le statut sur publié (option pour voir les titres des images avant upload)
-4. Uploader les photos via la zone drag & drop dans la metabox
-5. Optionnel : marquer des photos comme recommandées (étoile coin haut gauche)
-6. Renseigner le client (utilisateur WP) dans la metabox
-7. **Publier** → déclenche automatiquement :
-   - Renommage des fichiers (`{titre}-0001.jpg`, `{titre}-0002.jpg`...)
-   - Génération des watermarks dans `photoproof/gallery-{id}/watermarked/`
-   - Passage du statut à `publie` dans la table
-
-### 2. Partager avec le client
-
-- Copier l'URL depuis la metabox et l'envoyer au client
-- Le client doit être être un user WordPress (compte utilisateur - crée un compte utilisateur par client - helpers dispo pour intégrer sur une page client par exemple)
-- URL format : `https://monsite.com/galerie-epreuve/titre-galerie/`
-
-### 3. Sélection client
-
-1. Le client voit la grille de photos (5 colonnes, object-fit: contain — pas de crop)
-2. Il clique sur les photos pour les sélectionner (cercle coin bas droit)
-3. La sélection est sauvegardée automatiquement toutes les 1.5 secondes
-4. Il clique **Valider la sélection** → confirmation irréversible
-5. Deux emails sont envoyés automatiquement :
-   - **Photographe** : liste des fichiers sélectionnés
-   - **Client** : confirmation de réception
-
-### 4. Après validation
-
-- La galerie est verrouillée côté client
-- Les photos non sélectionnées sont grisées
-- Le photographe voit la sélection dans la metabox avec miniatures
-- Le photographe peut **rouvrir** la galerie (reset ou conservation de la sélection)
-
----
-
-## Metabox Galerie (Admin)
-
-### Champs disponibles
-- **Statut** — brouillon / publiée / validée / archivée
-- **Client** — utilisateur WP assigné à cette galerie
-- **Nom personnalisé** — remplace `{gallery_title}` dans le pattern de renommage
-- **Date d'expiration** — gérée automatiquement si option activée
-
-### Boutons
-- **Exporter CSV** — liste des fichiers sélectionnés par le client
-- **Rouvrir (reset)** — remet la sélection à zéro et déverrouille
-- **Rouvrir (conserver)** — déverrouille sans effacer la sélection
-
----
-
-## Upload Photos
-
-- Zone drag & drop dans la metabox (pas de médiathèque WP standard)
-- Les photos vont dans `wp-content/uploads/photoproof/gallery-{post_id}/`
-- Chaque dossier contient un `index.php` de protection
-- Les photos sont **exclues de la médiathèque WP** (`_pp_gallery_photo = 1`)
-- Les watermarks sont générés dans `gallery-{id}/watermarked/`
-
----
-
-## Renommage
-
-- Le nom cible est calculé à l'upload et stocké en `_pp_target_filename`
-- Le renommage physique se fait **à la publication**
-- Pattern par défaut : `{gallery_title}-{index}` → `villa-annecy-0001.jpg`
-- Le `{gallery_title}` est remplacé par le **Nom personnalisé** si renseigné
-- Le compteur repart de `0001` à chaque publication
-
----
-
-## Watermark
-
-- Déclenché à la publication (priorité 30, après le renommage)
-- Logo centré, redimensionné à 50% max de l'image
-- Opacité configurable dans les réglages
-- Format source : PNG avec transparence recommandé
-- Copie watermarkée stockée dans `watermarked/` — original intact
-- Les nouvelles galeries reçoivent le watermark actuel au moment de la publication
-- Les galeries déjà publiées ne sont pas retouchées
-
----
-
-## Emails
-
-Configurés dans `class-photoproof-mailer.php`. Envoyés via `wp_mail()`.
-
-### Email photographe (validation)
-- **Destinataire** : `admin_email` WP
-- **Déclencheur** : client confirme sa sélection
-- **Contenu** : liste des fichiers sélectionnés + lien galerie
-
-### Email client (validation)
-- **Destinataire** : email de l'utilisateur WP client
-- **Déclencheur** : client confirme sa sélection
-- **Contenu** : confirmation de réception
-
-### Email client (réouverture)
-- **Déclencheur** : photographe réouvre la galerie via la metabox
-- **Contenu** : notification avec lien + info sur la sélection (reset ou conservée)
-
-### Email photographe (expiration J-7)
-- **Déclencheur** : cron quotidien `pp_daily_expiration_check`
-- **Contenu** : avertissement 7 jours avant expiration
-- Envoyé une seule fois par galerie (`_pp_expiration_warning_sent`)
-
-> **Note MAMP/local** : installer **WP Mail SMTP** + **MailHog** pour tester les emails en local.
-> MailHog : https://github.com/mailhog/MailHog/releases → lancer `MailHog.exe` → interface sur `http://localhost:8025`
-> WP Mail SMTP : SMTP = localhost, Port = 1025, pas d'authentification
-
----
-
-## CSS Variables (Thème Client)
-
-Injectées dynamiquement par `class-photoproof-public.php` selon les réglages :
-
-```css
-:root {
-    --pp-bg:         #191919;   /* Couleur de fond */
-    --pp-active:     #2bd326;   /* Couleur active (sélection, boutons) */
-    --pp-text:       #56ffb3;   /* Couleur texte */
-    --pp-img-radius: 0px;       /* 0px = carré, 8px = arrondi */
-}
+```
+brouillon → publie → valide → ferme
+               ↑________↓
+            (reopen)
 ```
 
+| Status | Description | Client can select |
+|--------|-------------|-------------------|
+| `brouillon` | Draft — admin only | No |
+| `publie` | Published — waiting for selection | Yes |
+| `valide` | Selection confirmed by client | No (locked) |
+| `ferme` | Archived (expired or manual) | No |
+
 ---
 
-## Template Tags (pour développeurs)
+## Workflow
 
-Fonctions PHP utilisables dans les templates de thème :
+### 1. Create a gallery
 
-```php
-// Toutes les galeries d'un client
-$galleries = pp_get_client_galleries( $user_id );
-// Retourne un array de :
-// [ 'id', 'title', 'url', 'status', 'photo_count', 'thumbnail_url', 'date', 'selected_ids' ]
+1. **PhotoProof → Add New**, give it a title
+2. Save as draft (required before uploading)
+3. Upload photos via drag & drop in the metabox
+4. Optionally mark photos as recommended
+5. Assign a client (WordPress user)
+6. **Publish** → triggers renaming + watermark generation + status update
 
-// Statut d'une galerie
-$status = pp_get_gallery_status( $post_id );
-// Retourne : 'brouillon' | 'publie' | 'valide' | 'ferme'
+### 2. Share with the client
 
-// Nombre de photos
-$count = pp_get_gallery_photo_count( $post_id );
+- Copy the URL from the metabox
+- Standard URL: `https://example.com/galerie-epreuve/gallery-title/`
+- With UUID enabled: `https://example.com/galerie-epreuve/550e8400-e29b-...`
 
-// URL du thumbnail (première photo)
-$url = pp_get_gallery_thumbnail( $post_id, 'medium' );
+### 3. Client selection
 
-// IDs des photos sélectionnées par le client
-$ids = pp_get_gallery_selection( $post_id );
+1. Client browses the gallery (5-column grid, no crop)
+2. Clicks photos to select (circle indicator, bottom-right)
+3. Selection auto-saves every 1.5 seconds
+4. Clicks **Validate selection** → irreversible confirmation
+5. Two emails sent automatically (photographer + client)
 
-// Est-ce que la galerie est verrouillée ?
-$locked = pp_is_gallery_locked( $post_id );
-```
+### 4. After validation
 
-### Exemple d'utilisation dans un template
+- Gallery is locked for the client
+- Unselected photos are dimmed
+- Photographer sees the recap with thumbnails in the metabox
+- Photographer can **reopen** (keep or reset selection)
 
-```php
-<?php
-$galleries = pp_get_client_galleries( get_current_user_id() );
+---
 
-foreach ( $galleries as $g ) :
-    $status_label = $g['status'] === 'valide' ? 'Validé' : 'En attente';
-?>
-    <a href="<?php echo esc_url( $g['url'] ); ?>">
-        <img src="<?php echo esc_url( $g['thumbnail_url'] ); ?>" alt="">
-        <h2><?php echo esc_html( $g['title'] ); ?></h2>
-        <p><?php echo $g['photo_count']; ?> photos — <?php echo $status_label; ?></p>
-    </a>
-<?php endforeach; ?>
-```
+## Settings
+
+Accessible via **PhotoProof → Settings**.
+
+### General
+- **Random URLs (UUID)** — hide gallery slugs in public URLs
+- **Automatic renaming** — rename files on publish with pattern `{gallery_title}-{index}`
+- **Recommendations** — photographer favorite badges (dot / star / diamond / heart)
+- **Expiration** — auto-archive galleries after 30 days
+
+### Security & Watermark
+- **Watermark logo** — PNG with transparency recommended
+- **Opacity** — 10% to 100%
+- **Login page** — custom login URL or default `wp-login.php`
+- **File deletion** — delete photos when gallery is trashed
+
+### Theme Design
+- **Header title & logo** — displayed in the client gallery header
+- **Colors** — background, active, text (CSS custom properties)
+- **Rounded corners** — toggle for photo grid
+
+### Emails
+- **Photographer email** — sent on client validation, with file list
+- **Client email** — confirmation of reception
+- **Customizable** — subject and body templates with variables: `{client_name}`, `{gallery_title}`, `{count}`, `{file_list}`, `{gallery_url}`, `{studio_name}`
 
 ---
 
 ## Shortcode
 
-Pour les utilisateurs non-développeurs — coller dans une page WP :
-
 ```
 [pp_galleries_client]
 ```
 
-### Attributs disponibles
+Displays all galleries assigned to the logged-in client.
 
-| Attribut | Défaut | Description |
-|----------|--------|-------------|
-| `columns` | `1` | Nombre de colonnes |
-| `show_status` | `true` | Afficher le statut |
-| `show_count` | `true` | Afficher le nombre de photos |
-| `show_date` | `true` | Afficher la date |
-
-### Exemples
+| Attribute | Default | Description |
+|-----------|---------|-------------|
+| `columns` | `1` | Number of columns |
+| `show_status` | `true` | Show status badge |
+| `show_count` | `true` | Show photo count |
+| `show_date` | `true` | Show date |
 
 ```
-[pp_galleries_client columns="3"]
-[pp_galleries_client columns="2" show_date="false"]
-[pp_galleries_client show_status="false" show_count="false"]
+[pp_galleries_client columns="3" show_date="false"]
+```
+
+---
+
+## Template Tags
+
+PHP functions for theme developers:
+
+```php
+$galleries = pp_get_client_galleries( $user_id );
+$status    = pp_get_gallery_status( $post_id );
+$count     = pp_get_gallery_photo_count( $post_id );
+$url       = pp_get_gallery_thumbnail( $post_id, 'medium' );
+$ids       = pp_get_gallery_selection( $post_id );
+$locked    = pp_is_gallery_locked( $post_id );
+```
+
+---
+
+## Hooks
+
+```php
+// Client confirms selection
+add_action( 'pp_gallery_selection_confirmed', function( $post_id, $client_id ) {
+    // ...
+}, 10, 2 );
+
+// Photo uploaded
+add_action( 'pp_attachment_uploaded', function( $attachment_id, $post_id ) {
+    // ...
+}, 10, 2 );
 ```
 
 ---
 
 ## AJAX Endpoints
 
-| Action | Accès | Description |
-|--------|-------|-------------|
-| `pp_upload_photo` | Admin | Upload une photo dans la galerie |
-| `pp_detach_photo` | Admin | Retire une photo de la galerie |
-| `pp_toggle_recommendation` | Admin | Toggle badge recommandation |
-| `pp_get_gallery_photos` | Admin | Liste photos d'une galerie |
-| `pp_save_selection` | Public | Sauvegarde sélection client |
-| `pp_get_selection` | Public | Récupère sélection client |
-| `pp_reopen_gallery` | Admin | Réouvre une galerie validée |
+| Action | Access | Description |
+|--------|--------|-------------|
+| `pp_upload_photo` | Admin | Upload a photo |
+| `pp_detach_photo` | Admin | Remove a photo |
+| `pp_toggle_recommendation` | Admin | Toggle recommendation badge |
+| `pp_get_gallery_photos` | Admin | List gallery photos |
+| `pp_save_selection` | Public | Save client selection |
+| `pp_get_selection` | Public | Get current selection |
+| `pp_reopen_gallery` | Admin | Reopen a validated gallery |
+| `pp_export_selection` | Admin | Export selection as CSV |
 
 ---
 
-## Hooks disponibles
+## CSS Custom Properties
 
-Pour étendre le plugin depuis un thème ou une autre extension :
+Injected dynamically based on settings:
 
-```php
-// Déclenché quand un client confirme sa sélection
-add_action( 'pp_gallery_selection_confirmed', function( $post_id, $client_id ) {
-    // Faire quelque chose après confirmation
-}, 10, 2 );
-
-// Déclenché quand le photographe réouvre une galerie
-add_action( 'pp_gallery_reopened', function( $post_id, $mode ) {
-    // $mode = 'reset' ou 'keep'
-}, 10, 2 );
-
-// Déclenché juste après l'upload d'une photo
-add_action( 'pp_attachment_uploaded', function( $attachment_id, $post_id ) {
-    // Traitement post-upload
-}, 10, 2 );
+```css
+:root {
+    --pp-bg:         #f5f4f2;
+    --pp-active:     #2271b1;
+    --pp-text:       #1e293b;
+    --pp-img-radius: 0px;
+}
 ```
 
 ---
 
-## Dépendances
+## Dependencies
 
-| Lib | Version | Source |
-|-----|---------|--------|
-| jQuery | 3.7.1 | Bundle WP |
-| ImagesLoaded | 5.0.0 | Bundle WP (`wp-includes`) |
-| GSAP | 3.12.2 | Local (`admin/js/vendor/gsap.min.js`) |
-| GD ou Imagick | — | Extension PHP serveur |
+| Library | Version | Source |
+|---------|---------|--------|
+| jQuery | 3.7+ | WP bundled |
+| ImagesLoaded | 5.0+ | WP bundled |
+| GSAP | 3.12.2 | Local vendor |
+| GD or Imagick | — | PHP server extension |
 
 ---
 
-## Statuts de galerie
+## Local Development
 
-```
-brouillon → publie → valide → ferme
-              ↑_______↓
-           (réouverture)
-```
+### Email testing
 
-| Statut | Description | Client peut sélectionner |
-|--------|-------------|--------------------------|
-| `brouillon` | Non publiée | Non |
-| `publie` | Accessible, en attente de sélection | Oui |
-| `valide` | Sélection confirmée par le client | Non (verrouillée) |
-| `ferme` | Archivée (expiration ou manuellement) | Non |
+Install **WP Mail SMTP** + **MailHog** for local email testing:
+
+1. Download [MailHog](https://github.com/mailhog/MailHog/releases) and run it
+2. Configure WP Mail SMTP: SMTP host = `localhost`, port = `1025`, no auth
+3. Open `http://localhost:8025` to see captured emails
+
+---
+
+## Changelog
+
+### 1.0.0
+- First stable release
+- Multilingual: French, German, Spanish, Italian
+- Fixed: UUID private links (parse_request approach, no rewrite rules)
+- Fixed: expiration cron scheduling
+- Fixed: custom prefix renaming on publish and update
+- Full PHPCS compliance
+
+### 0.2.0
+- Animated selection tray
+- Recap panel with expand animation
+- Full i18n support
+
+### 0.1.0
+- Initial release
