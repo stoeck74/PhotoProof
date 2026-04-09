@@ -171,11 +171,11 @@ class PhotoProof_Mailer {
             esc_html__( 'View gallery', 'photoproof' ) .
             '</a></p>';
 
-        $subject_photo = apply_filters( 'pp_email_photographer_subject',
+        $subject_photo = apply_filters( 'pp_email_photographer_subject', // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
             $this->parse_template( get_option( 'pp_email_photographer_subject', $default_subject_photo ), $vars ),
             $post_id, $client_id
         );
-        $body_photo = apply_filters( 'pp_email_photographer_body',
+        $body_photo = apply_filters( 'pp_email_photographer_body', // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
             $this->wrap_html( $body_photo_html, $accent_color ),
             $post_id, $client_id
         );
@@ -211,11 +211,11 @@ class PhotoProof_Mailer {
 
         $body_client_html = '<p style="margin:0; font-size:15px; color:#1e293b; line-height:1.8;">' . $body_content . '</p>';
 
-        $subject_client = apply_filters( 'pp_email_client_subject',
+        $subject_client = apply_filters( 'pp_email_client_subject', // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
             $this->parse_template( get_option( 'pp_email_client_subject', $default_subject_client ), $vars ),
             $post_id, $client_id
         );
-        $body_client = apply_filters( 'pp_email_client_body',
+        $body_client = apply_filters( 'pp_email_client_body', // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
             $this->wrap_html( $body_client_html, $accent_color ),
             $post_id, $client_id
         );

@@ -153,7 +153,7 @@ class PhotoProof_Helpers {
 function pp_get_client_galleries( $user_id ) {
     global $wpdb;
 
-    $post_ids = $wpdb->get_col( $wpdb->prepare(
+    $post_ids = $wpdb->get_col( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
         "SELECT post_id FROM {$wpdb->prefix}photoproof_galleries
          WHERE client_id = %d
          AND status IN ('publie', 'valide')",

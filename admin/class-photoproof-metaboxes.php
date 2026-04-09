@@ -413,6 +413,9 @@ class PhotoProof_Metaboxes {
         if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
         if ( ! current_user_can( 'edit_post', $post_id ) ) return;
 
+        // Sauvegarder le préfixe custom EN PREMIER — le renamer en a besoin
+        update_post_meta( $post_id, '_pp_custom_rename', sanitize_text_field( wp_unslash( $_POST['pp_custom_rename'] ?? '' ) ) );
+
         global $wpdb;
         $table_name = $wpdb->prefix . 'photoproof_galleries';
 
@@ -441,7 +444,9 @@ class PhotoProof_Metaboxes {
             'watermark_settings' => $watermark_val,
             'folder_path'        => 'photoproof/gallery-' . $post_id,
         );
-        $row_format = array( '%d', '%s', '%s', '%s' );
+        // Format conditionnel : NULL en base si pas de client (au lieu de 0)
+        $client_format = $client_id ? '%d' : null;
+        $row_format    = array( $client_format, '%s', '%s', '%s' );
 
         if ( $existing ) {
             $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
@@ -462,7 +467,5 @@ class PhotoProof_Metaboxes {
         // Invalider le cache après écriture
         wp_cache_delete( $cache_key, 'photoproof' );
         wp_cache_delete( $cache_key . '_id', 'photoproof' );
-
-        update_post_meta( $post_id, '_pp_custom_rename', sanitize_text_field( wp_unslash( $_POST['pp_custom_rename'] ?? '' ) ) );
     }
 }

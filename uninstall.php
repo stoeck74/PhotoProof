@@ -12,7 +12,7 @@ global $wpdb;
 $wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}photoproof_galleries" );
 
 // Supprimer toutes les options
-$pp_options = array(
+$photoproof_options = array(
     'pp_use_random_urls', 'pp_enable_expiration', 'pp_enable_rename',
     'pp_rename_pattern', 'pp_enable_recommendations', 'pp_global_recommendation_icon',
     'pp_global_watermark', 'pp_watermark_opacity', 'pp_custom_logo', 'pp_custom_title',
@@ -21,14 +21,14 @@ $pp_options = array(
     'pp_email_photographer_subject', 'pp_email_photographer_body',
     'pp_email_client_subject', 'pp_email_client_body',
 );
-foreach ( $pp_options as $pp_option ) {
-    delete_option( $pp_option );
+foreach ( $photoproof_options as $photoproof_option ) {
+    delete_option( $photoproof_option );
 }
 
 // Supprimer le cron
-$pp_timestamp = wp_next_scheduled( 'pp_daily_expiration_check' );
-if ( $pp_timestamp ) {
-    wp_unschedule_event( $pp_timestamp, 'pp_daily_expiration_check' );
+$photoproof_timestamp = wp_next_scheduled( 'pp_daily_expiration_check' );
+if ( $photoproof_timestamp ) {
+    wp_unschedule_event( $photoproof_timestamp, 'pp_daily_expiration_check' );
 }
 
 // Supprimer les post metas orphelines

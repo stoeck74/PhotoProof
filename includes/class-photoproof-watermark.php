@@ -270,7 +270,9 @@ class PhotoProof_Watermark {
             return true;
 
         } catch ( Exception $e ) {
-            error_log( 'PhotoProof Watermark Imagick : ' . $e->getMessage() );
+            if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                error_log( 'PhotoProof Watermark Imagick : ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            }
             return false;
         }
     }

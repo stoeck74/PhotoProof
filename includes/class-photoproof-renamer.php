@@ -6,36 +6,28 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Logique de renommage différé — PhotoProof
  *
  * FLOW :
- * 1. À l'upload → calcule le nom cible et le stocke en _pp_target_filename
- *    (pas de renommage physique, le titre peut ne pas être connu)
- * 2. À la publication WP (publish_pp_gallery) → renommage physique de tous les fichiers
+ * 1. À l'upload (pp_attachment_uploaded) → calcule le nom cible temporaire
+ *    et le stocke en _pp_target_filename (affiché dans la grille admin)
+ * 2. À la sauvegarde du post (save_post_pp_gallery, priorité 30)
+ *    → si le post est publié ET que le base_name a changé → renommage physique
+ *
+ * Priorité 30 = après save_gallery_settings (priorité 10) qui sauvegarde
+ * le meta _pp_custom_rename dont on a besoin.
  *
  * Priorité nom : Préfixe custom (metabox) > Titre galerie > fallback 'photo'
  */
 class PhotoProof_Renamer {
 
     public function __construct() {
-        // Priorité 10 : après la redirection du dossier (Uploader priorité 9)
-        add_filter( 'wp_handle_upload_prefilter', array( $this, 'prepare_rename_on_upload' ), 10 );
-
-        // NOUVEAU : hook dédié déclenché par l'uploader custom
+        // Hook dédié déclenché par l'uploader custom — nom temporaire
         add_action( 'pp_attachment_uploaded', array( $this, 'store_target_filename' ), 10, 2 );
 
-        // Renommage physique à la publication
-        add_action( 'publish_pp_gallery', array( $this, 'rename_on_publish' ), 20, 2 );
+        // Renommage physique au save (publish + update)
+        add_action( 'save_post_pp_gallery', array( $this, 'maybe_rename_on_save' ), 30, 2 );
     }
 
     /**
-     * À l'upload via wp_handle_upload_prefilter (ancien flow)
-     * Garde pour compatibilité mais le hook pp_attachment_uploaded
-     * est maintenant le point d'entrée principal
-     */
-    public function prepare_rename_on_upload( $file ) {
-        return $file; // Le renommage est maintenant différé, rien à faire ici
-    }
-
-    /**
-     * Calcule et stocke le nom cible sur l'attachement
+     * Calcule et stocke le nom cible temporaire sur l'attachement
      * Appelé juste après la création de l'attachement en base
      */
     public function store_target_filename( $attachment_id, $post_id ) {
@@ -56,24 +48,57 @@ class PhotoProof_Renamer {
         $file_path = get_attached_file( $attachment_id );
         $ext       = $file_path ? '.' . strtolower( pathinfo( $file_path, PATHINFO_EXTENSION ) ) : '';
 
-        // Stocker le nom cible (sans extension — on la rajoutera au renommage)
+        // Stocker le nom cible (avec extension)
         update_post_meta( $attachment_id, '_pp_target_filename', $new_name . $ext );
         // Stocker aussi le post_id de la galerie pour le renommage différé
         update_post_meta( $attachment_id, '_pp_gallery_post_id', $post_id );
     }
 
     /**
-     * À la publication : renommage physique de tous les fichiers de la galerie
-     * Hookée sur publish_pp_gallery avec priorité 20 (après auto_set_publie_on_publish)
+     * Au save : renommage physique SI le post est publié ET le base_name a changé
+     *
+     * Hookée sur save_post_pp_gallery avec priorité 30
+     * (après save_gallery_settings à priorité 10 qui sauvegarde _pp_custom_rename)
      */
-    public function rename_on_publish( $post_id, $post ) {
+    public function maybe_rename_on_save( $post_id, $post ) {
         if ( ! get_option( 'pp_enable_rename' ) ) {
             return;
         }
 
-        // Réinitialiser le compteur pour un renommage propre depuis 0001
-        delete_post_meta( $post_id, '_pp_rename_counter' );
+        // Ne renommer que si le post est publié
+        if ( $post->post_status !== 'publish' ) {
+            return;
+        }
 
+        // Éviter les autosaves et révisions
+        if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+            return;
+        }
+        if ( wp_is_post_revision( $post_id ) ) {
+            return;
+        }
+
+        // Calculer le base_name actuel
+        $current_base = $this->get_base_name( $post_id );
+
+        // Comparer avec le dernier base_name utilisé
+        $last_base = get_post_meta( $post_id, '_pp_last_rename_base', true );
+
+        if ( $last_base === $current_base ) {
+            return; // Rien n'a changé, pas de renommage inutile
+        }
+
+        // Renommage complet
+        $this->rename_all_photos( $post_id, $current_base );
+
+        // Stocker le base_name utilisé
+        update_post_meta( $post_id, '_pp_last_rename_base', $current_base );
+    }
+
+    /**
+     * Renomme toutes les photos d'une galerie
+     */
+    private function rename_all_photos( $post_id, $base_name ) {
         $attachments = get_posts( array(
             'post_type'      => 'attachment',
             'post_mime_type' => 'image',
@@ -88,10 +113,8 @@ class PhotoProof_Renamer {
             return;
         }
 
-        // Recalculer les noms avec le titre définitif de la galerie
-        $base_name = $this->get_base_name( $post_id );
-        $pattern   = $this->get_pattern();
-        $counter   = 0;
+        $pattern = $this->get_pattern();
+        $counter = 0;
 
         foreach ( $attachments as $attachment ) {
             $counter++;
@@ -124,6 +147,8 @@ class PhotoProof_Renamer {
 
         // Éviter d'écraser un fichier existant avec un autre nom
         if ( $old_file === $new_file ) {
+            // Même fichier, juste mettre à jour le meta target
+            update_post_meta( $attachment_id, '_pp_target_filename', $new_basename . $ext );
             return true;
         }
 
@@ -149,14 +174,13 @@ class PhotoProof_Renamer {
         // Mettre à jour le guid (URL publique)
         global $wpdb;
         $new_url = $upload_dir['baseurl'] . '/' . $relative;
-        $wpdb->update(
+        $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->posts,
             array( 'guid' => $new_url ),
             array( 'ID'   => $attachment_id ),
             array( '%s' ),
             array( '%d' )
         );
-
 
         // Charger les fonctions media — pas disponibles dans le contexte REST API
         if ( ! function_exists( 'wp_generate_attachment_metadata' ) ) {

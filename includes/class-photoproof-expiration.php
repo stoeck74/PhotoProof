@@ -5,12 +5,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Logique d'expiration automatique des galeries — PhotoProof
  *
- * CORRECTIONS :
- * - get_post_timestamp() au lieu de get_the_date('U') (timestamp fiable)
- * - Bannière admin via hook tardif (wp_body_open / admin_bar) au lieu de echo avant DOCTYPE
- * - Vérification du statut en base (brouillon, ferme) en plus de la date
+ * - Vérification d'accès front-end (template_redirect)
  * - Cron WP quotidien pour l'auto-archivage en base
- * - register_activation_hook et deactivation_hook pour le cron
+ * - Bannière admin gérée directement dans le template (single-pp_gallery.php)
+ *
+ * Le cron est planifié dans PhotoProof::activate()
+ * et supprimé dans PhotoProof::deactivate()
  */
 class PhotoProof_Expiration {
 
@@ -18,51 +18,17 @@ class PhotoProof_Expiration {
     const EXPIRATION_DAYS = 30;
 
     public function __construct() {
-      // Vérification d'accès front-end
+        // Vérification d'accès front-end
         add_action( 'template_redirect', array( $this, 'check_gallery_expiration' ) );
-
-        // Bannière admin (affichée dans le contenu, pas avant le DOCTYPE)
-        add_action( 'wp_before_admin_bar_render', array( $this, 'maybe_show_expired_banner' ) );
 
         // Cron quotidien d'auto-archivage
         add_action( 'pp_daily_expiration_check', array( $this, 'auto_archive_expired_galleries' ) );
-
-        // Enregistrement du cron à l'activation (via photoproof.php activate())
-        add_action( 'pp_schedule_cron', array( $this, 'schedule_cron' ) );
-
-        // Nettoyage du cron à la désactivation
-        register_deactivation_hook(
-            defined( 'PHOTOPROOF_PATH' ) ? PHOTOPROOF_PATH . '../photoproof.php' : __FILE__,
-            array( $this, 'clear_cron' )
-        );
-    }
-
-    /**
-     * Planifie le cron quotidien si pas déjà actif
-     * Appelé depuis PhotoProof::activate()
-     */
-    public function schedule_cron() {
-        if ( ! wp_next_scheduled( 'pp_daily_expiration_check' ) ) {
-            wp_schedule_event( time(), 'daily', 'pp_daily_expiration_check' );
-        }
-    }
-
-    /**
-     * Supprime le cron à la désactivation du plugin
-     */
-    public function clear_cron() {
-        $timestamp = wp_next_scheduled( 'pp_daily_expiration_check' );
-        if ( $timestamp ) {
-            wp_unschedule_event( $timestamp, 'pp_daily_expiration_check' );
-        }
     }
 
     /**
      * Retourne le timestamp d'expiration d'un post
      */
     private function get_expiration_timestamp( $post_id ) {
-        // CORRECTION : get_post_timestamp() (WP 5.3+) retourne un timestamp UTC fiable
-        // Contrairement à get_the_date('U') qui passe par des filtres et peut dériver
         $publish_timestamp = get_post_timestamp( $post_id );
         return $publish_timestamp + ( self::EXPIRATION_DAYS * DAY_IN_SECONDS );
     }
@@ -70,9 +36,13 @@ class PhotoProof_Expiration {
     /**
      * Vérifie si une galerie est expirée ou fermée et bloque l'accès
      *
-     * CORRECTION : vérifie aussi le statut en base (brouillon, ferme)
-     * CORRECTION : la bannière admin n'est plus affichée ici (echo avant DOCTYPE)
-     *              → gérée via maybe_show_expired_banner() sur wp_before_admin_bar_render
+     * Centralise toutes les vérifications d'accès front-end :
+     * - Statut brouillon → admin only
+     * - Statut fermé → admin only
+     * - Expiration par date → admin only
+     *
+     * L'admin peut toujours voir — la bannière d'avertissement est
+     * gérée dans le template (single-pp_gallery.php) via pp_get_gallery_access_notice()
      */
     public function check_gallery_expiration() {
         if ( ! is_singular( 'pp_gallery' ) ) {
@@ -82,35 +52,34 @@ class PhotoProof_Expiration {
         global $post, $wpdb;
 
         // ── 1. VÉRIFICATION DU STATUT EN BASE ────────────────────────
-        $row = $wpdb->get_row( $wpdb->prepare(
+        $row = $wpdb->get_row( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             "SELECT status FROM {$wpdb->prefix}photoproof_galleries WHERE post_id = %d",
             $post->ID
         ) );
 
         if ( $row ) {
             if ( $row->status === 'brouillon' ) {
-                // Brouillon : seul l'admin peut voir
                 if ( ! current_user_can( 'manage_options' ) ) {
                     wp_die(
-                        '<h1>Galerie non disponible</h1><p>Cette galerie n\'est pas encore publiée.</p>',
-                        'Accès refusé',
+                        '<h1>' . esc_html__( 'Gallery not available', 'photoproof' ) . '</h1>'
+                        . '<p>' . esc_html__( 'This gallery is not published yet.', 'photoproof' ) . '</p>',
+                        esc_html__( 'Access Denied', 'photoproof' ),
                         array( 'response' => 403 )
                     );
                 }
-                return;
+                return; // Admin peut voir
             }
 
             if ( $row->status === 'ferme' ) {
-                if ( current_user_can( 'manage_options' ) ) {
-                    // Admin : on stocke un flag pour la bannière
-                    set_transient( 'pp_admin_notice_' . get_current_user_id(), 'ferme', 60 );
-                    return;
+                if ( ! current_user_can( 'manage_options' ) ) {
+                    wp_die(
+                        '<h1>' . esc_html__( 'Archived Gallery', 'photoproof' ) . '</h1>'
+                        . '<p>' . esc_html__( 'Please contact your photographer.', 'photoproof' ) . '</p>',
+                        esc_html__( 'Archived Gallery', 'photoproof' ),
+                        array( 'response' => 403 )
+                    );
                 }
-                wp_die(
-                    '<h1>Galerie archivée</h1><p>Cette galerie a été fermée. Veuillez contacter votre photographe.</p>',
-                    'Galerie archivée',
-                    array( 'response' => 403 )
-                );
+                return; // Admin peut voir
             }
         }
 
@@ -125,75 +94,37 @@ class PhotoProof_Expiration {
             return; // Pas encore expirée
         }
 
-        // Expirée — admin peut voir avec bannière
+        // Expirée — mettre à jour le statut en base (filet de sécurité si le cron n'a pas tourné)
+        if ( $row && $row->status === 'publie' ) {
+            $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->prefix . 'photoproof_galleries',
+                array( 'status' => 'ferme' ),
+                array( 'post_id' => $post->ID ),
+                array( '%s' ),
+                array( '%d' )
+            );
+        }
+
+        // Admin peut voir
         if ( current_user_can( 'manage_options' ) ) {
-            set_transient( 'pp_admin_notice_' . get_current_user_id(), 'expired', 60 );
             return;
         }
 
         // Client : accès coupé
         wp_die(
-            wp_kses(
-                '<h1>Accès expiré</h1><p>L\'accès à cette galerie est expiré (limite de '
-                    . self::EXPIRATION_DAYS
-                    . ' jours dépassée). Veuillez contacter votre photographe pour renouveler l\'accès.</p>',
-                array(
-                    'h1' => array(),
-                    'p'  => array(),
-                )
-            ),
-            'Galerie expirée',
+            '<h1>' . esc_html__( 'Access Expired', 'photoproof' ) . '</h1>'
+            . '<p>' . sprintf(
+                /* translators: %d: number of days */
+                esc_html__( 'Access to this gallery has expired (limit of %d days exceeded). Please contact your photographer to renew access.', 'photoproof' ),
+                absint( self::EXPIRATION_DAYS )
+            ) . '</p>',
+            esc_html__( 'Gallery Expired', 'photoproof' ),
             array( 'response' => 403 )
         );
     }
 
     /**
-     * Affiche la bannière admin APRÈS le rendu de l'admin bar
-     *
-     * CORRECTION : on n'est plus dans template_redirect → pas de echo avant DOCTYPE
-     * On utilise un transient pour passer l'info entre les deux hooks
-     */
-    public function maybe_show_expired_banner() {
-        if ( ! is_singular( 'pp_gallery' ) ) {
-            return;
-        }
-
-        $notice_key = 'pp_admin_notice_' . get_current_user_id();
-        $notice     = get_transient( $notice_key );
-
-        if ( ! $notice ) {
-            return;
-        }
-
-        delete_transient( $notice_key );
-
-        $messages = array(
-            'expired' => 'Cette galerie est <strong>expirée</strong> pour le client (plus de '
-                . self::EXPIRATION_DAYS . ' jours). Vous la voyez car vous êtes Administrateur.',
-            'ferme'   => 'Cette galerie est <strong>archivée</strong>. Le client n\'y a plus accès.',
-        );
-
-        $message = isset( $messages[ $notice ] ) ? $messages[ $notice ] : '';
-
-        if ( $message ) {
-            // Ce hook s'exécute dans le <head> de l'admin bar — on injecte du CSS inline
-            echo '<style>
-                #pp-expiration-banner {
-                    position: fixed; top: 32px; left: 0; right: 0; z-index: 99999;
-                    background: #ffb900; color: #1e1e1e;
-                    padding: 10px 20px; text-align: center;
-                    font-size: 13px; font-weight: 500;
-                    border-bottom: 2px solid #e09800;
-                }
-            </style>
-            <div id="pp-expiration-banner">' . wp_kses( $message, array( 'strong' => array() ) ) . '</div>';
-        }
-    }
-
-    /**
      * Cron quotidien : archive automatiquement les galeries expirées
-     *
-     * CORRECTION : met à jour le statut en base au lieu de bloquer uniquement à la volée
      */
     public function auto_archive_expired_galleries() {
         if ( ! get_option( 'pp_enable_expiration' ) ) {
@@ -202,8 +133,7 @@ class PhotoProof_Expiration {
 
         global $wpdb;
 
-        // Récupère toutes les galeries publiées
-        $galleries = $wpdb->get_results(
+        $galleries = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             "SELECT post_id FROM {$wpdb->prefix}photoproof_galleries WHERE status = 'publie'"
         );
 
@@ -222,8 +152,7 @@ class PhotoProof_Expiration {
             }
 
             if ( time() > ( $publish_timestamp + $expiration_delay ) ) {
-                // Archivage en base
-                $wpdb->update(
+                $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
                     $wpdb->prefix . 'photoproof_galleries',
                     array( 'status' => 'ferme' ),
                     array( 'post_id' => $post_id ),
@@ -232,5 +161,61 @@ class PhotoProof_Expiration {
                 );
             }
         }
+    }
+
+    /**
+     * Helper statique : retourne le message de bannière admin à afficher
+     * dans le template, ou null si rien à afficher.
+     *
+     * Appelé depuis single-pp_gallery.php
+     *
+     * @param int $post_id
+     * @return string|null Message HTML ou null
+     */
+    public static function get_admin_notice( $post_id ) {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            return null;
+        }
+
+        global $wpdb;
+
+        $row = $wpdb->get_row( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            "SELECT status FROM {$wpdb->prefix}photoproof_galleries WHERE post_id = %d",
+            $post_id
+        ) );
+
+        if ( ! $row ) {
+            return null;
+        }
+
+        if ( $row->status === 'ferme' ) {
+            return sprintf(
+                /* translators: admin notice for archived gallery */
+                __( 'This gallery is <strong>archived</strong>. The client no longer has access.', 'photoproof' )
+            );
+        }
+
+        if ( $row->status === 'brouillon' ) {
+            return sprintf(
+                /* translators: admin notice for draft gallery */
+                __( 'This gallery is a <strong>draft</strong>. Only you can see it.', 'photoproof' )
+            );
+        }
+
+        // Vérifier expiration par date
+        if ( get_option( 'pp_enable_expiration' ) ) {
+            $publish_timestamp = get_post_timestamp( $post_id );
+            $expiration        = $publish_timestamp + ( self::EXPIRATION_DAYS * DAY_IN_SECONDS );
+
+            if ( time() > $expiration ) {
+                return sprintf(
+                    /* translators: %d: number of days, admin notice for expired gallery */
+                    __( 'This gallery is <strong>expired</strong> for the client (more than %d days). You can see it because you are an Administrator.', 'photoproof' ),
+                    absint( self::EXPIRATION_DAYS )
+                );
+            }
+        }
+
+        return null;
     }
 }

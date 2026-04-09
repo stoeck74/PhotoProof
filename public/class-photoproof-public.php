@@ -88,7 +88,7 @@ class PhotoProof_Public {
 
         // Statut pour le JS
         global $wpdb;
-        $row = $wpdb->get_row( $wpdb->prepare(
+        $row = $wpdb->get_row( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             "SELECT status FROM {$wpdb->prefix}photoproof_galleries WHERE post_id = %d",
             get_the_ID()
         ) );
@@ -147,7 +147,7 @@ class PhotoProof_Public {
 
         // ── VÉRIFICATION IDENTITÉ AVANT TOUTE ÉCRITURE ──────────────
         global $wpdb;
-        $gallery_row = $wpdb->get_row( $wpdb->prepare(
+        $gallery_row = $wpdb->get_row( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             "SELECT client_id FROM {$wpdb->prefix}photoproof_galleries WHERE post_id = %d",
             $post_id
         ) );
@@ -210,7 +210,7 @@ class PhotoProof_Public {
             }
 
             // ── VALIDATION ────────────────────────────────────────────
-            $wpdb->update(
+            $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->prefix . 'photoproof_galleries',
                 array( 'status' => 'valide' ),
                 array( 'post_id' => $post_id ),
@@ -268,7 +268,7 @@ class PhotoProof_Public {
         $mode = ( isset( $_POST['mode'] ) && sanitize_text_field( wp_unslash( $_POST['mode'] ) ) === 'reset' ) ? 'reset' : 'keep';
 
         global $wpdb;
-        $wpdb->update( $wpdb->prefix . 'photoproof_galleries', array( 'status' => 'publie' ), array( 'post_id' => $post_id ), array( '%s' ), array( '%d' ) );
+        $wpdb->update( $wpdb->prefix . 'photoproof_galleries', array( 'status' => 'publie' ), array( 'post_id' => $post_id ), array( '%s' ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 
         if ( $mode === 'reset' ) update_post_meta( $post_id, '_pp_selected_photos', array() );
 
@@ -283,7 +283,7 @@ class PhotoProof_Public {
         $cache_key = 'pp_gallery_status_' . $post_id;
         $row       = wp_cache_get( $cache_key, 'photoproof' );
         if ( false === $row ) {
-            $row = $wpdb->get_row( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+            $row = $wpdb->get_row( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
                 "SELECT status FROM {$wpdb->prefix}photoproof_galleries WHERE post_id = %d",
                 $post_id
             ) );
@@ -300,7 +300,7 @@ class PhotoProof_Public {
         $cache_key = 'pp_gallery_status_' . $post_id;
         $row       = wp_cache_get( $cache_key, 'photoproof' );
         if ( false === $row ) {
-            $row = $wpdb->get_row( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+            $row = $wpdb->get_row( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
                 "SELECT status FROM {$wpdb->prefix}photoproof_galleries WHERE post_id = %d",
                 $post_id
             ) );

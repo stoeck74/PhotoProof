@@ -23,9 +23,6 @@ class PhotoProof {
         $this->load_dependencies();
         $this->define_admin_hooks();
         $this->define_public_hooks();
-
-        register_activation_hook( __FILE__, array( $this, 'activate' ) );
-        register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
     }
 
     /**
@@ -76,6 +73,11 @@ class PhotoProof {
             file_put_contents( $pp_dir . '/index.php', '<?php // Silence is golden' );
         }
 
+        // Planifier le cron d'expiration
+        if ( ! wp_next_scheduled( 'pp_daily_expiration_check' ) ) {
+            wp_schedule_event( time(), 'daily', 'pp_daily_expiration_check' );
+        }
+
         $this->register_gallery_post_type();
         flush_rewrite_rules();
     }
@@ -118,15 +120,6 @@ class PhotoProof {
 
     private function define_admin_hooks() {
         add_action( 'init', array( $this, 'register_gallery_post_type' ) );
-        
-
-add_action( 'update_option_pp_use_random_urls', function( $old, $new ) {
-    if ( $old !== $new ) {
-        // flush_rewrite_rules( false ) ne touche pas au .htaccess, 
-        // il met juste à jour l'option 'rewrite_rules' en base de données.
-        flush_rewrite_rules( false );
-    }
-}, 10, 2 );
 
         // Filtre médiathèque standard
         add_action( 'pre_get_posts', function( $query ) {
@@ -145,6 +138,7 @@ add_action( 'update_option_pp_use_random_urls', function( $old, $new ) {
         // Filtre médiathèque AJAX (Pop-up)
         add_action( 'wp_ajax_query-attachments', function() {
             add_filter( 'ajax_query_attachments_args', function( $args ) {
+                // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
                 $args['meta_query'] = array(
                     array(
                         'key'     => '_pp_gallery_photo',
@@ -155,29 +149,11 @@ add_action( 'update_option_pp_use_random_urls', function( $old, $new ) {
             });
         }, 0 );
 
-        // Auto-flush rewrite rules
-        add_action( 'wp', function () {
-            $rules = get_option( 'rewrite_rules' );
-            $slug  = PHOTOPROOF_GALLERY_SLUG;
-            $found = false;
-            if ( is_array( $rules ) ) {
-                foreach ( array_keys( $rules ) as $rule ) {
-                    if ( strpos( $rule, $slug ) !== false ) {
-                        $found = true;
-                        break;
-                    }
-                }
-            }
-            if ( ! $found ) {
-                flush_rewrite_rules();
-            }
-        } );
-
         // Nettoyage suppression
         add_action( 'before_delete_post', function( $post_id ) {
             if ( get_post_type( $post_id ) !== 'pp_gallery' ) return;
             global $wpdb;
-            $wpdb->delete( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+            $wpdb->delete( // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->prefix . 'photoproof_galleries',
                 array( 'post_id' => $post_id ),
                 array( '%d' )
@@ -193,20 +169,10 @@ add_action( 'update_option_pp_use_random_urls', function( $old, $new ) {
 
     private function define_public_hooks() {
         add_filter( 'single_template', array( $this, 'load_gallery_template' ) );
-        add_filter( 'template_include', array( $this, 'load_gallery_template_uuid' ) );
     }
 
     public function load_gallery_template( $template ) {
         if ( is_singular( 'pp_gallery' ) ) {
-            $custom = PHOTOPROOF_PATH . 'templates/single-pp_gallery.php';
-            if ( file_exists( $custom ) ) return $custom;
-        }
-        return $template;
-    }
-
-    public function load_gallery_template_uuid( $template ) {
-        global $wp_query;
-        if ( $wp_query->get( 'pp_uuid' ) || ( $wp_query->is_main_query() && $wp_query->get( 'post_type' ) === 'pp_gallery' && is_singular() ) ) {
             $custom = PHOTOPROOF_PATH . 'templates/single-pp_gallery.php';
             if ( file_exists( $custom ) ) return $custom;
         }
@@ -255,4 +221,6 @@ public function register_gallery_post_type() {
     }
 }
 
-new PhotoProof();
+$photoproof_instance = new PhotoProof();
+register_activation_hook( __FILE__, array( $photoproof_instance, 'activate' ) );
+register_deactivation_hook( __FILE__, array( $photoproof_instance, 'deactivate' ) );

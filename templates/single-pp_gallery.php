@@ -10,22 +10,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- template file, variables are locally scoped
 global $post, $wpdb;
 
-// ── 1. VÉRIFICATION D'ACCÈS ───────────────────────────────────────────────
-$row = $wpdb->get_row( $wpdb->prepare(
+// ── 1. STATUT & BANNIÈRE ADMIN ───────────────────────────────────────────
+// L'accès est déjà vérifié par PhotoProof_Expiration::check_gallery_expiration()
+// sur template_redirect — ici on récupère juste le statut pour la logique du template
+$row = $wpdb->get_row( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
     "SELECT status FROM {$wpdb->prefix}photoproof_galleries WHERE post_id = %d",
     $post->ID
 ) );
 
-$is_admin_user = current_user_can( 'manage_options' );
-
-if ( $row ) {
-    if ( $row->status === 'brouillon' && ! $is_admin_user ) {
-        wp_die( '<h1>' . esc_html__( 'Gallery not available', 'photoproof' ) . '</h1><p>' . esc_html__( 'This gallery is not published yet.', 'photoproof' ) . '</p>', esc_html__( 'Access Denied', 'photoproof' ), array( 'response' => 403 ) );
-    }
-    if ( $row->status === 'ferme' && ! $is_admin_user ) {
-    wp_die( '<h1>' . esc_html__( 'Archived Gallery', 'photoproof' ) . '</h1><p>' . esc_html__( 'Please contact your photographer.', 'photoproof' ) . '</p>', esc_html__( 'Archived Gallery', 'photoproof' ), array( 'response' => 403 ) );
-    }
-}
+$is_admin_user   = current_user_can( 'manage_options' );
+$pp_admin_notice = PhotoProof_Expiration::get_admin_notice( $post->ID );
 
 // ── 2. RÉGLAGES ───────────────────────────────────────────────────────────
 $reco_enabled   = get_option( 'pp_enable_recommendations' );
@@ -68,6 +62,12 @@ if ( has_post_thumbnail( $post->ID ) ) {
 </head>
 <body class="pp-standalone">
 <?php wp_body_open(); ?>
+
+<?php if ( $pp_admin_notice ) : ?>
+<div id="pp-admin-banner" style="position:fixed; top:32px; left:0; right:0; z-index:99999; background:#ffb900; color:#1e1e1e; padding:10px 20px; text-align:center; font-size:13px; font-weight:500; border-bottom:2px solid #e09800;">
+    <?php echo wp_kses( $pp_admin_notice, array( 'strong' => array() ) ); ?>
+</div>
+<?php endif; ?>
 
 <div class="pp-page" id="pp-page">
 
