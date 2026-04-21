@@ -128,11 +128,8 @@ jQuery(document).ready(function ($) {
                     var $thumb = buildThumb(response.data.id, response.data);
                     $grid.append($thumb);
 
-                    if (typeof gsap !== 'undefined') {
-                        gsap.fromTo($thumb[0],
-                            { opacity: 0, y: 16, scale: 0.88 },
-                            { opacity: 1, y: 0, scale: 1, duration: 0.4, ease: 'back.out(1.5)' }
-                        );
+                    if (typeof anime !== 'undefined') {
+                        anime({ targets: $thumb[0], opacity: [0, 1], translateY: [16, 0], scale: [0.88, 1], duration: 400, easing: 'easeOutBack' });
                     } else {
                         $thumb.css('opacity', 1);
                     }
@@ -237,10 +234,9 @@ jQuery(document).ready(function ($) {
         var $thumb = $(this).closest('.pp-thumb');
         var attId  = parseInt($(this).data('id'), 10);
 
-        if (typeof gsap !== 'undefined') {
-            gsap.to($thumb[0], {
-                opacity: 0, scale: 0.8, duration: 0.25,
-                onComplete: function () { $thumb.remove(); ppDetachPhoto(attId); }
+        if (typeof anime !== 'undefined') {
+            anime({ targets: $thumb[0], opacity: 0, scale: 0.8, duration: 250, easing: 'easeInQuad',
+                complete: function () { $thumb.remove(); ppDetachPhoto(attId); }
             });
         } else {
             $thumb.remove();
@@ -259,11 +255,11 @@ jQuery(document).ready(function ($) {
 
     // ── 11. MICRO-INTERACTIONS ────────────────────────────────────────
     $(document).on('mouseenter', '.pp-thumb', function () {
-        if (typeof gsap === 'undefined') return;
-        gsap.to(this, { scale: 1.04, y: -4, duration: 0.25, ease: 'power2.out' });
+        if (typeof anime === 'undefined') return;
+        anime({ targets: this, scale: 1.04, translateY: -4, duration: 250, easing: 'easeOutQuad' });
     }).on('mouseleave', '.pp-thumb', function () {
-        if (typeof gsap === 'undefined') return;
-        gsap.to(this, { scale: 1, y: 0, duration: 0.25, ease: 'power2.inOut' });
+        if (typeof anime === 'undefined') return;
+        anime({ targets: this, scale: 1, translateY: 0, duration: 250, easing: 'easeInOutQuad' });
     });
 
 // ── 12. BRIDGE GUTENBERG ──────────────────────────────────────────
@@ -291,14 +287,4 @@ if ( window.wp && wp.data && wp.data.subscribe ) {
         isSavingPost = saving;
     });
 }
-
-
-
-
-
-
-
-
-    
 });
-

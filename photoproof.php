@@ -16,24 +16,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 class PhotoProof {
 
     public function __construct() {
-        // Chargement des traductions
-        add_action( 'init', array( $this, 'load_textdomain' ) );
-
         $this->define_constants();
         $this->load_dependencies();
         $this->define_admin_hooks();
         $this->define_public_hooks();
-    }
-
-    /**
-     * Charge les fichiers de traduction
-     */
-    public function load_textdomain() {
-        load_plugin_textdomain( // phpcs:ignore PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound -- required for local/private plugin
-            'photoproof',
-            false,
-            dirname( plugin_basename( __FILE__ ) ) . '/languages'
-        );
     }
 
     private function define_constants() {

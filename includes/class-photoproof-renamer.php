@@ -182,11 +182,9 @@ class PhotoProof_Renamer {
             array( '%d' )
         );
 
-        // Charger les fonctions media — pas disponibles dans le contexte REST API
+        // Charger image.php si nécessaire — wp_generate_attachment_metadata() en dépend
         if ( ! function_exists( 'wp_generate_attachment_metadata' ) ) {
-            require_once ABSPATH . 'wp-admin/includes/image.php';
-            require_once ABSPATH . 'wp-admin/includes/file.php';
-            require_once ABSPATH . 'wp-admin/includes/media.php';
+            require_once ABSPATH . 'wp-admin/includes/image.php'; // phpcs:ignore PEAR.Files.IncludingFile.UseRequire -- needed for wp_generate_attachment_metadata()
         }
 
         // Régénérer les métadonnées (thumbnails, dimensions)

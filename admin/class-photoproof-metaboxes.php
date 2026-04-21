@@ -15,6 +15,87 @@ class PhotoProof_Metaboxes {
     public function __construct() {
         add_action( 'add_meta_boxes', array( $this, 'add_gallery_settings_metabox' ) );
         add_action( 'save_post',      array( $this, 'save_gallery_settings' ) );
+        add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_metabox_inline_script' ) );
+    }
+
+    /**
+     * Enqueue inline JS for the metabox — localized strings + logic
+     */
+    public function enqueue_metabox_inline_script( $hook ) {
+        if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ), true ) ) {
+            return;
+        }
+        $screen = get_current_screen();
+        if ( ! $screen || $screen->post_type !== 'pp_gallery' ) {
+            return;
+        }
+
+        wp_localize_script( 'pp-gallery-js', 'pp_metabox_i18n', array(
+            'copied'          => __( 'Copied !', 'photoproof' ),
+            'reset_selection' => __( 'Reset selection', 'photoproof' ),
+            'keep_selection'  => __( 'Keep selection', 'photoproof' ),
+            'reopen_and'      => __( 'Reopen gallery and', 'photoproof' ),
+            'client_select'   => __( 'Client will be able to select again', 'photoproof' ),
+            'in_progress'     => __( 'In progress…', 'photoproof' ),
+            'error'           => __( 'Error :', 'photoproof' ),
+            'unknown'         => __( 'unknown', 'photoproof' ),
+            'reopen_reset'    => __( 'Reopen — reset', 'photoproof' ),
+            'reopen_keep'     => __( 'Reopen — Keep selection', 'photoproof' ),
+        ) );
+
+        $inline_js = "(function() {
+    function setupCopy(btnId) {
+        var btn = document.getElementById(btnId);
+        if (!btn) return;
+        btn.addEventListener('click', function() {
+            var url  = btn.dataset.url;
+            var orig = btn.textContent;
+            function feedback() {
+                btn.textContent = pp_metabox_i18n.copied;
+                setTimeout(function() { btn.textContent = orig; }, 2000);
+            }
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(feedback);
+            } else {
+                var tmp = document.createElement('input');
+                tmp.value = url; document.body.appendChild(tmp); tmp.select();
+                document.execCommand('copy'); document.body.removeChild(tmp);
+                feedback();
+            }
+        });
+    }
+    setupCopy('pp-copy-link-btn');
+    setupCopy('pp-copy-link-btn-2');
+
+    document.querySelectorAll('.pp-btn-reopen').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var mode  = btn.dataset.mode;
+            var label = mode === 'reset' ? pp_metabox_i18n.reset_selection : pp_metabox_i18n.keep_selection;
+            if (!confirm(pp_metabox_i18n.reopen_and + ' \"' + label + '\" ?
+' + pp_metabox_i18n.client_select)) return;
+            btn.textContent = pp_metabox_i18n.in_progress;
+            btn.disabled = true;
+            var fd = new FormData();
+            fd.append('action',  'pp_reopen_gallery');
+            fd.append('post_id', btn.dataset.postId);
+            fd.append('nonce',   btn.dataset.nonce);
+            fd.append('mode',    mode);
+            fetch(ajaxurl, { method: 'POST', body: fd })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        alert(pp_metabox_i18n.error + ' ' + (data.data && data.data.message ? data.data.message : pp_metabox_i18n.unknown));
+                        btn.disabled = false;
+                        btn.textContent = mode === 'reset' ? pp_metabox_i18n.reopen_reset : pp_metabox_i18n.reopen_keep;
+                    }
+                });
+        });
+    });
+})();";
+
+        wp_add_inline_script( 'pp-gallery-js', $inline_js );
     }
 
     public function add_gallery_settings_metabox() {
@@ -343,68 +424,7 @@ class PhotoProof_Metaboxes {
             </div><!-- /.pp-meta-body -->
         </div><!-- /.pp-meta -->
 
-        <script>
-        (function() {
-            // Copie du lien
-            function setupCopy(btnId) {
-                var btn = document.getElementById(btnId);
-                if (!btn) return;
-                btn.addEventListener('click', function() {
-                    var url  = btn.dataset.url;
-                    var orig = btn.textContent;
-                    function feedback() {
-                        btn.textContent = '<?php echo esc_js( __( 'Copied !', 'photoproof' ) ); ?>';
-                        setTimeout(function() { btn.textContent = orig; }, 2000);
-                    }
-                    if (navigator.clipboard && navigator.clipboard.writeText) {
-                        navigator.clipboard.writeText(url).then(feedback);
-                    } else {
-                        var tmp = document.createElement('input');
-                        tmp.value = url; document.body.appendChild(tmp); tmp.select();
-                        document.execCommand('copy'); document.body.removeChild(tmp);
-                        feedback();
-                    }
-                });
-            }
-            setupCopy('pp-copy-link-btn');
-            setupCopy('pp-copy-link-btn-2');
 
-            // Boutons réouverture
-            document.querySelectorAll('.pp-btn-reopen').forEach(function(btn) {
-                btn.addEventListener('click', function() {
-                    var mode  = btn.dataset.mode;
-                    var label = mode === 'reset'
-                        ? '<?php echo esc_js( __( 'Reset selection', 'photoproof' ) ); ?>'
-                        : '<?php echo esc_js( __( 'Keep selection', 'photoproof' ) ); ?>';
-
-                    if (!confirm('<?php echo esc_js( __( 'Reopen gallery and', 'photoproof' ) ); ?> "' + label + '" ?\n<?php echo esc_js( __( 'Client will be able to select again', 'photoproof' ) ); ?>')) return;
-
-                    btn.textContent = '<?php echo esc_js( __( 'In progress…', 'photoproof' ) ); ?>';
-                    btn.disabled = true;
-
-                    var fd = new FormData();
-                    fd.append('action',  'pp_reopen_gallery');
-                    fd.append('post_id', btn.dataset.postId);
-                    fd.append('nonce',   btn.dataset.nonce);
-                    fd.append('mode',    mode);
-
-                    fetch(ajaxurl, { method: 'POST', body: fd })
-                        .then(function(r) { return r.json(); })
-                        .then(function(data) {
-                            if (data.success) {
-                                window.location.reload();
-                            } else {
-                                alert('<?php echo esc_js( __( 'Error :', 'photoproof' ) ); ?> ' + (data.data && data.data.message ? data.data.message : '<?php echo esc_js( __( 'unknown', 'photoproof' ) ); ?>'));
-                                btn.disabled = false;
-                                btn.textContent = mode === 'reset'
-                                    ? '<?php echo esc_js( __( 'Reopen — reset', 'photoproof' ) ); ?>'
-                                    : '<?php echo esc_js( __( 'Reopen — Keep selection', 'photoproof' ) ); ?>';
-                            }
-                        });
-                });
-            });
-        })();
-        </script>
         <?php
     }
 
@@ -413,9 +433,6 @@ class PhotoProof_Metaboxes {
         if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
         if ( ! current_user_can( 'edit_post', $post_id ) ) return;
 
-        // Sauvegarder le préfixe custom EN PREMIER — le renamer en a besoin
-        update_post_meta( $post_id, '_pp_custom_rename', sanitize_text_field( wp_unslash( $_POST['pp_custom_rename'] ?? '' ) ) );
-
         global $wpdb;
         $table_name = $wpdb->prefix . 'photoproof_galleries';
 
@@ -423,7 +440,7 @@ class PhotoProof_Metaboxes {
         $status_raw       = isset( $_POST['pp_status'] ) ? sanitize_text_field( wp_unslash( $_POST['pp_status'] ) ) : 'brouillon';
         $status           = in_array( $status_raw, $allowed_statuses, true ) ? $status_raw : 'brouillon';
         $watermark_val    = isset( $_POST['pp_watermark_active'] ) ? 'yes' : 'no';
-        $client_id        = ( isset( $_POST['pp_client_id'] ) && $_POST['pp_client_id'] !== '' ) ? absint( wp_unslash( $_POST['pp_client_id'] ) ) : null;
+        $client_id        = ( isset( $_POST['pp_client_id'] ) && $_POST['pp_client_id'] !== '' ) ? intval( $_POST['pp_client_id'] ) : null;
 
         // ── Requête avec cache ──
         $cache_key = 'pp_gallery_' . $post_id;
@@ -444,9 +461,7 @@ class PhotoProof_Metaboxes {
             'watermark_settings' => $watermark_val,
             'folder_path'        => 'photoproof/gallery-' . $post_id,
         );
-        // Format conditionnel : NULL en base si pas de client (au lieu de 0)
-        $client_format = $client_id ? '%d' : null;
-        $row_format    = array( $client_format, '%s', '%s', '%s' );
+        $row_format = array( '%d', '%s', '%s', '%s' );
 
         if ( $existing ) {
             $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
@@ -467,5 +482,7 @@ class PhotoProof_Metaboxes {
         // Invalider le cache après écriture
         wp_cache_delete( $cache_key, 'photoproof' );
         wp_cache_delete( $cache_key . '_id', 'photoproof' );
+
+        update_post_meta( $post_id, '_pp_custom_rename', sanitize_text_field( wp_unslash( $_POST['pp_custom_rename'] ?? '' ) ) );
     }
 }

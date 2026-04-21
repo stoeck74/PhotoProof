@@ -1,14 +1,64 @@
 /**
  * PhotoProof — Selection Animation
  * Panier visuel + récap animé (expand footer + vol vignettes)
+ * Migrated from GSAP to anime.js v3 (MIT license)
  */
 
 (function ($) {
     'use strict';
 
-    if (typeof gsap === 'undefined') {
-        console.warn('PhotoProof Anim: GSAP non disponible.');
+    if (typeof anime === 'undefined') {
+        console.warn('PhotoProof Anim: anime.js non disponible.');
         return;
+    }
+
+    // ── Helpers anime.js — wrappers proches de l'API GSAP ────────────
+
+    function animeSet(el, props) {
+        if (props.clearProps) {
+            props.clearProps.split(',').forEach(function(p) {
+                el.style[p.trim()] = '';
+            });
+            return;
+        }
+        Object.keys(props).forEach(function(key) {
+            el.style[key] = props[key];
+        });
+    }
+
+    function animeTo(el, props) {
+        var duration   = (props.duration || 0.3) * 1000;
+        var delay      = (props.delay    || 0)   * 1000;
+        var ease       = convertEase(props.ease);
+        var onComplete = props.onComplete;
+
+        var animeProps = { targets: el, duration: duration, delay: delay, easing: ease };
+
+        var skip = ['duration','delay','ease','onComplete'];
+        Object.keys(props).forEach(function(key) {
+            if (skip.indexOf(key) === -1) animeProps[key] = props[key];
+        });
+
+        if (onComplete) animeProps.complete = onComplete;
+        return anime(animeProps);
+    }
+
+    function animeFromTo(el, from, to) {
+        Object.keys(from).forEach(function(key) {
+            el.style[key] = from[key];
+        });
+        return animeTo(el, to);
+    }
+
+    function convertEase(gsapEase) {
+        var map = {
+            'power3.inOut': 'cubicBezier(0.645, 0.045, 0.355, 1.000)',
+            'power3.out':   'easeOutCubic',
+            'power2.out':   'easeOutQuad',
+            'power2.in':    'easeInQuad',
+            'power2.inOut': 'easeInOutQuad',
+        };
+        return (gsapEase && map[gsapEase]) ? map[gsapEase] : 'easeInOutQuad';
     }
 
     // ── Zone vignettes dans la barre ─────────────────────────────────
@@ -19,7 +69,6 @@
 
     var recapOpen = false;
 
-    // ── Helpers ──────────────────────────────────────────────────────
     function getTrayThumb(id) {
         return $tray.find('.pp-tray-thumb[data-id="' + id + '"]');
     }
@@ -28,40 +77,35 @@
         var rect       = $tray[0].getBoundingClientRect();
         var thumbCount = $tray.find('.pp-tray-thumb').length;
         var offset     = thumbCount * (52 + 6);
-        return {
-            x: rect.left + offset + 26,
-            y: rect.top  + rect.height / 2,
-        };
+        return { x: rect.left + offset + 26, y: rect.top + rect.height / 2 };
     }
 
     // ── Ajout vignette — vol depuis la card ──────────────────────────
     function animateAddToTray(id, imgSrc, $card) {
-        var $img  = $card.find('.pp-card-img');
-        var imgEl = $img[0].getBoundingClientRect();
-
+        var imgEl  = $card.find('.pp-card-img')[0].getBoundingClientRect();
         var $clone = $('<img class="pp-flying-clone" src="' + imgSrc + '" />');
         $('body').append($clone);
 
-        gsap.set($clone[0], {
-            position: 'fixed', left: imgEl.left, top: imgEl.top,
-            width: imgEl.width, height: imgEl.height,
+        animeSet($clone[0], {
+            position: 'fixed', left: imgEl.left + 'px', top: imgEl.top + 'px',
+            width: imgEl.width + 'px', height: imgEl.height + 'px',
             objectFit: 'cover', borderRadius: 'var(--pp-img-radius, 0px)',
-            zIndex: 9999, opacity: 0.92, pointerEvents: 'none',
+            zIndex: '9999', opacity: '0.92', pointerEvents: 'none',
         });
 
         setTimeout(function () {
             var trayRect = getTrayRect();
             insertTrayThumb(id, imgSrc);
             var $thumb = getTrayThumb(id);
-            gsap.set($thumb[0], { opacity: 0, scale: 0 });
+            animeSet($thumb[0], { opacity: '0', transform: 'scale(0)' });
 
-            gsap.to($clone[0], {
+            animeTo($clone[0], {
                 duration: 0.45, ease: 'power3.inOut',
-                left: trayRect.x - 26, top: trayRect.y - 26,
-                width: 52, height: 52, borderRadius: '6px', opacity: 0,
+                left: (trayRect.x - 26) + 'px', top: (trayRect.y - 26) + 'px',
+                width: '52px', height: '52px', borderRadius: '6px', opacity: 0,
                 onComplete: function () {
                     $clone.remove();
-                    gsap.to($thumb[0], { opacity: 1, scale: 1, duration: 0.18, ease: 'power2.out' });
+                    animeTo($thumb[0], { opacity: 1, scale: 1, duration: 0.18, ease: 'power2.out' });
                 },
             });
         }, 50);
@@ -83,7 +127,7 @@
     function animateRemoveFromTray(id) {
         var $thumb = getTrayThumb(id);
         if (!$thumb.length) return;
-        gsap.to($thumb[0], {
+        animeTo($thumb[0], {
             duration: 0.25, ease: 'power2.in', scale: 0, opacity: 0,
             onComplete: function () { $thumb.remove(); },
         });
@@ -97,46 +141,30 @@
         recapOpen = true;
 
         barInitialHeight = $bar[0].getBoundingClientRect().height;
+        var $barInner    = $bar.find('.pp-bar-inner');
 
-        // 1. Snapshot des positions des vignettes dans le tray
-        var thumbRects = {};
-        $tray.find('.pp-tray-thumb').each(function () {
-            var id   = parseInt($(this).data('id'), 10);
-            var rect = this.getBoundingClientRect();
-            thumbRects[id] = rect;
-        });
+        animeTo('#pp-grid',   { opacity: 0, duration: 0.25, ease: 'power2.in' });
+        animeTo($barInner[0], { opacity: 0, duration: 0.2  });
 
-        // 2. Masquer la grille
-        gsap.to('#pp-grid', { opacity: 0, duration: 0.25, ease: 'power2.in' });
-
-        // 3. Expand le footer vers le haut
-        var $barInner = $bar.find('.pp-bar-inner');
-        gsap.to($barInner[0], { opacity: 0, duration: 0.2 });
-
-        // Bloquer le scroll du body pendant le récap
         var scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-        $('body').css({ 'overflow': 'hidden', 'padding-right': scrollbarWidth + 'px' });
+        $('body').css({ overflow: 'hidden', 'padding-right': scrollbarWidth + 'px' });
 
         var adminBarH = $('#wpadminbar').length ? $('#wpadminbar').outerHeight() : 0;
-        gsap.to($bar[0], {
-            duration: 0.55,
-            ease:     'power3.inOut',
-            top:      adminBarH,
-            height:   window.innerHeight - adminBarH,
+
+        animeTo($bar[0], {
+            duration: 0.55, ease: 'power3.inOut',
+            top:    adminBarH + 'px',
+            height: (window.innerHeight - adminBarH) + 'px',
             onComplete: function () {
 
-                // 4. Contenu récap — structure depuis le PHP, JS remplit uniquement les données
                 $barInner.hide();
-
                 var $recapContent = $('<div class="pp-recap-content" id="pp-recap-content"></div>');
 
-                // Header — cloné depuis le PHP
                 var $header = $('<div class="pp-recap-bar-header"></div>');
                 $header.append($('#pp-recap-anim-header').children().clone());
                 $header.append($('<h2 class="pp-recap-title"></h2>').text(selectedIds.length + ' photos'));
                 $recapContent.append($header);
 
-                // Grille — items générés dynamiquement (données uniquement)
                 var $recapGrid = $('<div class="pp-recap-bar-grid" id="pp-recap-bar-grid"></div>');
                 selectedIds.forEach(function (id) {
                     var $card  = $('.pp-card[data-id="' + id + '"]');
@@ -151,38 +179,28 @@
                 });
                 $recapContent.append($recapGrid);
 
-                // Footer — cloné depuis le PHP
                 var $footer = $('<div class="pp-recap-bar-footer"></div>');
                 $footer.append($('#pp-recap-anim-footer').children().clone(true));
                 $recapContent.append($footer);
 
                 $bar.append($recapContent);
-                gsap.fromTo($recapContent[0], { opacity: 0 }, { opacity: 1, duration: 0.25 });
+                animeFromTo($recapContent[0], { opacity: '0' }, { opacity: 1, duration: 0.25 });
 
-                // 5. Fade in des images — simple et performant
                 setTimeout(function () {
                     $recapGrid.find('.pp-recap-bar-img').each(function (i) {
-                        gsap.to(this, {
-                            opacity: 1,
-                            duration: 0.25,
-                            delay: i * 0.02,
-                            ease: 'power2.out',
-                        });
+                        animeTo(this, { opacity: 1, duration: 0.25, delay: i * 0.02, ease: 'power2.out' });
                     });
                 }, 80);
 
-                // Événements récap animé
                 $recapContent.on('click', '.pp-recap-bar-remove', function () {
                     var id = parseInt($(this).closest('.pp-recap-bar-item').data('id'), 10);
                     $(document).trigger('pp:requestDeselect', [id]);
                     $(this).closest('.pp-recap-bar-item').remove();
                     if ($recapGrid.find('.pp-recap-bar-item').length === 0) closeRecap();
                 });
-                $recapContent.on('click', '.pp-btn-recap-back', function () { closeRecap(); });
+                $recapContent.on('click', '.pp-btn-recap-back',    function () { closeRecap(); });
                 $recapContent.on('click', '.pp-btn-recap-confirm', function () {
-                    closeRecap(function () {
-                        $(document).trigger('pp:confirmSelection');
-                    });
+                    closeRecap(function () { $(document).trigger('pp:confirmSelection'); });
                 });
             },
         });
@@ -190,26 +208,26 @@
 
     function closeRecap(callback) {
         if (!recapOpen) return;
-
         var $recapContent = $('#pp-recap-content');
         var $barInner     = $bar.find('.pp-bar-inner');
 
-        gsap.to($recapContent[0], {
+        animeTo($recapContent[0], {
             opacity: 0, duration: 0.2,
             onComplete: function () {
                 $recapContent.remove();
                 $barInner.show();
-                gsap.set($barInner[0], { opacity: 0 });
-                $('body').css({ 'overflow': '', 'padding-right': '' });
+                animeSet($barInner[0], { opacity: '0' });
+                $('body').css({ overflow: '', 'padding-right': '' });
 
-                gsap.to($bar[0], {
+                animeTo($bar[0], {
                     duration: 0.45, ease: 'power3.inOut',
-                    height:   barInitialHeight,
+                    height: barInitialHeight + 'px',
                     onComplete: function () {
                         recapOpen = false;
-                        gsap.set($bar[0], { clearProps: 'top,height' });
-                        gsap.to($barInner[0], { opacity: 1, duration: 0.2 });
-                        gsap.to('#pp-grid', { opacity: 1, duration: 0.3 });
+                        $bar[0].style.top    = '';
+                        $bar[0].style.height = '';
+                        animeTo($barInner[0], { opacity: 1, duration: 0.2 });
+                        animeTo('#pp-grid',   { opacity: 1, duration: 0.3 });
                         if (typeof callback === 'function') callback();
                     },
                 });
@@ -218,8 +236,8 @@
     }
 
     // ── Écoute depuis photoproof-public.js ───────────────────────────
-    $(document).on('pp:openRecap', function (e, ids) { openRecap(ids); });
-    $(document).on('pp:closeRecap', function () { closeRecap(); });
+    $(document).on('pp:openRecap',  function (e, ids) { openRecap(ids); });
+    $(document).on('pp:closeRecap', function ()       { closeRecap(); });
 
     // ── Événements sélection ─────────────────────────────────────────
     $(document).on('pp:selectionLoaded', function (e, ids) {
@@ -231,17 +249,12 @@
         if (parseInt(pp_public.is_locked, 10) === 1) $tray.hide();
     });
 
-    $(document).on('pp:photoSelected', function (e, data) {
-        animateAddToTray(data.id, data.imgSrc, data.$card);
-    });
-
-    $(document).on('pp:photoDeselected', function (e, data) {
-        animateRemoveFromTray(data.id);
-    });
+    $(document).on('pp:photoSelected',   function (e, data) { animateAddToTray(data.id, data.imgSrc, data.$card); });
+    $(document).on('pp:photoDeselected', function (e, data) { animateRemoveFromTray(data.id); });
 
     $(document).on('pp:galleryLocked', function () {
-        gsap.to($tray[0], {
-            duration: 0.4, opacity: 0, y: 10,
+        animeTo($tray[0], {
+            duration: 0.4, opacity: 0, translateY: 10,
             onComplete: function () { $tray.hide(); },
         });
     });

@@ -45,21 +45,21 @@ class PhotoProof_Assets {
         wp_enqueue_media();
 
         wp_register_script(
-            'gsap',
-            PHOTOPROOF_URL . 'admin/js/vendor/gsap.min.js',
+            'pp-animejs',
+            PHOTOPROOF_URL . 'admin/js/vendor/anime.min.js',
             array(),
-            '3.12.2',
+            '3.2.2',
             true
         );
 
         // ── RÉGLAGES ──────────────────────────────────────────────────
         if ( $is_settings_page ) {
             wp_enqueue_style( 'wp-color-picker' );
-            wp_enqueue_script( 'gsap' );
+            wp_enqueue_script( 'pp-animejs' );
             wp_enqueue_script(
                 'pp-settings-js',
                 PHOTOPROOF_URL . 'admin/js/admin-settings.js',
-                array( 'jquery', 'gsap', 'wp-color-picker' ),
+                array( 'jquery', 'pp-animejs', 'wp-color-picker' ),
                 PHOTOPROOF_VERSION,
                 true
             );
@@ -67,11 +67,11 @@ class PhotoProof_Assets {
 
         // ── METABOXE ──────────────────────────────────────────────────
         if ( $is_gallery_page ) {
-            wp_enqueue_script( 'gsap' );
+            wp_enqueue_script( 'pp-animejs' );
             wp_enqueue_script(
                 'pp-gallery-js',
                 PHOTOPROOF_URL . 'admin/js/admin-gallery.js',
-                array( 'jquery', 'gsap' ),
+                array( 'jquery', 'pp-animejs' ),
                 PHOTOPROOF_VERSION,
                 true
             );

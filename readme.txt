@@ -1,5 +1,5 @@
 === PhotoProof ===
-Contributors: cedric-stoecklin
+Contributors: stoeck
 Tags: photography, proofing, gallery, watermark, client
 Requires at least: 6.0
 Tested up to: 6.9
@@ -8,7 +8,7 @@ Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-A proofing gallery plugin for photographers. Let your clients browse, select and validate their favorite photos — all from a beautiful, standalone gallery page.
+Proofing gallery plugin for photographers. Let clients browse, select and validate their favorite photos from a beautiful standalone gallery page.
 
 == Description ==
 

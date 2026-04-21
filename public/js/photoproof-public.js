@@ -301,7 +301,7 @@
     $('#pp-btn-validate').on('click', function () {
         if (!selectedIds.length || isLocked) return;
         // Si le module animation est chargé, il gère le récap
-        if (typeof gsap !== 'undefined' && $('#pp-tray').length) {
+        if (typeof anime !== 'undefined' && $('#pp-tray').length) {
             $(document).trigger('pp:openRecap', [selectedIds]);
         } else {
             openRecapPanel();

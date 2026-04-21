@@ -53,9 +53,9 @@ class PhotoProof_Uploader {
         add_filter( 'upload_dir', $dir_filter );
 
         // Traitement du fichier via l'API WP
-        require_once ABSPATH . 'wp-admin/includes/file.php';
-        require_once ABSPATH . 'wp-admin/includes/image.php';
-        require_once ABSPATH . 'wp-admin/includes/media.php';
+        require_once ABSPATH . 'wp-admin/includes/file.php';  // phpcs:ignore PEAR.Files.IncludingFile.UseRequire -- needed for wp_handle_upload()
+        require_once ABSPATH . 'wp-admin/includes/image.php'; // phpcs:ignore PEAR.Files.IncludingFile.UseRequire -- needed for wp_generate_attachment_metadata()
+        require_once ABSPATH . 'wp-admin/includes/media.php'; // phpcs:ignore PEAR.Files.IncludingFile.UseRequire -- needed for media_handle_upload()
 
         $overrides = array(
             'test_form' => false,
