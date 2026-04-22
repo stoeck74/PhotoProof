@@ -14,7 +14,7 @@ class PhotoProof_Router {
 
     public function __construct() {
         // 1. Génération de l'UUID à la création d'une galerie
-        add_action( 'save_post_pp_gallery', array( $this, 'generate_gallery_uuid' ), 10, 3 );
+        add_action( 'save_post_photoproof_gallery', array( $this, 'generate_gallery_uuid' ), 10, 3 );
 
         // 2. Modification du lien public (get_permalink)
         add_filter( 'post_type_link', array( $this, 'use_uuid_in_permalink' ), 10, 2 );
@@ -31,10 +31,10 @@ class PhotoProof_Router {
             return;
         }
 
-        $existing_uuid = get_post_meta( $post_id, '_pp_uuid', true );
+        $existing_uuid = get_post_meta( $post_id, '_photoproof_uuid', true );
 
         if ( empty( $existing_uuid ) ) {
-            update_post_meta( $post_id, '_pp_uuid', wp_generate_uuid4() );
+            update_post_meta( $post_id, '_photoproof_uuid', wp_generate_uuid4() );
         }
     }
 
@@ -45,15 +45,15 @@ class PhotoProof_Router {
      * (metabox, colonnes admin, front-end)
      */
     public function use_uuid_in_permalink( $post_link, $post ) {
-        if ( 'pp_gallery' !== $post->post_type ) {
+        if ( 'photoproof_gallery' !== $post->post_type ) {
             return $post_link;
         }
 
-        if ( ! get_option( 'pp_use_random_urls' ) ) {
+        if ( ! get_option( 'photoproof_use_random_urls' ) ) {
             return $post_link;
         }
 
-        $uuid = get_post_meta( $post->ID, '_pp_uuid', true );
+        $uuid = get_post_meta( $post->ID, '_photoproof_uuid', true );
 
         if ( empty( $uuid ) || empty( $post->post_name ) ) {
             return $post_link;
@@ -79,7 +79,7 @@ class PhotoProof_Router {
         }
 
         // Pas d'option UUID → rien à faire
-        if ( ! get_option( 'pp_use_random_urls' ) ) {
+        if ( ! get_option( 'photoproof_use_random_urls' ) ) {
             return;
         }
 
@@ -103,9 +103,10 @@ class PhotoProof_Router {
 
         // Recherche du post par UUID
         $posts = get_posts( array(
-            'post_type'   => 'pp_gallery',
+            'post_type'   => 'photoproof_gallery',
             // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value
-            'meta_key'    => '_pp_uuid',
+            'meta_key'    => '_photoproof_uuid',
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
             'meta_value'  => $uuid,
             'numberposts' => 1,
             'post_status' => 'publish',
@@ -120,7 +121,7 @@ class PhotoProof_Router {
         // Injecter le post dans la query WP
         $wp->query_vars = array(
             'p'         => $post->ID,
-            'post_type' => 'pp_gallery',
+            'post_type' => 'photoproof_gallery',
         );
     }
 }

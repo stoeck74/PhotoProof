@@ -6,20 +6,34 @@ if ( ! defined( 'ABSPATH' ) ) {
  * PhotoProof Helpers — Template Tags & Shortcode
  *
  * TEMPLATE TAGS (pour développeurs) :
- * - pp_get_client_galleries( $user_id )     → array de données galeries
- * - pp_get_gallery_status( $post_id )       → string statut
- * - pp_get_gallery_photo_count( $post_id )  → int nombre de photos
- * - pp_get_gallery_thumbnail( $post_id )    → string URL thumbnail
- * - pp_get_gallery_selection( $post_id )    → array IDs photos sélectionnées
- * - pp_is_gallery_locked( $post_id )        → bool
+ * - photoproof_get_client_galleries( $user_id )     → array de données galeries
+ * - photoproof_get_gallery_status( $post_id )       → string statut
+ * - photoproof_get_gallery_photo_count( $post_id )  → int nombre de photos
+ * - photoproof_get_gallery_thumbnail( $post_id )    → string URL thumbnail
+ * - photoproof_get_gallery_selection( $post_id )    → array IDs photos sélectionnées
+ * - photoproof_is_gallery_locked( $post_id )        → bool
  *
  * SHORTCODE :
- * - [pp_galleries_client] → liste des galeries du client connecté
+ * - [photoproof_galleries_client] → liste des galeries du client connecté
  */
 class PhotoProof_Helpers {
 
     public function __construct() {
-        add_shortcode( 'pp_galleries_client', array( $this, 'shortcode_galleries_client' ) );
+        add_shortcode( 'photoproof_galleries_client', array( $this, 'shortcode_galleries_client' ) );
+        add_action( 'wp_enqueue_scripts', array( $this, 'register_shortcode_assets' ) );
+    }
+
+    /**
+     * Enregistre (sans enqueue) la feuille de style du shortcode.
+     * L'enqueue est fait dans le shortcode lui-même, uniquement s'il est affiché.
+     */
+    public function register_shortcode_assets() {
+        wp_register_style(
+            'pp-shortcode-css',
+            PHOTOPROOF_URL . 'public/css/photoproof-shortcode.css',
+            array(),
+            PHOTOPROOF_VERSION
+        );
     }
 
     // ══════════════════════════════════════════════════════════════════
@@ -27,7 +41,7 @@ class PhotoProof_Helpers {
     // ══════════════════════════════════════════════════════════════════
 
     /**
-     * Shortcode [pp_galleries_client]
+     * Shortcode [photoproof_galleries_client]
      * Affiche la liste des galeries du client connecté
      *
      * Attributs :
@@ -36,7 +50,7 @@ class PhotoProof_Helpers {
      * - show_count  : afficher le nombre de photos (défaut: true)
      * - show_date   : afficher la date (défaut: true)
      *
-     * Exemple : [pp_galleries_client columns="2" show_date="false"]
+     * Exemple : [photoproof_galleries_client columns="2" show_date="false"]
      */
     public function shortcode_galleries_client( $atts ) {
         if ( ! is_user_logged_in() ) {
@@ -48,10 +62,10 @@ class PhotoProof_Helpers {
             'show_status' => 'true',
             'show_count'  => 'true',
             'show_date'   => 'true',
-        ), $atts, 'pp_galleries_client' );
+        ), $atts, 'photoproof_galleries_client' );
 
         $user_id  = get_current_user_id();
-        $galleries = pp_get_client_galleries( $user_id );
+        $galleries = photoproof_get_client_galleries( $user_id );
 
         if ( empty( $galleries ) ) {
             return '<p class="pp-sc-notice">Aucune galerie disponible pour le moment.</p>';
@@ -62,26 +76,12 @@ class PhotoProof_Helpers {
         $show_count  = $atts['show_count']  !== 'false';
         $show_date   = $atts['show_date']   !== 'false';
 
+        // Enqueue le style du shortcode (uniquement si le shortcode est affiché)
+        wp_enqueue_style( 'pp-shortcode-css' );
+
         ob_start();
         ?>
-        <style>
-        .pp-sc-grid { display: grid; grid-template-columns: repeat(<?php echo absint( $cols ); ?>, 1fr); gap: 16px; }
-        .pp-sc-card { border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; text-decoration: none; color: inherit; display: flex; flex-direction: column; transition: box-shadow .2s; }
-        .pp-sc-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.1); }
-        .pp-sc-thumb { width: 100%; aspect-ratio: 3/2; object-fit: cover; display: block; background: #f1f5f9; }
-        .pp-sc-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; }
-        .pp-sc-title { font-size: 15px; font-weight: 600; margin: 0; }
-        .pp-sc-meta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-        .pp-sc-status { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
-        .pp-sc-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
-        .pp-sc-dot-open { background: #f97316; }
-        .pp-sc-dot-validated { background: #22c55e; }
-        .pp-sc-info { font-size: 11px; color: #94a3b8; }
-        .pp-sc-notice { font-size: 14px; color: #64748b; padding: 12px 0; }
-        @media (max-width: 600px) { .pp-sc-grid { grid-template-columns: 1fr !important; } }
-        </style>
-
-        <div class="pp-sc-grid">
+        <div class="pp-sc-grid" style="--pp-sc-cols: <?php echo absint( $cols ); ?>;">
         <?php foreach ( $galleries as $g ) :
             $status_label = $g['status'] === 'valide' ? esc_html__( 'Validé', 'photoproof' ) : esc_html__( 'Ouvert', 'photoproof' );
             $dot_class    = $g['status'] === 'valide' ? 'pp-sc-dot-validated' : 'pp-sc-dot-open';
@@ -150,7 +150,7 @@ class PhotoProof_Helpers {
  * ]
  */
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- prefixed with pp_
-function pp_get_client_galleries( $user_id ) {
+function photoproof_get_client_galleries( $user_id ) {
     global $wpdb;
 
     $post_ids = $wpdb->get_col( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -163,7 +163,7 @@ function pp_get_client_galleries( $user_id ) {
     if ( empty( $post_ids ) ) return array();
 
     $posts = get_posts( array(
-        'post_type'      => 'pp_gallery',
+        'post_type'      => 'photoproof_gallery',
         'post_status'    => 'publish',
         'posts_per_page' => -1,
         'post__in'       => $post_ids,
@@ -178,11 +178,11 @@ function pp_get_client_galleries( $user_id ) {
             'id'            => $post->ID,
             'title'         => get_the_title( $post->ID ),
             'url'           => get_permalink( $post->ID ),
-            'status'        => pp_get_gallery_status( $post->ID ),
-            'photo_count'   => pp_get_gallery_photo_count( $post->ID ),
-            'thumbnail_url' => pp_get_gallery_thumbnail( $post->ID ),
+            'status'        => photoproof_get_gallery_status( $post->ID ),
+            'photo_count'   => photoproof_get_gallery_photo_count( $post->ID ),
+            'thumbnail_url' => photoproof_get_gallery_thumbnail( $post->ID ),
             'date'          => get_the_date( 'd.m.Y', $post->ID ),
-            'selected_ids'  => pp_get_gallery_selection( $post->ID ),
+            'selected_ids'  => photoproof_get_gallery_selection( $post->ID ),
         );
     }
 
@@ -196,9 +196,9 @@ function pp_get_client_galleries( $user_id ) {
  * @return string publie|valide|ferme|brouillon
  */
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- prefixed with pp_
-function pp_get_gallery_status( $post_id ) {
+function photoproof_get_gallery_status( $post_id ) {
     global $wpdb;
-    $cache_key = 'pp_gallery_status_' . $post_id;
+    $cache_key = 'photoproof_gallery_status_' . $post_id;
     $row       = wp_cache_get( $cache_key, 'photoproof' );
     if ( false === $row ) {
         $row = $wpdb->get_row( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
@@ -217,9 +217,9 @@ function pp_get_gallery_status( $post_id ) {
  * @return int
  */
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- prefixed with pp_
-function pp_get_gallery_photo_count( $post_id ) {
+function photoproof_get_gallery_photo_count( $post_id ) {
     global $wpdb;
-    $cache_key = 'pp_gallery_photo_count_' . $post_id;
+    $cache_key = 'photoproof_gallery_photo_count_' . $post_id;
     $count     = wp_cache_get( $cache_key, 'photoproof' );
     if ( false === $count ) {
         $count = (int) $wpdb->get_var( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
@@ -242,7 +242,7 @@ function pp_get_gallery_photo_count( $post_id ) {
  * @return string|null
  */
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- prefixed with pp_
-function pp_get_gallery_thumbnail( $post_id, $size = 'medium' ) {
+function photoproof_get_gallery_thumbnail( $post_id, $size = 'medium' ) {
     $first = get_posts( array(
         'post_type'      => 'attachment',
         'post_mime_type' => 'image',
@@ -257,7 +257,7 @@ function pp_get_gallery_thumbnail( $post_id, $size = 'medium' ) {
 
     // Retourner la version watermarkée si elle existe
     if ( function_exists( 'PhotoProof_Watermark::get_watermarked_url' ) || class_exists( 'PhotoProof_Watermark' ) ) {
-        $wm_url = get_post_meta( $first[0]->ID, '_pp_watermarked_url', true );
+        $wm_url = get_post_meta( $first[0]->ID, '_photoproof_watermarked_url', true );
         if ( $wm_url ) return $wm_url;
     }
 
@@ -271,8 +271,8 @@ function pp_get_gallery_thumbnail( $post_id, $size = 'medium' ) {
  * @return array
  */
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- prefixed with pp_
-function pp_get_gallery_selection( $post_id ) {
-    $selected = get_post_meta( $post_id, '_pp_selected_photos', true );
+function photoproof_get_gallery_selection( $post_id ) {
+    $selected = get_post_meta( $post_id, '_photoproof_selected_photos', true );
     return is_array( $selected ) ? array_map( 'intval', $selected ) : array();
 }
 
@@ -283,6 +283,6 @@ function pp_get_gallery_selection( $post_id ) {
  * @return bool
  */
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- prefixed with pp_
-function pp_is_gallery_locked( $post_id ) {
-    return in_array( pp_get_gallery_status( $post_id ), array( 'valide', 'ferme' ), true );
+function photoproof_is_gallery_locked( $post_id ) {
+    return in_array( photoproof_get_gallery_status( $post_id ), array( 'valide', 'ferme' ), true );
 }

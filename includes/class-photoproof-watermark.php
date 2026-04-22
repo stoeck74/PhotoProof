@@ -17,14 +17,14 @@ class PhotoProof_Watermark {
 
     public function __construct() {
         // Déclenché après le renommage (priorité 30)
-        add_action( 'publish_pp_gallery', array( $this, 'generate_watermarks' ), 30, 2 );
+        add_action( 'publish_photoproof_gallery', array( $this, 'generate_watermarks' ), 30, 2 );
     }
 
     /**
      * Génère les copies watermarkées pour toutes les photos d'une galerie
      */
     public function generate_watermarks( $post_id, $post ) {
-        $watermark_id = get_option( 'pp_global_watermark' );
+        $watermark_id = get_option( 'photoproof_global_watermark' );
 
         if ( ! $watermark_id ) {
             return; // Pas de watermark configuré — rien à faire
@@ -36,7 +36,7 @@ class PhotoProof_Watermark {
             return;
         }
 
-        $opacity = intval( get_option( 'pp_watermark_opacity', 50 ) );
+        $opacity = intval( get_option( 'photoproof_watermark_opacity', 50 ) );
         $opacity = max( 10, min( 100, $opacity ) ); // clamp 10-100
 
         // Dossier de destination
@@ -79,7 +79,7 @@ class PhotoProof_Watermark {
             if ( $success ) {
                 // Stocker l'URL de la version watermarkée en meta
                 $wm_url = $upload_dir['baseurl'] . '/photoproof/gallery-' . $post_id . '/watermarked/' . $filename;
-                update_post_meta( $attachment->ID, '_pp_watermarked_url', $wm_url );
+                update_post_meta( $attachment->ID, '_photoproof_watermarked_url', $wm_url );
             }
         }
     }
@@ -285,7 +285,7 @@ class PhotoProof_Watermark {
      * @return string
      */
     public static function get_watermarked_url( $attachment_id ) {
-        $wm_url = get_post_meta( $attachment_id, '_pp_watermarked_url', true );
+        $wm_url = get_post_meta( $attachment_id, '_photoproof_watermarked_url', true );
 
         if ( $wm_url ) {
             // Vérifier que le fichier existe physiquement

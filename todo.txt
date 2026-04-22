@@ -1,5 +1,0 @@
-URL ALEATOIRES pas fait ou fragile
-option de logout manquantes
-bloquer le dl des images
-
-

@@ -60,8 +60,8 @@ class PhotoProof {
         }
 
         // Planifier le cron d'expiration
-        if ( ! wp_next_scheduled( 'pp_daily_expiration_check' ) ) {
-            wp_schedule_event( time(), 'daily', 'pp_daily_expiration_check' );
+        if ( ! wp_next_scheduled( 'photoproof_daily_expiration_check' ) ) {
+            wp_schedule_event( time(), 'daily', 'photoproof_daily_expiration_check' );
         }
 
         $this->register_gallery_post_type();
@@ -69,9 +69,9 @@ class PhotoProof {
     }
 
     public function deactivate() {
-        $timestamp = wp_next_scheduled( 'pp_daily_expiration_check' );
+        $timestamp = wp_next_scheduled( 'photoproof_daily_expiration_check' );
         if ( $timestamp ) {
-            wp_unschedule_event( $timestamp, 'pp_daily_expiration_check' );
+            wp_unschedule_event( $timestamp, 'photoproof_daily_expiration_check' );
         }
     }
 
@@ -115,7 +115,7 @@ class PhotoProof {
             // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
             $query->set( 'meta_query', array(
                 array(
-                    'key'     => '_pp_gallery_photo',
+                    'key'     => '_photoproof_gallery_photo',
                     'compare' => 'NOT EXISTS',
                 ),
             ) );
@@ -127,7 +127,7 @@ class PhotoProof {
                 // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
                 $args['meta_query'] = array(
                     array(
-                        'key'     => '_pp_gallery_photo',
+                        'key'     => '_photoproof_gallery_photo',
                         'compare' => 'NOT EXISTS',
                     ),
                 );
@@ -137,14 +137,14 @@ class PhotoProof {
 
         // Nettoyage suppression
         add_action( 'before_delete_post', function( $post_id ) {
-            if ( get_post_type( $post_id ) !== 'pp_gallery' ) return;
+            if ( get_post_type( $post_id ) !== 'photoproof_gallery' ) return;
             global $wpdb;
             $wpdb->delete( // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->prefix . 'photoproof_galleries',
                 array( 'post_id' => $post_id ),
                 array( '%d' )
             );
-            if ( ! get_option( 'pp_delete_files_on_delete' ) ) return;
+            if ( ! get_option( 'photoproof_delete_files_on_delete' ) ) return;
             $upload_dir  = wp_upload_dir();
             $gallery_dir = $upload_dir['basedir'] . '/photoproof/gallery-' . $post_id;
             if ( file_exists( $gallery_dir ) ) {
@@ -158,8 +158,8 @@ class PhotoProof {
     }
 
     public function load_gallery_template( $template ) {
-        if ( is_singular( 'pp_gallery' ) ) {
-            $custom = PHOTOPROOF_PATH . 'templates/single-pp_gallery.php';
+        if ( is_singular( 'photoproof_gallery' ) ) {
+            $custom = PHOTOPROOF_PATH . 'templates/single-photoproof_gallery.php';
             if ( file_exists( $custom ) ) return $custom;
         }
         return $template;
@@ -193,7 +193,7 @@ public function register_gallery_post_type() {
             'supports'           => array( 'title', 'editor', 'thumbnail' ),
             'show_in_rest'       => true,
         );
-        register_post_type( 'pp_gallery', $args );
+        register_post_type( 'photoproof_gallery', $args );
     }
 
     private function delete_directory( $dir ) {

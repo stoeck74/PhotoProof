@@ -301,3 +301,6 @@ input:checked + .pp-slider:before { transform: translateX(17px); }
 .pp-locked-banner { display: flex; align-items: center; gap: 10px; padding: 12px 18px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; margin-bottom: 20px; font-size: 13px; color: #166534; }
 .pp-locked-icon { font-size: 16px; color: #22c55e; flex-shrink: 0; }
 .pp-bar-locked .pp-btn-validate.pp-btn-confirmed { background: #22c55e; cursor: default; }
+/* PhotoProof — Anti-flash lors du chargement initial */
+.pp-settings-page.pp-loading .pp-settings-content { visibility: hidden; }
+

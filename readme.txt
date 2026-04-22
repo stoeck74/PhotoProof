@@ -25,7 +25,7 @@ PhotoProof turns WordPress into a professional proofing platform for photographe
 * **Email notifications** — photographer and client both receive confirmation emails when a selection is validated, with customizable templates
 * **Photographer recommendations** — mark your favorite shots to guide the client's selection
 * **CSV export** — export the validated selection as a spreadsheet
-* **Client dashboard shortcode** — `[pp_galleries_client]` displays all galleries assigned to the logged-in client
+* **Client dashboard shortcode** — `[photoproof_galleries_client]` displays all galleries assigned to the logged-in client
 * **Multilingual** — fully translatable, ships with French, (partial IA translations for German, Spanish and Italian) 
 * **Customizable design** — choose background, accent and text colors, upload your logo, toggle rounded corners
 

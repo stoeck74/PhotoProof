@@ -6,6 +6,31 @@
 
 jQuery(document).ready(function ($) {
 
+    // ── 0. RESTAURATION DE L'ONGLET ACTIF APRÈS SAVE ──────────────────
+    // WordPress vire le hash d'URL lors de la redirection post-save,
+    // donc on persiste l'onglet actif via sessionStorage.
+    var STORAGE_KEY = 'photoproof_active_tab';
+
+    var savedTab = sessionStorage.getItem(STORAGE_KEY);
+    if (savedTab) {
+        var $navFromStorage = $('.pp-nav-item[data-target="' + savedTab + '"]');
+        if ($navFromStorage.length) {
+            $('.pp-nav-item').removeClass('active');
+            $('.pp-section-content').removeClass('active');
+            $navFromStorage.addClass('active');
+            $('#section-' + savedTab).addClass('active');
+        }
+    }
+
+    // Retirer la classe pp-loading pour révéler le contenu
+    $('.pp-settings-page').removeClass('pp-loading');
+
+    // Mémoriser l'onglet à chaque changement
+    $('.pp-nav-item').on('click', function () {
+        var target = $(this).data('target');
+        if (target) sessionStorage.setItem(STORAGE_KEY, target);
+    });
+
     // ── 1. COLOR PICKER ───────────────────────────────────────────────
     $('.pp-color-picker').wpColorPicker();
 
@@ -85,9 +110,9 @@ jQuery(document).ready(function ($) {
         });
     }
 
-    animateToggle('#pp_enable_expiration',      '#expiration-details');
-    animateToggle('#pp_enable_rename',          '#rename-details');
-    animateToggle('#pp_enable_recommendations', '#recommendation-details');
+    animateToggle('#photoproof_enable_expiration',      '#expiration-details');
+    animateToggle('#photoproof_enable_rename',          '#rename-details');
+    animateToggle('#photoproof_enable_recommendations', '#recommendation-details');
 
     // ── 4. SLIDER OPACITÉ WATERMARK ───────────────────────────────────
     $('#pp_watermark_opacity_range').on('input', function () {
@@ -120,7 +145,7 @@ jQuery(document).ready(function ($) {
             var attachment = wm_frame.state().get('selection').first().toJSON();
             var opacity    = parseInt($('#pp_watermark_opacity_range').val(), 10) / 100;
 
-            $('#pp_global_watermark').val(attachment.id);
+            $('#photoproof_global_watermark').val(attachment.id);
 
             var $img = $('<img>', {
                 id:    'wm-live-preview',
@@ -141,7 +166,7 @@ jQuery(document).ready(function ($) {
     });
 
     $('#pp_remove_watermark_btn').on('click', function () {
-        $('#pp_global_watermark').val('');
+        $('#photoproof_global_watermark').val('');
         $('#wm-preview-container').html('<p id="wm-placeholder" style="color:#94a3b8;">Aucun logo sélectionné</p>');
         $('#pp_watermark_opacity_range').prop('disabled', true);
         $(this).hide();
@@ -164,7 +189,7 @@ jQuery(document).ready(function ($) {
         logo_frame.on('select', function () {
             var attachment = logo_frame.state().get('selection').first().toJSON();
 
-            $('#pp_custom_logo').val(attachment.id);
+            $('#photoproof_custom_logo').val(attachment.id);
 
             var $img = $('<img>', {
                 src:   attachment.url,
@@ -183,7 +208,7 @@ jQuery(document).ready(function ($) {
     });
 
     $('#pp_remove_custom_logo_btn').on('click', function () {
-        $('#pp_custom_logo').val('');
+        $('#photoproof_custom_logo').val('');
         $('#custom-logo-preview-container').html('<p style="color:#94a3b8;">Logo du site par défaut</p>');
         $(this).hide();
         logo_frame = null;

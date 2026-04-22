@@ -27,7 +27,7 @@ class PhotoProof_Assets {
             $current_post_type = get_post_type( absint( wp_unslash( $_GET['post'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- lecture seule pour détection du post type
         }
 
-        $is_gallery_page = ( $current_post_type === 'pp_gallery' );
+        $is_gallery_page = ( $current_post_type === 'photoproof_gallery' );
 
         if ( ! $is_settings_page && ! $is_gallery_page ) {
             return;
@@ -79,17 +79,17 @@ class PhotoProof_Assets {
             $post_id = ( is_object( $post ) && $post->ID ) ? $post->ID : 0;
 
             $icons     = array( 'dot' => '●', 'star' => '★', 'diamond' => '◆', 'heart' => '❤' );
-            $icon_key  = get_option( 'pp_global_recommendation_icon', 'star' );
+            $icon_key  = get_option( 'photoproof_global_recommendation_icon', 'star' );
             $reco_icon = isset( $icons[ $icon_key ] ) ? $icons[ $icon_key ] : '★';
 
             wp_localize_script( 'pp-gallery-js', 'pp_vars', array(
                 'ajax_url'     => admin_url( 'admin-ajax.php' ),
                 'post_id'      => $post_id,
-                'nonce'        => wp_create_nonce( 'pp_upload_nonce' ),
-                'export_nonce' => $post_id ? wp_create_nonce( 'pp_export_' . $post_id ) : '',
+                'nonce'        => wp_create_nonce( 'photoproof_upload_nonce' ),
+                'export_nonce' => $post_id ? wp_create_nonce( 'photoproof_export_' . $post_id ) : '',
                 'is_new_post'  => ( $post_id === 0 ) ? 1 : 0,
                 'reco_icon'    => $reco_icon,
-                'reco_enabled' => get_option( 'pp_enable_recommendations' ) ? 1 : 0,
+                'reco_enabled' => get_option( 'photoproof_enable_recommendations' ) ? 1 : 0,
             ) );
         }
     }

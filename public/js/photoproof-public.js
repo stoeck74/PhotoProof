@@ -27,7 +27,7 @@
 
     // ── RESTAURATION SÉLECTION ────────────────────────────────────────
     $.post(pp_public.ajax_url, {
-        action:  'pp_get_selection',
+        action:  'photoproof_get_selection',
         post_id: pp_public.post_id,
         nonce:   pp_public.nonce
     }, function (response) {
@@ -159,7 +159,7 @@
 
     function saveSelection(isConfirm) {
         $.post(pp_public.ajax_url, {
-            action:       'pp_save_selection',
+            action:       'photoproof_save_selection',
             post_id:      pp_public.post_id,
             nonce:        pp_public.nonce,
             selected_ids: selectedIds,

@@ -19,7 +19,7 @@ Photography proofing plugin for WordPress. Create secure client galleries with w
 - **Email notifications** — customizable templates for photographer and client, sent on selection validation
 - **Photographer recommendations** — mark your favorites to guide the client (configurable icon)
 - **CSV export** — download the validated selection as a spreadsheet
-- **Client dashboard** — `[pp_galleries_client]` shortcode + PHP template tags
+- **Client dashboard** — `[photoproof_galleries_client]` shortcode + PHP template tags
 - **Multilingual** — ships with French, German, Spanish and Italian translations
 - **Customizable design** — background, accent, text colors, custom logo, rounded corners option
 
@@ -58,7 +58,7 @@ photoproof/
 │       ├── photoproof-public.js            ← Selection, lightbox, auto-save
 │       └── photoproof-selection-anim.js    ← Selection tray animations
 ├── templates/
-│   └── single-pp_gallery.php              ← Standalone gallery template
+│   └── single-photoproof_gallery.php              ← Standalone gallery template
 └── languages/
     ├── photoproof.pot
     ├── photoproof-fr_FR.po / .mo / .l10n.php
@@ -177,7 +177,7 @@ Accessible via **PhotoProof → Settings**.
 ## Shortcode
 
 ```
-[pp_galleries_client]
+[photoproof_galleries_client]
 ```
 
 Displays all galleries assigned to the logged-in client.
@@ -190,7 +190,7 @@ Displays all galleries assigned to the logged-in client.
 | `show_date` | `true` | Show date |
 
 ```
-[pp_galleries_client columns="3" show_date="false"]
+[photoproof_galleries_client columns="3" show_date="false"]
 ```
 
 ---
@@ -200,12 +200,12 @@ Displays all galleries assigned to the logged-in client.
 PHP functions for theme developers:
 
 ```php
-$galleries = pp_get_client_galleries( $user_id );
-$status    = pp_get_gallery_status( $post_id );
-$count     = pp_get_gallery_photo_count( $post_id );
-$url       = pp_get_gallery_thumbnail( $post_id, 'medium' );
-$ids       = pp_get_gallery_selection( $post_id );
-$locked    = pp_is_gallery_locked( $post_id );
+$galleries = photoproof_get_client_galleries( $user_id );
+$status    = photoproof_get_gallery_status( $post_id );
+$count     = photoproof_get_gallery_photo_count( $post_id );
+$url       = photoproof_get_gallery_thumbnail( $post_id, 'medium' );
+$ids       = photoproof_get_gallery_selection( $post_id );
+$locked    = photoproof_is_gallery_locked( $post_id );
 ```
 
 ---

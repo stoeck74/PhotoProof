@@ -10,17 +10,17 @@ class PhotoProof_Public {
     public function __construct() {
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_public_assets' ) );
 
-        add_action( 'wp_ajax_pp_save_selection',        array( $this, 'save_client_selection' ) );
-        add_action( 'wp_ajax_nopriv_pp_save_selection', array( $this, 'save_client_selection' ) );
+        add_action( 'wp_ajax_photoproof_save_selection',        array( $this, 'save_client_selection' ) );
+        add_action( 'wp_ajax_nopriv_photoproof_save_selection', array( $this, 'save_client_selection' ) );
 
-        add_action( 'wp_ajax_pp_get_selection',         array( $this, 'get_client_selection' ) );
-        add_action( 'wp_ajax_nopriv_pp_get_selection',  array( $this, 'get_client_selection' ) );
+        add_action( 'wp_ajax_photoproof_get_selection',         array( $this, 'get_client_selection' ) );
+        add_action( 'wp_ajax_nopriv_photoproof_get_selection',  array( $this, 'get_client_selection' ) );
 
-        add_action( 'wp_ajax_pp_reopen_gallery', array( $this, 'reopen_gallery' ) );
+        add_action( 'wp_ajax_photoproof_reopen_gallery', array( $this, 'reopen_gallery' ) );
     }
 
     public function enqueue_public_assets() {
-        if ( ! is_singular( 'pp_gallery' ) ) {
+        if ( ! is_singular( 'photoproof_gallery' ) ) {
             return;
         }
 
@@ -68,23 +68,21 @@ class PhotoProof_Public {
             true
         );
 
-        // ── Animations panier visuel (optionnel) ──────────────────────
-        if ( get_option( 'pp_enable_animations' ) ) {
-            wp_enqueue_script(
-                'pp-animejs',
-                PHOTOPROOF_URL . 'admin/js/vendor/anime.min.js',
-                array(),
-                '3.2.2',
-                true
-            );
-            wp_enqueue_script(
-                'pp-selection-anim',
-                PHOTOPROOF_URL . 'public/js/photoproof-selection-anim.js',
-                array( 'jquery', 'pp-public-js', 'pp-animejs' ),
-                PHOTOPROOF_VERSION,
-                true
-            );
-        }
+        // ── Animations panier visuel ──────────────────────────────────
+        wp_enqueue_script(
+            'pp-animejs',
+            PHOTOPROOF_URL . 'admin/js/vendor/anime.min.js',
+            array(),
+            '3.2.2',
+            true
+        );
+        wp_enqueue_script(
+            'pp-selection-anim',
+            PHOTOPROOF_URL . 'public/js/photoproof-selection-anim.js',
+            array( 'jquery', 'pp-public-js', 'pp-animejs' ),
+            PHOTOPROOF_VERSION,
+            true
+        );
 
         // Statut pour le JS
         global $wpdb;
@@ -97,16 +95,16 @@ class PhotoProof_Public {
         wp_localize_script( 'pp-public-js', 'pp_public', array(
             'ajax_url'  => admin_url( 'admin-ajax.php' ),
             'post_id'   => get_the_ID(),
-            'nonce'     => wp_create_nonce( 'pp_client_selection_' . get_the_ID() ),
+            'nonce'     => wp_create_nonce( 'photoproof_client_selection_' . get_the_ID() ),
             'status'    => $current_status,
             'is_locked' => ( $current_status === 'valide' || $current_status === 'ferme' ) ? 1 : 0,
         ) );
 
         // ── CSS variables thème ───────────────────────────────────────
-        $bg_color      = sanitize_hex_color( get_option( 'pp_color_bg',     '#f5f4f2' ) ) ?: '#f5f4f2';
-        $active_color  = sanitize_hex_color( get_option( 'pp_color_active', '#2271b1' ) ) ?: '#2271b1';
-        $text_color    = sanitize_hex_color( get_option( 'pp_color_text',   '#1e293b' ) ) ?: '#1e293b';
-        $photo_rounded = get_option( 'pp_photo_rounded' );
+        $bg_color      = sanitize_hex_color( get_option( 'photoproof_color_bg',     '#f5f4f2' ) ) ?: '#f5f4f2';
+        $active_color  = sanitize_hex_color( get_option( 'photoproof_color_active', '#2271b1' ) ) ?: '#2271b1';
+        $text_color    = sanitize_hex_color( get_option( 'photoproof_color_text',   '#1e293b' ) ) ?: '#1e293b';
+        $photo_rounded = get_option( 'photoproof_photo_rounded' );
         $img_radius    = $photo_rounded ? '8px' : '0px';
 
         wp_add_inline_style( 'pp-public-style', "
@@ -129,11 +127,11 @@ class PhotoProof_Public {
             wp_send_json_error( array( 'message' => 'Galerie invalide.' ) );
         }
 
-        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'pp_client_selection_' . $post_id ) ) {
+        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'photoproof_client_selection_' . $post_id ) ) {
             wp_send_json_error( array( 'message' => 'Requête non autorisée.' ) );
         }
 
-        if ( get_post_type( $post_id ) !== 'pp_gallery' ) {
+        if ( get_post_type( $post_id ) !== 'photoproof_gallery' ) {
             wp_send_json_error( array( 'message' => 'Type invalide.' ) );
         }
 
@@ -152,7 +150,7 @@ class PhotoProof_Public {
             $post_id
         ) );
 
-        $custom_login = get_option( 'pp_login_url' );
+        $custom_login = get_option( 'photoproof_login_url' );
         $login_url    = $custom_login
             ? add_query_arg( 'redirect_to', urlencode( get_permalink( $post_id ) ), esc_url_raw( $custom_login ) )
             : wp_login_url( get_permalink( $post_id ) );
@@ -184,7 +182,7 @@ class PhotoProof_Public {
             return get_post_field( 'post_parent', $att_id ) == $post_id;
         } ) );
 
-        update_post_meta( $post_id, '_pp_selected_photos', $selected_ids );
+        update_post_meta( $post_id, '_photoproof_selected_photos', $selected_ids );
 
         $is_confirm = isset( $_POST['confirm'] ) && sanitize_text_field( wp_unslash( $_POST['confirm'] ) ) === '1';
 
@@ -219,7 +217,7 @@ class PhotoProof_Public {
 
             $client_id = $gallery_row ? intval( $gallery_row->client_id ) : get_current_user_id();
 
-            do_action( 'pp_gallery_selection_confirmed', $post_id, $client_id ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+            do_action( 'photoproof_gallery_selection_confirmed', $post_id, $client_id ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 
             wp_send_json_success( array( 'count' => count( $selected_ids ), 'locked' => true, 'message' => 'Sélection confirmée.' ) );
         }
@@ -235,11 +233,11 @@ class PhotoProof_Public {
 
         if ( ! $post_id ) wp_send_json_error( array( 'message' => 'Galerie invalide.' ) );
 
-        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'pp_client_selection_' . $post_id ) ) {
+        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'photoproof_client_selection_' . $post_id ) ) {
             wp_send_json_error( array( 'message' => 'Requête non autorisée.' ) );
         }
 
-        $selected = get_post_meta( $post_id, '_pp_selected_photos', true );
+        $selected = get_post_meta( $post_id, '_photoproof_selected_photos', true );
         $selected = is_array( $selected ) ? array_map( 'intval', $selected ) : array();
 
         wp_send_json_success( array(
@@ -259,18 +257,18 @@ class PhotoProof_Public {
 
         if ( ! $post_id ) wp_send_json_error( array( 'message' => 'Galerie invalide.' ) );
 
-        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'pp_reopen_' . $post_id ) ) {
+        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'photoproof_reopen_' . $post_id ) ) {
             wp_send_json_error( array( 'message' => 'Requête non autorisée.' ) );
         }
 
-        if ( get_post_type( $post_id ) !== 'pp_gallery' ) wp_send_json_error( array( 'message' => 'Type invalide.' ) );
+        if ( get_post_type( $post_id ) !== 'photoproof_gallery' ) wp_send_json_error( array( 'message' => 'Type invalide.' ) );
 
         $mode = ( isset( $_POST['mode'] ) && sanitize_text_field( wp_unslash( $_POST['mode'] ) ) === 'reset' ) ? 'reset' : 'keep';
 
         global $wpdb;
         $wpdb->update( $wpdb->prefix . 'photoproof_galleries', array( 'status' => 'publie' ), array( 'post_id' => $post_id ), array( '%s' ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 
-        if ( $mode === 'reset' ) update_post_meta( $post_id, '_pp_selected_photos', array() );
+        if ( $mode === 'reset' ) update_post_meta( $post_id, '_photoproof_selected_photos', array() );
 
         wp_send_json_success( array( 'message' => $mode === 'reset' ? 'Galerie réouverte, sélection réinitialisée.' : 'Galerie réouverte, sélection conservée.', 'mode' => $mode ) );
     }
@@ -280,7 +278,7 @@ class PhotoProof_Public {
      */
     public function is_gallery_locked( $post_id ) {
         global $wpdb;
-        $cache_key = 'pp_gallery_status_' . $post_id;
+        $cache_key = 'photoproof_gallery_status_' . $post_id;
         $row       = wp_cache_get( $cache_key, 'photoproof' );
         if ( false === $row ) {
             $row = $wpdb->get_row( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -297,7 +295,7 @@ class PhotoProof_Public {
      */
     private function is_gallery_accessible( $post_id ) {
         global $wpdb;
-        $cache_key = 'pp_gallery_status_' . $post_id;
+        $cache_key = 'photoproof_gallery_status_' . $post_id;
         $row       = wp_cache_get( $cache_key, 'photoproof' );
         if ( false === $row ) {
             $row = $wpdb->get_row( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -310,7 +308,7 @@ class PhotoProof_Public {
         if ( ! $row ) return false;
         if ( ! in_array( $row->status, array( 'publie', 'valide' ), true ) ) return false;
 
-        if ( get_option( 'pp_enable_expiration' ) ) {
+        if ( get_option( 'photoproof_enable_expiration' ) ) {
             $publish_timestamp = get_post_timestamp( $post_id );
             if ( time() > $publish_timestamp + ( 30 * DAY_IN_SECONDS ) ) return false;
         }

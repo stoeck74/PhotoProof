@@ -32,7 +32,7 @@ jQuery(document).ready(function ($) {
 
     // ── 2. CHARGEMENT DES PHOTOS EXISTANTES ──────────────────────────
     $.post(pp_vars.ajax_url, {
-        action:  'pp_get_gallery_photos',
+        action:  'photoproof_get_gallery_photos',
         post_id: pp_vars.post_id,
         nonce:   pp_vars.nonce
     }, function (response) {
@@ -112,7 +112,7 @@ jQuery(document).ready(function ($) {
     // ── 6. UPLOAD D'UN FICHIER ────────────────────────────────────────
     function uploadFile(file, callback) {
         var formData = new FormData();
-        formData.append('action',  'pp_upload_photo');
+        formData.append('action',  'photoproof_upload_photo');
         formData.append('post_id', pp_vars.post_id);
         formData.append('nonce',   pp_vars.nonce);
         formData.append('file',    file);
@@ -218,7 +218,7 @@ jQuery(document).ready(function ($) {
         $btn.toggleClass('pp-reco-active'); // feedback immédiat
 
         $.post(pp_vars.ajax_url, {
-            action:        'pp_toggle_recommendation',
+            action:        'photoproof_toggle_recommendation',
             post_id:       pp_vars.post_id,
             attachment_id: attId,
             recommended:   isReco ? '0' : '1',
@@ -246,7 +246,7 @@ jQuery(document).ready(function ($) {
 
     function ppDetachPhoto(attId) {
         $.post(pp_vars.ajax_url, {
-            action:        'pp_detach_photo',
+            action:        'photoproof_detach_photo',
             post_id:       pp_vars.post_id,
             attachment_id: attId,
             nonce:         pp_vars.nonce

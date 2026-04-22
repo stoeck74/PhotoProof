@@ -15,7 +15,7 @@ class PhotoProof_Metaboxes {
     public function __construct() {
         add_action( 'add_meta_boxes', array( $this, 'add_gallery_settings_metabox' ) );
         add_action( 'save_post',      array( $this, 'save_gallery_settings' ) );
-        add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_metabox_inline_script' ) );
+        add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_metabox_inline_script' ), 20 );
     }
 
     /**
@@ -26,7 +26,7 @@ class PhotoProof_Metaboxes {
             return;
         }
         $screen = get_current_screen();
-        if ( ! $screen || $screen->post_type !== 'pp_gallery' ) {
+        if ( ! $screen || $screen->post_type !== 'photoproof_gallery' ) {
             return;
         }
 
@@ -43,7 +43,7 @@ class PhotoProof_Metaboxes {
             'reopen_keep'     => __( 'Reopen — Keep selection', 'photoproof' ),
         ) );
 
-        $inline_js = "(function() {
+        $inline_js = "document.addEventListener('DOMContentLoaded', function() {
     function setupCopy(btnId) {
         var btn = document.getElementById(btnId);
         if (!btn) return;
@@ -71,12 +71,11 @@ class PhotoProof_Metaboxes {
         btn.addEventListener('click', function() {
             var mode  = btn.dataset.mode;
             var label = mode === 'reset' ? pp_metabox_i18n.reset_selection : pp_metabox_i18n.keep_selection;
-            if (!confirm(pp_metabox_i18n.reopen_and + ' \"' + label + '\" ?
-' + pp_metabox_i18n.client_select)) return;
+            if (!confirm(pp_metabox_i18n.reopen_and + ' \"' + label + '\" ?\\n' + pp_metabox_i18n.client_select)) return;
             btn.textContent = pp_metabox_i18n.in_progress;
             btn.disabled = true;
             var fd = new FormData();
-            fd.append('action',  'pp_reopen_gallery');
+            fd.append('action',  'photoproof_reopen_gallery');
             fd.append('post_id', btn.dataset.postId);
             fd.append('nonce',   btn.dataset.nonce);
             fd.append('mode',    mode);
@@ -93,17 +92,17 @@ class PhotoProof_Metaboxes {
                 });
         });
     });
-})();";
+});";
 
         wp_add_inline_script( 'pp-gallery-js', $inline_js );
     }
 
     public function add_gallery_settings_metabox() {
         add_meta_box(
-            'pp_gallery_settings',
+            'photoproof_gallery_settings',
             'PhotoProof',
             array( $this, 'render_metabox' ),
-            'pp_gallery',
+            'photoproof_gallery',
             'normal',
             'high'
         );
@@ -113,7 +112,7 @@ class PhotoProof_Metaboxes {
         global $wpdb;
 
         // ── Requête avec cache ──
-        $cache_key = 'pp_gallery_' . $post->ID;
+        $cache_key = 'photoproof_gallery_' . $post->ID;
         $data      = wp_cache_get( $cache_key, 'photoproof' );
         if ( false === $data ) {
             $data = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
@@ -133,13 +132,13 @@ class PhotoProof_Metaboxes {
         $is_ferme       = ( $current_status === 'ferme' );
         $is_locked      = ( $is_validated || $is_ferme );
 
-        $selected_photos = get_post_meta( $post->ID, '_pp_selected_photos', true );
+        $selected_photos = get_post_meta( $post->ID, '_photoproof_selected_photos', true );
         $selected_ids    = is_array( $selected_photos ) ? array_map( 'intval', $selected_photos ) : array();
         $count_selection = count( $selected_ids );
 
         $gallery_url  = get_permalink( $post->ID );
-        $export_nonce = wp_create_nonce( 'pp_export_' . $post->ID );
-        $reopen_nonce = wp_create_nonce( 'pp_reopen_' . $post->ID );
+        $export_nonce = wp_create_nonce( 'photoproof_export_' . $post->ID );
+        $reopen_nonce = wp_create_nonce( 'photoproof_reopen_' . $post->ID );
 
         // Config bande statut
         $status_config = array(
@@ -166,7 +165,7 @@ class PhotoProof_Metaboxes {
         );
         $sc = $status_config[ $current_status ] ?? $status_config['brouillon'];
 
-        wp_nonce_field( 'pp_save_gallery_settings', 'pp_gallery_nonce' );
+        wp_nonce_field( 'photoproof_save_gallery_settings', 'photoproof_gallery_nonce' );
         ?>
 
         <div class="pp-meta" id="pp-wrapper">
@@ -182,7 +181,7 @@ class PhotoProof_Metaboxes {
                 </div>
                 <div class="pp-state-actions">
                     <?php if ( $is_validated ) : ?>
-                        <a href="<?php echo esc_url( admin_url( 'admin-ajax.php?action=pp_export_selection&post_id=' . $post->ID . '&_wpnonce=' . $export_nonce ) ); ?>"
+                        <a href="<?php echo esc_url( admin_url( 'admin-ajax.php?action=photoproof_export_selection&post_id=' . $post->ID . '&_wpnonce=' . $export_nonce ) ); ?>"
                            class="pp-btn pp-btn-sm pp-btn-state-action">
                             <?php esc_html_e( '↓ Export CSV', 'photoproof' ); ?>
                         </a>
@@ -267,7 +266,7 @@ class PhotoProof_Metaboxes {
                             <input type="text"
                                 name="pp_custom_rename"
                                 id="pp_custom_rename"
-                                value="<?php echo esc_attr( get_post_meta( $post->ID, '_pp_custom_rename', true ) ); ?>"
+                                value="<?php echo esc_attr( get_post_meta( $post->ID, '_photoproof_custom_rename', true ) ); ?>"
                                 placeholder="<?php esc_attr_e( 'e.g.: Smith-Wedding', 'photoproof' ); ?>"
                                 <?php echo $is_locked ? 'disabled' : ''; ?>>
                         </div>
@@ -310,7 +309,7 @@ class PhotoProof_Metaboxes {
                         <?php if ( ! empty( $selected_ids ) ) : ?>
                         <div class="pp-selection-recap">
                             <?php foreach ( $selected_ids as $att_id ) :
-                                $target   = get_post_meta( $att_id, '_pp_target_filename', true );
+                                $target   = get_post_meta( $att_id, '_photoproof_target_filename', true );
                                 $filename = $target ?: basename( get_attached_file( $att_id ) );
                                 ?>
                                 <div class="pp-recap-thumb">
@@ -348,7 +347,7 @@ class PhotoProof_Metaboxes {
                                 <strong id="pp-selection-count"><?php echo intval( $count_selection ); ?></strong>
                                 <span><?php esc_html_e( 'Selected photography', 'photoproof' ); ?></span>
                             </div>
-                            <a href="<?php echo esc_url( admin_url( 'admin-ajax.php?action=pp_export_selection&post_id=' . $post->ID . '&_wpnonce=' . $export_nonce ) ); ?>"
+                            <a href="<?php echo esc_url( admin_url( 'admin-ajax.php?action=photoproof_export_selection&post_id=' . $post->ID . '&_wpnonce=' . $export_nonce ) ); ?>"
                                class="pp-btn pp-btn-sm pp-btn-primary">
                                 <?php esc_html_e( '↓ Export CSV', 'photoproof' ); ?>
                             </a>
@@ -429,7 +428,7 @@ class PhotoProof_Metaboxes {
     }
 
     public function save_gallery_settings( $post_id ) {
-        if ( ! isset( $_POST['pp_gallery_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['pp_gallery_nonce'] ) ), 'pp_save_gallery_settings' ) ) return;
+        if ( ! isset( $_POST['photoproof_gallery_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['photoproof_gallery_nonce'] ) ), 'photoproof_save_gallery_settings' ) ) return;
         if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
         if ( ! current_user_can( 'edit_post', $post_id ) ) return;
 
@@ -443,7 +442,7 @@ class PhotoProof_Metaboxes {
         $client_id        = ( isset( $_POST['pp_client_id'] ) && $_POST['pp_client_id'] !== '' ) ? intval( $_POST['pp_client_id'] ) : null;
 
         // ── Requête avec cache ──
-        $cache_key = 'pp_gallery_' . $post_id;
+        $cache_key = 'photoproof_gallery_' . $post_id;
         $existing  = wp_cache_get( $cache_key . '_id', 'photoproof' );
         if ( false === $existing ) {
             $existing = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
@@ -483,6 +482,6 @@ class PhotoProof_Metaboxes {
         wp_cache_delete( $cache_key, 'photoproof' );
         wp_cache_delete( $cache_key . '_id', 'photoproof' );
 
-        update_post_meta( $post_id, '_pp_custom_rename', sanitize_text_field( wp_unslash( $_POST['pp_custom_rename'] ?? '' ) ) );
+        update_post_meta( $post_id, '_photoproof_custom_rename', sanitize_text_field( wp_unslash( $_POST['pp_custom_rename'] ?? '' ) ) );
     }
 }

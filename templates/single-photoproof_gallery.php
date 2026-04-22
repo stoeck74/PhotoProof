@@ -22,17 +22,17 @@ $is_admin_user   = current_user_can( 'manage_options' );
 $pp_admin_notice = PhotoProof_Expiration::get_admin_notice( $post->ID );
 
 // ── 2. RÉGLAGES ───────────────────────────────────────────────────────────
-$reco_enabled   = get_option( 'pp_enable_recommendations' );
-$reco_icon_type = get_option( 'pp_global_recommendation_icon', 'star' );
+$reco_enabled   = get_option( 'photoproof_enable_recommendations' );
+$reco_icon_type = get_option( 'photoproof_global_recommendation_icon', 'star' );
 $icons          = array( 'dot' => '●', 'star' => '★', 'heart' => '❤', 'square' => '◆' );
 $icon           = isset( $icons[ $reco_icon_type ] ) ? $icons[ $reco_icon_type ] : '★';
 
-$selected_photos = get_post_meta( $post->ID, '_pp_selected_photos', true );
+$selected_photos = get_post_meta( $post->ID, '_photoproof_selected_photos', true );
 $selected_ids    = is_array( $selected_photos ) ? array_map( 'intval', $selected_photos ) : array();
 $count_selected  = count( $selected_ids );
 
-$custom_logo_id = get_option( 'pp_custom_logo' );
-$site_title     = get_option( 'pp_custom_title', get_bloginfo( 'name' ) );
+$custom_logo_id = get_option( 'photoproof_custom_logo' );
+$site_title     = get_option( 'photoproof_custom_title', get_bloginfo( 'name' ) );
 
 // ── 3. PHOTOS ─────────────────────────────────────────────────────────────
 $query_images = new WP_Query( array(
@@ -127,10 +127,10 @@ if ( has_post_thumbnail( $post->ID ) ) {
     <div class="pp-grid" id="pp-grid">
         <?php while ( $query_images->have_posts() ) : $query_images->the_post();
             $img_id      = get_the_ID();
-            $is_reco     = get_post_meta( $img_id, '_pp_recommended', true );
+            $is_reco     = get_post_meta( $img_id, '_photoproof_recommended', true );
             $is_selected = in_array( $img_id, $selected_ids, true );
 
-            $has_watermark = get_option( 'pp_global_watermark' );
+            $has_watermark = get_option( 'photoproof_global_watermark' );
             $img_src       = $has_watermark
                 ? PhotoProof_Watermark::get_watermarked_url( $img_id )
                 : wp_get_attachment_image_url( $img_id, 'large' );
@@ -139,7 +139,7 @@ if ( has_post_thumbnail( $post->ID ) ) {
                 ? PhotoProof_Watermark::get_watermarked_url( $img_id )
                 : wp_get_attachment_url( $img_id );
             $img_title     = get_the_title();
-            $filename      = get_post_meta( $img_id, '_pp_target_filename', true ) ?: basename( get_attached_file( $img_id ) );
+            $filename      = get_post_meta( $img_id, '_photoproof_target_filename', true ) ?: basename( get_attached_file( $img_id ) );
             ?>
             <div class="pp-card <?php echo $is_selected ? 'pp-selected' : ''; ?>"
                  data-id="<?php echo esc_attr( $img_id ); ?>">

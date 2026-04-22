@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class PhotoProof_Export {
 
     public function __construct() {
-        add_action( 'wp_ajax_pp_export_selection', array( $this, 'generate_csv_export' ) );
+        add_action( 'wp_ajax_photoproof_export_selection', array( $this, 'generate_csv_export' ) );
     }
 
     public function generate_csv_export() {
@@ -21,7 +21,7 @@ class PhotoProof_Export {
             wp_die( 'ID de galerie invalide.', 'Erreur', array( 'response' => 400 ) );
         }
 
-        if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'pp_export_' . $post_id ) ) {
+        if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'photoproof_export_' . $post_id ) ) {
             wp_die( 'Requête non autorisée.', 'Erreur', array( 'response' => 403 ) );
         }
 
@@ -29,13 +29,13 @@ class PhotoProof_Export {
             wp_die( 'Accès refusé.', 'Erreur', array( 'response' => 403 ) );
         }
 
-        if ( get_post_type( $post_id ) !== 'pp_gallery' ) {
+        if ( get_post_type( $post_id ) !== 'photoproof_gallery' ) {
             wp_die( 'Type de contenu invalide.', 'Erreur', array( 'response' => 400 ) );
         }
 
         // ── 2. RÉCUPÉRATION DES PHOTOS SÉLECTIONNÉES ─────────────────
 
-        $selected_ids = get_post_meta( $post_id, '_pp_selected_photos', true );
+        $selected_ids = get_post_meta( $post_id, '_photoproof_selected_photos', true );
 
         if ( empty( $selected_ids ) || ! is_array( $selected_ids ) ) {
             wp_die(

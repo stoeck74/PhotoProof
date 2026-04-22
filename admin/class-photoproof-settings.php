@@ -14,7 +14,7 @@ class PhotoProof_Settings {
 
     public function add_settings_page() {
         add_submenu_page(
-            'edit.php?post_type=pp_gallery',
+            'edit.php?post_type=photoproof_gallery',
             esc_html__( 'Settings PhotoProof', 'photoproof' ),
             esc_html__( 'Settings', 'photoproof' ),
             'manage_options',
@@ -30,19 +30,19 @@ class PhotoProof_Settings {
         };
 
         // Booléens
-        register_setting( 'pp_settings_group', 'pp_use_random_urls',       array( 'sanitize_callback' => $bool_sanitize ) );
-        register_setting( 'pp_settings_group', 'pp_enable_expiration',      array( 'sanitize_callback' => $bool_sanitize ) );
-        register_setting( 'pp_settings_group', 'pp_enable_rename',          array( 'sanitize_callback' => $bool_sanitize ) );
-        register_setting( 'pp_settings_group', 'pp_enable_recommendations', array( 'sanitize_callback' => $bool_sanitize ) );
-        register_setting( 'pp_settings_group', 'pp_photo_rounded',          array( 'sanitize_callback' => $bool_sanitize ) );
-        register_setting( 'pp_settings_group', 'pp_delete_files_on_delete', array( 'sanitize_callback' => $bool_sanitize ) );
+        register_setting( 'photoproof_settings_group', 'photoproof_use_random_urls',       array( 'sanitize_callback' => $bool_sanitize ) );
+        register_setting( 'photoproof_settings_group', 'photoproof_enable_expiration',      array( 'sanitize_callback' => $bool_sanitize ) );
+        register_setting( 'photoproof_settings_group', 'photoproof_enable_rename',          array( 'sanitize_callback' => $bool_sanitize ) );
+        register_setting( 'photoproof_settings_group', 'photoproof_enable_recommendations', array( 'sanitize_callback' => $bool_sanitize ) );
+        register_setting( 'photoproof_settings_group', 'photoproof_photo_rounded',          array( 'sanitize_callback' => $bool_sanitize ) );
+        register_setting( 'photoproof_settings_group', 'photoproof_delete_files_on_delete', array( 'sanitize_callback' => $bool_sanitize ) );
 
         // Texte libre
-        register_setting( 'pp_settings_group', 'pp_rename_pattern', array( 'sanitize_callback' => 'sanitize_text_field' ) );
-        register_setting( 'pp_settings_group', 'pp_custom_title',   array( 'sanitize_callback' => 'sanitize_text_field' ) );
+        register_setting( 'photoproof_settings_group', 'photoproof_rename_pattern', array( 'sanitize_callback' => 'sanitize_text_field' ) );
+        register_setting( 'photoproof_settings_group', 'photoproof_custom_title',   array( 'sanitize_callback' => 'sanitize_text_field' ) );
 
         // Select — whitelist
-        register_setting( 'pp_settings_group', 'pp_global_recommendation_icon', array(
+        register_setting( 'photoproof_settings_group', 'photoproof_global_recommendation_icon', array(
             'sanitize_callback' => function( $value ) {
                 $allowed = array( 'dot', 'star', 'square', 'heart' );
                 return in_array( $value, $allowed, true ) ? $value : 'star';
@@ -50,7 +50,7 @@ class PhotoProof_Settings {
         ) );
 
         // Entier borné (opacité)
-        register_setting( 'pp_settings_group', 'pp_watermark_opacity', array(
+        register_setting( 'photoproof_settings_group', 'photoproof_watermark_opacity', array(
             'sanitize_callback' => function( $value ) {
                 $int = absint( $value );
                 return ( $int >= 10 && $int <= 100 ) ? $int : 50;
@@ -63,31 +63,31 @@ class PhotoProof_Settings {
             return $int > 0 ? $int : '';
         };
 
-        register_setting( 'pp_settings_group', 'pp_custom_logo',      array( 'sanitize_callback' => $attachment_sanitize ) );
-        register_setting( 'pp_settings_group', 'pp_global_watermark', array( 'sanitize_callback' => $attachment_sanitize ) );
+        register_setting( 'photoproof_settings_group', 'photoproof_custom_logo',      array( 'sanitize_callback' => $attachment_sanitize ) );
+        register_setting( 'photoproof_settings_group', 'photoproof_global_watermark', array( 'sanitize_callback' => $attachment_sanitize ) );
 
         // Couleurs
-        register_setting( 'pp_settings_group', 'pp_color_bg',     array( 'sanitize_callback' => 'sanitize_hex_color' ) );
-        register_setting( 'pp_settings_group', 'pp_color_active', array( 'sanitize_callback' => 'sanitize_hex_color' ) );
-        register_setting( 'pp_settings_group', 'pp_color_text',   array( 'sanitize_callback' => 'sanitize_hex_color' ) );
+        register_setting( 'photoproof_settings_group', 'photoproof_color_bg',     array( 'sanitize_callback' => 'sanitize_hex_color' ) );
+        register_setting( 'photoproof_settings_group', 'photoproof_color_active', array( 'sanitize_callback' => 'sanitize_hex_color' ) );
+        register_setting( 'photoproof_settings_group', 'photoproof_color_text',   array( 'sanitize_callback' => 'sanitize_hex_color' ) );
 
         // URL
-        register_setting( 'pp_settings_group', 'pp_login_url', array( 'sanitize_callback' => 'esc_url_raw' ) );
+        register_setting( 'photoproof_settings_group', 'photoproof_login_url', array( 'sanitize_callback' => 'esc_url_raw' ) );
 
         // Emails
-        register_setting( 'pp_settings_group', 'pp_email_photographer_subject', array( 'sanitize_callback' => 'sanitize_text_field' ) );
-        register_setting( 'pp_settings_group', 'pp_email_photographer_body',    array( 'sanitize_callback' => 'sanitize_textarea_field' ) );
-        register_setting( 'pp_settings_group', 'pp_email_client_subject',       array( 'sanitize_callback' => 'sanitize_text_field' ) );
-        register_setting( 'pp_settings_group', 'pp_email_client_body',          array( 'sanitize_callback' => 'sanitize_textarea_field' ) );
+        register_setting( 'photoproof_settings_group', 'photoproof_email_photographer_subject', array( 'sanitize_callback' => 'sanitize_text_field' ) );
+        register_setting( 'photoproof_settings_group', 'photoproof_email_photographer_body',    array( 'sanitize_callback' => 'sanitize_textarea_field' ) );
+        register_setting( 'photoproof_settings_group', 'photoproof_email_client_subject',       array( 'sanitize_callback' => 'sanitize_text_field' ) );
+        register_setting( 'photoproof_settings_group', 'photoproof_email_client_body',          array( 'sanitize_callback' => 'sanitize_textarea_field' ) );
     }
 
     public function render_settings_page() {
         ?>
-        <div class="wrap pp-settings-page">
+        <div class="wrap pp-settings-page pp-loading">
             <h1><?php esc_html_e( 'Configuration PhotoProof', 'photoproof' ); ?></h1>
 
             <form method="post" action="options.php">
-                <?php settings_fields( 'pp_settings_group' ); ?>
+                <?php settings_fields( 'photoproof_settings_group' ); ?>
 
                 <div class="pp-settings-container">
 
@@ -121,8 +121,8 @@ class PhotoProof_Settings {
                                 <h3><?php esc_html_e( 'Random URL (UUID)', 'photoproof' ); ?></h3>
                                 <div class="pp-option-row">
                                     <label class="pp-switch">
-                                        <input type="checkbox" name="pp_use_random_urls" value="1"
-                                            <?php checked( 1, get_option( 'pp_use_random_urls' ), true ); ?>>
+                                        <input type="checkbox" name="photoproof_use_random_urls" value="1"
+                                            <?php checked( 1, get_option( 'photoproof_use_random_urls' ), true ); ?>>
                                         <span class="pp-slider"></span>
                                     </label>
                                     <span class="pp-label-text">
@@ -145,8 +145,8 @@ class PhotoProof_Settings {
                                 <h3><?php esc_html_e( 'Organization & Automatic Renaming', 'photoproof' ); ?></h3>
                                 <div class="pp-option-row">
                                     <label class="pp-switch">
-                                        <input type="checkbox" name="pp_enable_rename" id="pp_enable_rename" value="1"
-                                            <?php checked( 1, get_option( 'pp_enable_rename' ), true ); ?>>
+                                        <input type="checkbox" name="photoproof_enable_rename" id="photoproof_enable_rename" value="1"
+                                            <?php checked( 1, get_option( 'photoproof_enable_rename' ), true ); ?>>
                                         <span class="pp-slider"></span>
                                     </label>
                                     <span class="pp-label-text">
@@ -154,13 +154,13 @@ class PhotoProof_Settings {
                                     </span>
                                 </div>
 
-                                <div id="rename-details" class="pp-sub-panel" style="display: <?php echo get_option( 'pp_enable_rename' ) ? 'block' : 'none'; ?>; margin-top: 20px;">
+                                <div id="rename-details" class="pp-sub-panel" style="display: <?php echo get_option( 'photoproof_enable_rename' ) ? 'block' : 'none'; ?>; margin-top: 20px;">
                                     <div class="pp-option-row" style="flex-direction: column; align-items: flex-start; gap: 15px;">
                                         <label class="pp-main-label">
                                             <?php esc_html_e( 'File name structure', 'photoproof' ); ?>
                                         </label>
-                                        <input type="text" name="pp_rename_pattern"
-                                            value="<?php echo esc_attr( get_option( 'pp_rename_pattern', '{gallery_title}-{index}' ) ); ?>"
+                                        <input type="text" name="photoproof_rename_pattern"
+                                            value="<?php echo esc_attr( get_option( 'photoproof_rename_pattern', '{gallery_title}-{index}' ) ); ?>"
                                             class="regular-text"
                                             placeholder="{gallery_title}-{index}">
 
@@ -219,8 +219,8 @@ class PhotoProof_Settings {
                                 <h3><?php esc_html_e( "Photographer's Selection (Recommendations)", 'photoproof' ); ?></h3>
                                 <div class="pp-option-row">
                                     <label class="pp-switch">
-                                        <input type="checkbox" name="pp_enable_recommendations" id="pp_enable_recommendations" value="1"
-                                            <?php checked( 1, get_option( 'pp_enable_recommendations' ), true ); ?>>
+                                        <input type="checkbox" name="photoproof_enable_recommendations" id="photoproof_enable_recommendations" value="1"
+                                            <?php checked( 1, get_option( 'photoproof_enable_recommendations' ), true ); ?>>
                                         <span class="pp-slider"></span>
                                     </label>
                                     <span class="pp-label-text">
@@ -231,21 +231,21 @@ class PhotoProof_Settings {
                                     <?php esc_html_e( 'Highlight your favorite photos to your clients to guide their final selection.', 'photoproof' ); ?>
                                 </p>
 
-                                <div id="recommendation-details" class="pp-sub-panel" style="display: <?php echo get_option( 'pp_enable_recommendations' ) ? 'block' : 'none'; ?>; margin-top: 15px;">
+                                <div id="recommendation-details" class="pp-sub-panel" style="display: <?php echo get_option( 'photoproof_enable_recommendations' ) ? 'block' : 'none'; ?>; margin-top: 15px;">
                                     <label class="pp-main-label">
                                         <?php esc_html_e( 'Favorite icon:', 'photoproof' ); ?>
                                     </label>
-                                    <select name="pp_global_recommendation_icon" style="width:100%; max-width:250px;">
-                                        <option value="dot"    <?php selected( get_option( 'pp_global_recommendation_icon' ), 'dot' ); ?>>
+                                    <select name="photoproof_global_recommendation_icon" style="width:100%; max-width:250px;">
+                                        <option value="dot"    <?php selected( get_option( 'photoproof_global_recommendation_icon' ), 'dot' ); ?>>
                                             <?php esc_html_e( '■ Dot', 'photoproof' ); ?>
                                         </option>
-                                        <option value="star"   <?php selected( get_option( 'pp_global_recommendation_icon' ), 'star' ); ?>>
+                                        <option value="star"   <?php selected( get_option( 'photoproof_global_recommendation_icon' ), 'star' ); ?>>
                                             <?php esc_html_e( '★ Star', 'photoproof' ); ?>
                                         </option>
-                                        <option value="square" <?php selected( get_option( 'pp_global_recommendation_icon' ), 'square' ); ?>>
+                                        <option value="square" <?php selected( get_option( 'photoproof_global_recommendation_icon' ), 'square' ); ?>>
                                             <?php esc_html_e( '◆ Diamond', 'photoproof' ); ?>
                                         </option>
-                                        <option value="heart"  <?php selected( get_option( 'pp_global_recommendation_icon' ), 'heart' ); ?>>
+                                        <option value="heart"  <?php selected( get_option( 'photoproof_global_recommendation_icon' ), 'heart' ); ?>>
                                             <?php esc_html_e( '❤ Heart', 'photoproof' ); ?>
                                         </option>
                                     </select>
@@ -256,8 +256,8 @@ class PhotoProof_Settings {
                                 <h3><?php esc_html_e( 'Access Expiration', 'photoproof' ); ?></h3>
                                 <div class="pp-option-row">
                                     <label class="pp-switch">
-                                        <input type="checkbox" name="pp_enable_expiration" id="pp_enable_expiration" value="1"
-                                            <?php checked( 1, get_option( 'pp_enable_expiration' ), true ); ?>>
+                                        <input type="checkbox" name="photoproof_enable_expiration" id="photoproof_enable_expiration" value="1"
+                                            <?php checked( 1, get_option( 'photoproof_enable_expiration' ), true ); ?>>
                                         <span class="pp-slider"></span>
                                     </label>
                                     <span class="pp-label-text">
@@ -265,7 +265,7 @@ class PhotoProof_Settings {
                                     </span>
                                 </div>
 
-                                <div id="expiration-details" class="pp-sub-panel" style="display: <?php echo get_option( 'pp_enable_expiration' ) ? 'block' : 'none'; ?>; margin-top: 15px;">
+                                <div id="expiration-details" class="pp-sub-panel" style="display: <?php echo get_option( 'photoproof_enable_expiration' ) ? 'block' : 'none'; ?>; margin-top: 15px;">
                                     <p class="pp-explanation" style="margin:0;">
                                         <span class="dashicons dashicons-clock" style="color: #2271b1; vertical-align: middle;"></span>
                                         <?php
@@ -294,15 +294,15 @@ class PhotoProof_Settings {
                                         <label class="pp-main-label">
                                             <?php esc_html_e( 'Gallery main header Title', 'photoproof' ); ?>
                                         </label>
-                                        <input type="text" name="pp_custom_title"
-                                            value="<?php echo esc_attr( get_option( 'pp_custom_title', get_bloginfo( 'name' ) ) ); ?>"
+                                        <input type="text" name="photoproof_custom_title"
+                                            value="<?php echo esc_attr( get_option( 'photoproof_custom_title', get_bloginfo( 'name' ) ) ); ?>"
                                             class="regular-text" style="width:100%;">
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 12px;">
                                         <div class="pp-branding-preview" style="margin: 0;">
                                             <div id="custom-logo-preview-container">
                                                 <?php
-                                                $custom_logo_id = get_option( 'pp_custom_logo' );
+                                                $custom_logo_id = get_option( 'photoproof_custom_logo' );
                                                 if ( $custom_logo_id ) {
                                                     echo wp_get_attachment_image( $custom_logo_id, 'medium', false, array( 'style' => 'max-width:150px; height:auto;' ) );
                                                 } else {
@@ -312,13 +312,13 @@ class PhotoProof_Settings {
                                             </div>
                                         </div>
                                         <div style="display: flex; gap: 8px; justify-content: center;">
-                                            <input type="hidden" name="pp_custom_logo" id="pp_custom_logo"
-                                                value="<?php echo esc_attr( get_option( 'pp_custom_logo' ) ); ?>">
+                                            <input type="hidden" name="photoproof_custom_logo" id="photoproof_custom_logo"
+                                                value="<?php echo esc_attr( get_option( 'photoproof_custom_logo' ) ); ?>">
                                             <button type="button" class="button button-secondary" id="pp_upload_custom_logo_btn">
                                                 <?php esc_html_e( 'Upload a logo', 'photoproof' ); ?>
                                             </button>
                                             <button type="button" class="button button-link-delete" id="pp_remove_custom_logo_btn"
-                                                style="display: <?php echo get_option( 'pp_custom_logo' ) ? 'inline-block' : 'none'; ?>;">
+                                                style="display: <?php echo get_option( 'photoproof_custom_logo' ) ? 'inline-block' : 'none'; ?>;">
                                                 <?php esc_html_e( 'Remove', 'photoproof' ); ?>
                                             </button>
                                         </div>
@@ -331,18 +331,18 @@ class PhotoProof_Settings {
                                 <div class="pp-color-grid" style="display: flex; gap: 20px; flex-wrap: wrap;">
                                     <div class="pp-color-item">
                                         <label><?php esc_html_e( 'Background', 'photoproof' ); ?></label><br>
-                                        <input type="text" name="pp_color_bg" class="pp-color-picker"
-                                            value="<?php echo esc_attr( get_option( 'pp_color_bg', '#ffffff' ) ); ?>">
+                                        <input type="text" name="photoproof_color_bg" class="pp-color-picker"
+                                            value="<?php echo esc_attr( get_option( 'photoproof_color_bg', '#ffffff' ) ); ?>">
                                     </div>
                                     <div class="pp-color-item">
                                         <label><?php esc_html_e( 'Active color', 'photoproof' ); ?></label><br>
-                                        <input type="text" name="pp_color_active" class="pp-color-picker"
-                                            value="<?php echo esc_attr( get_option( 'pp_color_active', '#2271b1' ) ); ?>">
+                                        <input type="text" name="photoproof_color_active" class="pp-color-picker"
+                                            value="<?php echo esc_attr( get_option( 'photoproof_color_active', '#2271b1' ) ); ?>">
                                     </div>
                                     <div class="pp-color-item">
                                         <label><?php esc_html_e( 'Text color', 'photoproof' ); ?></label><br>
-                                        <input type="text" name="pp_color_text" class="pp-color-picker"
-                                            value="<?php echo esc_attr( get_option( 'pp_color_text', '#1e293b' ) ); ?>">
+                                        <input type="text" name="photoproof_color_text" class="pp-color-picker"
+                                            value="<?php echo esc_attr( get_option( 'photoproof_color_text', '#1e293b' ) ); ?>">
                                     </div>
                                 </div>
 
@@ -351,8 +351,8 @@ class PhotoProof_Settings {
                                 <h3><?php esc_html_e( 'Photo Format (Client Gallery)', 'photoproof' ); ?></h3>
                                 <div class="pp-option-row">
                                     <label class="pp-switch">
-                                        <input type="checkbox" name="pp_photo_rounded" id="pp_photo_rounded" value="1"
-                                            <?php checked( 1, get_option( 'pp_photo_rounded' ), true ); ?>>
+                                        <input type="checkbox" name="photoproof_photo_rounded" id="photoproof_photo_rounded" value="1"
+                                            <?php checked( 1, get_option( 'photoproof_photo_rounded' ), true ); ?>>
                                         <span class="pp-slider"></span>
                                     </label>
                                     <span class="pp-label-text">
@@ -380,34 +380,34 @@ class PhotoProof_Settings {
                                 </p>
                                 <div class="pp-branding-grid">
                                     <div class="pp-branding-controls">
-                                        <input type="hidden" name="pp_global_watermark" id="pp_global_watermark"
-                                            value="<?php echo esc_attr( get_option( 'pp_global_watermark' ) ); ?>">
+                                        <input type="hidden" name="photoproof_global_watermark" id="photoproof_global_watermark"
+                                            value="<?php echo esc_attr( get_option( 'photoproof_global_watermark' ) ); ?>">
                                         <button type="button" class="button button-secondary" id="pp_upload_watermark_btn">
                                             <?php esc_html_e( 'Select logo', 'photoproof' ); ?>
                                         </button>
                                         <button type="button" class="button button-link-delete" id="pp_remove_watermark_btn"
-                                            style="display: <?php echo get_option( 'pp_global_watermark' ) ? 'inline-block' : 'none'; ?>; margin-left: 10px;">
+                                            style="display: <?php echo get_option( 'photoproof_global_watermark' ) ? 'inline-block' : 'none'; ?>; margin-left: 10px;">
                                             <?php esc_html_e( 'Delete', 'photoproof' ); ?>
                                         </button>
                                         <div class="pp-range-group" style="margin-top:20px;">
                                             <label>
                                                 <?php esc_html_e( 'Opacity :', 'photoproof' ); ?>
-                                                <span id="opacity-val"><?php echo esc_html( get_option( 'pp_watermark_opacity', 50 ) ); ?></span>%
+                                                <span id="opacity-val"><?php echo esc_html( get_option( 'photoproof_watermark_opacity', 50 ) ); ?></span>%
                                             </label>
-                                            <input type="range" name="pp_watermark_opacity" id="pp_watermark_opacity_range"
+                                            <input type="range" name="photoproof_watermark_opacity" id="pp_watermark_opacity_range"
                                                 min="10" max="100" step="5"
-                                                value="<?php echo esc_attr( get_option( 'pp_watermark_opacity', 50 ) ); ?>"
+                                                value="<?php echo esc_attr( get_option( 'photoproof_watermark_opacity', 50 ) ); ?>"
                                                 style="width:100%;"
-                                                <?php echo get_option( 'pp_global_watermark' ) ? '' : 'disabled'; ?>>
+                                                <?php echo get_option( 'photoproof_global_watermark' ) ? '' : 'disabled'; ?>>
                                         </div>
                                     </div>
                                     <div class="pp-branding-preview">
                                         <div id="wm-preview-container" style="border: 1px dashed #ccc; padding: 10px; text-align: center; min-height: 100px; display: flex; align-items: center; justify-content: center; background: #f0f0f0;">
                                             <?php
-                                            $wm_id = get_option( 'pp_global_watermark' );
+                                            $wm_id = get_option( 'photoproof_global_watermark' );
                                             if ( $wm_id ) :
                                                 $url     = wp_get_attachment_url( $wm_id );
-                                                $opacity = (int) get_option( 'pp_watermark_opacity', 50 ) / 100;
+                                                $opacity = (int) get_option( 'photoproof_watermark_opacity', 50 ) / 100;
                                                 echo '<img id="wm-live-preview" src="' . esc_url( $url ) . '" style="opacity:' . esc_attr( $opacity ) . '; max-width:150px; height:auto;">';
                                             else :
                                                 echo '<p id="wm-placeholder" style="color:#94a3b8;">' . esc_html__( 'No logo configured', 'photoproof' ) . '</p>';
@@ -426,8 +426,8 @@ class PhotoProof_Settings {
                                     <label class="pp-main-label">
                                         <?php esc_html_e( 'Login Page', 'photoproof' ); ?>
                                     </label>
-                                    <input type="url" name="pp_login_url"
-                                        value="<?php echo esc_attr( get_option( 'pp_login_url', '' ) ); ?>"
+                                    <input type="url" name="photoproof_login_url"
+                                        value="<?php echo esc_attr( get_option( 'photoproof_login_url', '' ) ); ?>"
                                         placeholder="https://example.com/login"
                                         class="regular-text" style="width: 100%;">
                                     <p class="pp-explanation" style="margin: 0;">
@@ -448,8 +448,8 @@ class PhotoProof_Settings {
                                 <h3><?php esc_html_e( 'File Deletion', 'photoproof' ); ?></h3>
                                 <div class="pp-option-row">
                                     <label class="pp-switch">
-                                        <input type="checkbox" name="pp_delete_files_on_delete" value="1"
-                                            <?php checked( 1, get_option( 'pp_delete_files_on_delete' ), true ); ?>>
+                                        <input type="checkbox" name="photoproof_delete_files_on_delete" value="1"
+                                            <?php checked( 1, get_option( 'photoproof_delete_files_on_delete' ), true ); ?>>
                                         <span class="pp-slider"></span>
                                     </label>
                                     <span class="pp-label-text">
@@ -504,27 +504,27 @@ class PhotoProof_Settings {
                                 </p>
 
                                 <div class="pp-option-row" style="flex-direction: column; align-items: flex-start; gap: 10px; margin-bottom: 16px;">
-                                    <label class="pp-main-label" for="pp_email_photographer_subject">
+                                    <label class="pp-main-label" for="photoproof_email_photographer_subject">
                                         <?php esc_html_e( 'Subject', 'photoproof' ); ?>
                                     </label>
                                     <input type="text"
-                                        name="pp_email_photographer_subject"
-                                        id="pp_email_photographer_subject"
+                                        name="photoproof_email_photographer_subject"
+                                        id="photoproof_email_photographer_subject"
                                         class="regular-text"
                                         style="width:100%;"
-                                        value="<?php echo esc_attr( get_option( 'pp_email_photographer_subject', '[PhotoProof] {client_name} validated the gallery "{gallery_title}"' ) ); ?>">
+                                        value="<?php echo esc_attr( get_option( 'photoproof_email_photographer_subject', '[PhotoProof] {client_name} validated the gallery "{gallery_title}"' ) ); ?>">
                                 </div>
 
                                 <div class="pp-option-row" style="flex-direction: column; align-items: flex-start; gap: 10px;">
-                                    <label class="pp-main-label" for="pp_email_photographer_body">
+                                    <label class="pp-main-label" for="photoproof_email_photographer_body">
                                         <?php esc_html_e( 'Body', 'photoproof' ); ?>
                                     </label>
                                     <textarea
-                                        name="pp_email_photographer_body"
-                                        id="pp_email_photographer_body"
+                                        name="photoproof_email_photographer_body"
+                                        id="photoproof_email_photographer_body"
                                         rows="10"
                                         style="width:100%; font-family: monospace; font-size: 13px;"
-                                    ><?php echo esc_textarea( get_option( 'pp_email_photographer_body',
+                                    ><?php echo esc_textarea( get_option( 'photoproof_email_photographer_body',
                                         "Hello,
 
 {client_name} has confirmed their selection for the gallery '{gallery_title}'.
@@ -547,27 +547,27 @@ View gallery: {gallery_url}
                                 </p>
 
                                 <div class="pp-option-row" style="flex-direction: column; align-items: flex-start; gap: 10px; margin-bottom: 16px;">
-                                    <label class="pp-main-label" for="pp_email_client_subject">
+                                    <label class="pp-main-label" for="photoproof_email_client_subject">
                                         <?php esc_html_e( 'Subject', 'photoproof' ); ?>
                                     </label>
                                     <input type="text"
-                                        name="pp_email_client_subject"
-                                        id="pp_email_client_subject"
+                                        name="photoproof_email_client_subject"
+                                        id="photoproof_email_client_subject"
                                         class="regular-text"
                                         style="width:100%;"
-                                        value="<?php echo esc_attr( get_option( 'pp_email_client_subject', 'Your selection for "{gallery_title}" has been received' ) ); ?>">
+                                        value="<?php echo esc_attr( get_option( 'photoproof_email_client_subject', 'Your selection for "{gallery_title}" has been received' ) ); ?>">
                                 </div>
 
                                 <div class="pp-option-row" style="flex-direction: column; align-items: flex-start; gap: 10px;">
-                                    <label class="pp-main-label" for="pp_email_client_body">
+                                    <label class="pp-main-label" for="photoproof_email_client_body">
                                         <?php esc_html_e( 'Body', 'photoproof' ); ?>
                                     </label>
                                     <textarea
-                                        name="pp_email_client_body"
-                                        id="pp_email_client_body"
+                                        name="photoproof_email_client_body"
+                                        id="photoproof_email_client_body"
                                         rows="10"
                                         style="width:100%; font-family: monospace; font-size: 13px;"
-                                    ><?php echo esc_textarea( get_option( 'pp_email_client_body',
+                                    ><?php echo esc_textarea( get_option( 'photoproof_email_client_body',
                                         "Hello {client_name},
 
 We have received your selection of {count} photo(s) for the gallery '{gallery_title}'.
@@ -591,31 +591,6 @@ Thank you for your trust.
                 </div><!-- /.pp-settings-container -->
             </form>
         </div><!-- /.wrap -->
-
-        <script>
-        (function() {
-            var hash = window.location.hash.replace('#', '');
-            if (hash) {
-                var $nav = jQuery('.pp-nav-item[data-target="' + hash + '"]');
-                if ($nav.length) {
-                    jQuery('.pp-nav-item').removeClass('active');
-                    jQuery('.pp-section-content').removeClass('active');
-                    $nav.addClass('active');
-                    jQuery('#section-' + hash).addClass('active');
-                }
-            }
-
-            jQuery('.pp-nav-item').on('click', function() {
-                var target = jQuery(this).data('target');
-                window.location.hash = target;
-            });
-
-            jQuery('form').on('submit', function() {
-                var active = jQuery('.pp-nav-item.active').data('target');
-                if (active) window.location.hash = active;
-            });
-        })();
-       </script>
         <?php
     }
 }

@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * - Vérification d'accès front-end (template_redirect)
  * - Cron WP quotidien pour l'auto-archivage en base
- * - Bannière admin gérée directement dans le template (single-pp_gallery.php)
+ * - Bannière admin gérée directement dans le template (single-photoproof_gallery.php)
  *
  * Le cron est planifié dans PhotoProof::activate()
  * et supprimé dans PhotoProof::deactivate()
@@ -22,7 +22,7 @@ class PhotoProof_Expiration {
         add_action( 'template_redirect', array( $this, 'check_gallery_expiration' ) );
 
         // Cron quotidien d'auto-archivage
-        add_action( 'pp_daily_expiration_check', array( $this, 'auto_archive_expired_galleries' ) );
+        add_action( 'photoproof_daily_expiration_check', array( $this, 'auto_archive_expired_galleries' ) );
     }
 
     /**
@@ -42,10 +42,10 @@ class PhotoProof_Expiration {
      * - Expiration par date → admin only
      *
      * L'admin peut toujours voir — la bannière d'avertissement est
-     * gérée dans le template (single-pp_gallery.php) via pp_get_gallery_access_notice()
+     * gérée dans le template (single-photoproof_gallery.php) via photoproof_get_gallery_access_notice()
      */
     public function check_gallery_expiration() {
-        if ( ! is_singular( 'pp_gallery' ) ) {
+        if ( ! is_singular( 'photoproof_gallery' ) ) {
             return;
         }
 
@@ -84,7 +84,7 @@ class PhotoProof_Expiration {
         }
 
         // ── 2. VÉRIFICATION DE L'EXPIRATION PAR DATE ─────────────────
-        if ( ! get_option( 'pp_enable_expiration' ) ) {
+        if ( ! get_option( 'photoproof_enable_expiration' ) ) {
             return;
         }
 
@@ -127,7 +127,7 @@ class PhotoProof_Expiration {
      * Cron quotidien : archive automatiquement les galeries expirées
      */
     public function auto_archive_expired_galleries() {
-        if ( ! get_option( 'pp_enable_expiration' ) ) {
+        if ( ! get_option( 'photoproof_enable_expiration' ) ) {
             return;
         }
 
@@ -167,7 +167,7 @@ class PhotoProof_Expiration {
      * Helper statique : retourne le message de bannière admin à afficher
      * dans le template, ou null si rien à afficher.
      *
-     * Appelé depuis single-pp_gallery.php
+     * Appelé depuis single-photoproof_gallery.php
      *
      * @param int $post_id
      * @return string|null Message HTML ou null
@@ -203,7 +203,7 @@ class PhotoProof_Expiration {
         }
 
         // Vérifier expiration par date
-        if ( get_option( 'pp_enable_expiration' ) ) {
+        if ( get_option( 'photoproof_enable_expiration' ) ) {
             $publish_timestamp = get_post_timestamp( $post_id );
             $expiration        = $publish_timestamp + ( self::EXPIRATION_DAYS * DAY_IN_SECONDS );
 

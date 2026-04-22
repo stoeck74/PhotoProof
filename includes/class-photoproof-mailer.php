@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class PhotoProof_Mailer {
 
     public function __construct() {
-        add_action( 'pp_gallery_selection_confirmed', array( $this, 'send_emails' ), 10, 2 );
+        add_action( 'photoproof_gallery_selection_confirmed', array( $this, 'send_emails' ), 10, 2 );
     }
 
     /**
@@ -39,8 +39,8 @@ class PhotoProof_Mailer {
      * Génère le wrapper HTML commun (header + footer)
      */
     private function wrap_html( $body_content, $accent_color = '#2271b1' ) {
-        $logo_id    = get_option( 'pp_custom_logo' );
-        $studio     = esc_html( get_option( 'pp_custom_title', get_option( 'blogname' ) ) );
+        $logo_id    = get_option( 'photoproof_custom_logo' );
+        $studio     = esc_html( get_option( 'photoproof_custom_title', get_option( 'blogname' ) ) );
         $logo_html  = '';
 
         if ( $logo_id ) {
@@ -83,7 +83,7 @@ class PhotoProof_Mailer {
     private function build_file_list_html( $selected_ids ) {
         $lines = '';
         foreach ( $selected_ids as $att_id ) {
-            $target   = get_post_meta( $att_id, '_pp_target_filename', true );
+            $target   = get_post_meta( $att_id, '_photoproof_target_filename', true );
             $filename = $target ?: basename( get_attached_file( $att_id ) );
             $lines   .= '<tr><td style="font-size:13px; color:#475569; font-family:monospace; padding:4px 0;">' . esc_html( $filename ) . '</td></tr>';
         }
@@ -96,7 +96,7 @@ class PhotoProof_Mailer {
     private function build_file_list_text( $selected_ids ) {
         $list = '';
         foreach ( $selected_ids as $att_id ) {
-            $target   = get_post_meta( $att_id, '_pp_target_filename', true );
+            $target   = get_post_meta( $att_id, '_photoproof_target_filename', true );
             $filename = $target ?: basename( get_attached_file( $att_id ) );
             $list    .= '- ' . $filename . "
 ";
@@ -113,11 +113,11 @@ class PhotoProof_Mailer {
     public function send_emails( $post_id, $client_id ) {
 
         $gallery_title = get_the_title( $post_id );
-        $selected_ids  = get_post_meta( $post_id, '_pp_selected_photos', true );
+        $selected_ids  = get_post_meta( $post_id, '_photoproof_selected_photos', true );
         $selected_ids  = is_array( $selected_ids ) ? $selected_ids : array();
         $count         = count( $selected_ids );
-        $studio_name   = get_option( 'pp_custom_title', get_option( 'blogname' ) );
-        $accent_color  = sanitize_hex_color( get_option( 'pp_color_active', '#2271b1' ) ) ?: '#2271b1';
+        $studio_name   = get_option( 'photoproof_custom_title', get_option( 'blogname' ) );
+        $accent_color  = sanitize_hex_color( get_option( 'photoproof_color_active', '#2271b1' ) ) ?: '#2271b1';
 
         $photographer_email = get_option( 'admin_email' );
 
@@ -171,11 +171,11 @@ class PhotoProof_Mailer {
             esc_html__( 'View gallery', 'photoproof' ) .
             '</a></p>';
 
-        $subject_photo = apply_filters( 'pp_email_photographer_subject', // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
-            $this->parse_template( get_option( 'pp_email_photographer_subject', $default_subject_photo ), $vars ),
+        $subject_photo = apply_filters( 'photoproof_email_photographer_subject', // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+            $this->parse_template( get_option( 'photoproof_email_photographer_subject', $default_subject_photo ), $vars ),
             $post_id, $client_id
         );
-        $body_photo = apply_filters( 'pp_email_photographer_body', // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+        $body_photo = apply_filters( 'photoproof_email_photographer_body', // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
             $this->wrap_html( $body_photo_html, $accent_color ),
             $post_id, $client_id
         );
@@ -202,7 +202,7 @@ class PhotoProof_Mailer {
             esc_html__( 'Thank you for your trust.', 'photoproof' ) . '<br><br>' .
             '— ' . esc_html( $studio_name );
 
-        $custom_body = get_option( 'pp_email_client_body', '' );
+        $custom_body = get_option( 'photoproof_email_client_body', '' );
         if ( $custom_body ) {
             $body_content = nl2br( esc_html( $this->parse_template( $custom_body, $vars ) ) );
         } else {
@@ -211,11 +211,11 @@ class PhotoProof_Mailer {
 
         $body_client_html = '<p style="margin:0; font-size:15px; color:#1e293b; line-height:1.8;">' . $body_content . '</p>';
 
-        $subject_client = apply_filters( 'pp_email_client_subject', // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
-            $this->parse_template( get_option( 'pp_email_client_subject', $default_subject_client ), $vars ),
+        $subject_client = apply_filters( 'photoproof_email_client_subject', // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+            $this->parse_template( get_option( 'photoproof_email_client_subject', $default_subject_client ), $vars ),
             $post_id, $client_id
         );
-        $body_client = apply_filters( 'pp_email_client_body', // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+        $body_client = apply_filters( 'photoproof_email_client_body', // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
             $this->wrap_html( $body_client_html, $accent_color ),
             $post_id, $client_id
         );

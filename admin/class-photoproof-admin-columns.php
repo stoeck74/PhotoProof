@@ -13,12 +13,12 @@ class PhotoProof_Admin_Columns {
 
     public function __construct() {
         // Auto publication
-        add_action( 'publish_pp_gallery', array( $this, 'auto_set_publie_on_publish' ), 10, 2 );
+        add_action( 'publish_photoproof_gallery', array( $this, 'auto_set_publie_on_publish' ), 10, 2 );
 
         // Custom columns
-        add_filter( 'manage_pp_gallery_posts_columns',       array( $this, 'add_columns' ) );
-        add_action( 'manage_pp_gallery_posts_custom_column', array( $this, 'render_column' ), 10, 2 );
-        add_filter( 'manage_edit-pp_gallery_sortable_columns', array( $this, 'sortable_columns' ) );
+        add_filter( 'manage_photoproof_gallery_posts_columns',       array( $this, 'add_columns' ) );
+        add_action( 'manage_photoproof_gallery_posts_custom_column', array( $this, 'render_column' ), 10, 2 );
+        add_filter( 'manage_edit-photoproof_gallery_sortable_columns', array( $this, 'sortable_columns' ) );
     }
 
     /**
@@ -117,7 +117,7 @@ class PhotoProof_Admin_Columns {
                 $post_id
             ) );
 
-            $selected = get_post_meta( $post_id, '_pp_selected_photos', true );
+            $selected = get_post_meta( $post_id, '_photoproof_selected_photos', true );
             $nb_selected = is_array( $selected ) ? count( $selected ) : 0;
 
             echo '<span style="font-size:12px;color:#1e293b;font-weight:500;">'

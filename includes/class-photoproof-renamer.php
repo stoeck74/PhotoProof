@@ -6,13 +6,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Logique de renommage différé — PhotoProof
  *
  * FLOW :
- * 1. À l'upload (pp_attachment_uploaded) → calcule le nom cible temporaire
- *    et le stocke en _pp_target_filename (affiché dans la grille admin)
- * 2. À la sauvegarde du post (save_post_pp_gallery, priorité 30)
+ * 1. À l'upload (photoproof_attachment_uploaded) → calcule le nom cible temporaire
+ *    et le stocke en _photoproof_target_filename (affiché dans la grille admin)
+ * 2. À la sauvegarde du post (save_post_photoproof_gallery, priorité 30)
  *    → si le post est publié ET que le base_name a changé → renommage physique
  *
  * Priorité 30 = après save_gallery_settings (priorité 10) qui sauvegarde
- * le meta _pp_custom_rename dont on a besoin.
+ * le meta _photoproof_custom_rename dont on a besoin.
  *
  * Priorité nom : Préfixe custom (metabox) > Titre galerie > fallback 'photo'
  */
@@ -20,10 +20,10 @@ class PhotoProof_Renamer {
 
     public function __construct() {
         // Hook dédié déclenché par l'uploader custom — nom temporaire
-        add_action( 'pp_attachment_uploaded', array( $this, 'store_target_filename' ), 10, 2 );
+        add_action( 'photoproof_attachment_uploaded', array( $this, 'store_target_filename' ), 10, 2 );
 
         // Renommage physique au save (publish + update)
-        add_action( 'save_post_pp_gallery', array( $this, 'maybe_rename_on_save' ), 30, 2 );
+        add_action( 'save_post_photoproof_gallery', array( $this, 'maybe_rename_on_save' ), 30, 2 );
     }
 
     /**
@@ -31,7 +31,7 @@ class PhotoProof_Renamer {
      * Appelé juste après la création de l'attachement en base
      */
     public function store_target_filename( $attachment_id, $post_id ) {
-        if ( ! get_option( 'pp_enable_rename' ) ) {
+        if ( ! get_option( 'photoproof_enable_rename' ) ) {
             return;
         }
 
@@ -49,19 +49,19 @@ class PhotoProof_Renamer {
         $ext       = $file_path ? '.' . strtolower( pathinfo( $file_path, PATHINFO_EXTENSION ) ) : '';
 
         // Stocker le nom cible (avec extension)
-        update_post_meta( $attachment_id, '_pp_target_filename', $new_name . $ext );
+        update_post_meta( $attachment_id, '_photoproof_target_filename', $new_name . $ext );
         // Stocker aussi le post_id de la galerie pour le renommage différé
-        update_post_meta( $attachment_id, '_pp_gallery_post_id', $post_id );
+        update_post_meta( $attachment_id, '_photoproof_gallery_post_id', $post_id );
     }
 
     /**
      * Au save : renommage physique SI le post est publié ET le base_name a changé
      *
-     * Hookée sur save_post_pp_gallery avec priorité 30
-     * (après save_gallery_settings à priorité 10 qui sauvegarde _pp_custom_rename)
+     * Hookée sur save_post_photoproof_gallery avec priorité 30
+     * (après save_gallery_settings à priorité 10 qui sauvegarde _photoproof_custom_rename)
      */
     public function maybe_rename_on_save( $post_id, $post ) {
-        if ( ! get_option( 'pp_enable_rename' ) ) {
+        if ( ! get_option( 'photoproof_enable_rename' ) ) {
             return;
         }
 
@@ -82,7 +82,7 @@ class PhotoProof_Renamer {
         $current_base = $this->get_base_name( $post_id );
 
         // Comparer avec le dernier base_name utilisé
-        $last_base = get_post_meta( $post_id, '_pp_last_rename_base', true );
+        $last_base = get_post_meta( $post_id, '_photoproof_last_rename_base', true );
 
         if ( $last_base === $current_base ) {
             return; // Rien n'a changé, pas de renommage inutile
@@ -92,7 +92,7 @@ class PhotoProof_Renamer {
         $this->rename_all_photos( $post_id, $current_base );
 
         // Stocker le base_name utilisé
-        update_post_meta( $post_id, '_pp_last_rename_base', $current_base );
+        update_post_meta( $post_id, '_photoproof_last_rename_base', $current_base );
     }
 
     /**
@@ -128,7 +128,7 @@ class PhotoProof_Renamer {
         }
 
         // Mettre à jour le compteur final
-        update_post_meta( $post_id, '_pp_rename_counter', $counter );
+        update_post_meta( $post_id, '_photoproof_rename_counter', $counter );
     }
 
     /**
@@ -148,7 +148,7 @@ class PhotoProof_Renamer {
         // Éviter d'écraser un fichier existant avec un autre nom
         if ( $old_file === $new_file ) {
             // Même fichier, juste mettre à jour le meta target
-            update_post_meta( $attachment_id, '_pp_target_filename', $new_basename . $ext );
+            update_post_meta( $attachment_id, '_photoproof_target_filename', $new_basename . $ext );
             return true;
         }
 
@@ -169,7 +169,7 @@ class PhotoProof_Renamer {
         $relative    = str_replace( $upload_dir['basedir'] . '/', '', $new_file );
 
         update_post_meta( $attachment_id, '_wp_attached_file', $relative );
-        update_post_meta( $attachment_id, '_pp_target_filename', $new_basename . $ext );
+        update_post_meta( $attachment_id, '_photoproof_target_filename', $new_basename . $ext );
 
         // Mettre à jour le guid (URL publique)
         global $wpdb;
@@ -201,7 +201,7 @@ class PhotoProof_Renamer {
      * Priorité : préfixe custom > titre galerie > fallback
      */
     private function get_base_name( $post_id ) {
-        $custom = get_post_meta( $post_id, '_pp_custom_rename', true );
+        $custom = get_post_meta( $post_id, '_photoproof_custom_rename', true );
 
         if ( ! empty( $custom ) ) {
             return sanitize_title( $custom );
@@ -220,7 +220,7 @@ class PhotoProof_Renamer {
      * Retourne le pattern de renommage depuis les settings
      */
     private function get_pattern() {
-        $pattern = get_option( 'pp_rename_pattern', '{gallery_title}-{index}' );
+        $pattern = get_option( 'photoproof_rename_pattern', '{gallery_title}-{index}' );
 
         if ( empty( $pattern ) ) {
             $pattern = '{gallery_title}-{index}';
@@ -238,8 +238,8 @@ class PhotoProof_Renamer {
      * Utilisé uniquement à l'upload (store_target_filename)
      */
     private function get_next_number( $post_id ) {
-        $next = (int) get_post_meta( $post_id, '_pp_rename_counter', true ) + 1;
-        update_post_meta( $post_id, '_pp_rename_counter', $next );
+        $next = (int) get_post_meta( $post_id, '_photoproof_rename_counter', true ) + 1;
+        update_post_meta( $post_id, '_photoproof_rename_counter', $next );
         return $next;
     }
 }
