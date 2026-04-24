@@ -59,6 +59,18 @@ class PhotoProof_Public {
         // Pas besoin de Masonry — grille CSS Grid pure
         wp_enqueue_script( 'imagesloaded' );
 
+        // ── Masonry (conditionnel) ──
+        if ( 'masonry' === get_option( 'photoproof_gallery_layout', 'grid' ) ) {
+            wp_enqueue_script( 'masonry' );
+            wp_enqueue_script(
+                'pp-masonry-init',
+                PHOTOPROOF_URL . 'public/js/photoproof-masonry.js',
+                array( 'jquery', 'masonry', 'imagesloaded' ),
+                PHOTOPROOF_VERSION,
+                true
+            );
+        }
+
         // ── JS public ─────────────────────────────────────────────────
         wp_enqueue_script(
             'pp-public-js',

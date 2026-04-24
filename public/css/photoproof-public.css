@@ -124,7 +124,46 @@ html, body {
     gap: 24px;
     padding: 16px 20px 120px;
 }
+* ── Masonry layout override ── */
 
+.pp-grid.pp-layout-masonry {
+    display: block;
+    padding:0;
+    margin: 16px 20px 120px; /* on remet l'espace en margin au lieu de padding */
+}
+
+.pp-grid.pp-layout-masonry .pp-card {
+    position: relative;
+    /* 5 colonnes, 24px de gutter : width = (100% - 4*24px) / 5 */
+    margin-bottom: 24px;
+    height: auto;
+    background: transparent;
+    border: none;
+    padding: 0;
+    box-shadow: none;
+}
+
+.pp-grid.pp-layout-masonry .pp-card-img-wrap {
+    /* Remove fixed aspect ratio so image keeps its natural ratio */
+    aspect-ratio: auto;
+    height: auto;
+}
+
+.pp-grid.pp-layout-masonry .pp-card-img {
+    height: auto;
+    width: 100%;
+}
+
+/* Responsive widths for masonry (match the grid breakpoints) */
+@media (max-width: 1400px) {
+    .pp-grid.pp-layout-masonry .pp-card { width: calc((100% - 24px * 3) / 4); }
+}
+@media (max-width: 1100px) {
+    .pp-grid.pp-layout-masonry .pp-card { width: calc((100% - 24px * 2) / 3); }
+}
+@media (max-width: 800px) {
+    .pp-grid.pp-layout-masonry .pp-card { width: calc((100% - 10px) / 2); margin-bottom: 10px; }
+}
 /* ── Card ── */
 .pp-card {
     background: color-mix(in srgb, var(--pp-text) 5%, var(--pp-bg));
@@ -907,4 +946,145 @@ html, body {
 .pp-end-logout {
     opacity: .4;
     font-size: 11px;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   MASONRY LAYOUT
+   Column width fixe, Masonry calcule N colonnes automatiquement
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Container */
+.pp-grid.pp-layout-masonry {
+    display: block;
+    padding: 0;
+    margin: 16px 20px 120px;
+}
+
+/* Sizers fantômes lus par Masonry.js */
+.pp-grid.pp-layout-masonry .pp-column-sizer {
+}
+.pp-grid.pp-layout-masonry .pp-gutter-sizer {
+    width: 1.2%;
+}
+
+/* Card — 5 colonnes par défaut (> 1400px) */
+.pp-grid.pp-layout-masonry .pp-column-sizer,
+.pp-grid.pp-layout-masonry .pp-card {
+    width: 19.04%;   /* (100 - 4*1) / 5 */
+}
+
+.pp-grid.pp-layout-masonry .pp-card {
+    position: relative;
+    margin-bottom:1.2%;
+    height: auto;
+    background: transparent;
+    border: none;
+    padding: 0;
+    box-shadow: none;
+}
+
+/* Image wrap — garde le ratio naturel de chaque photo */
+.pp-grid.pp-layout-masonry .pp-card-img-wrap {
+    aspect-ratio: auto;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: var(--pp-img-radius, 0px);
+    overflow: hidden;
+    position: relative;
+}
+
+.pp-grid.pp-layout-masonry .pp-card-img {
+    height: auto;
+    width: 100%;
+    display: block;
+}
+
+/* État sélectionné — outline directement sur l'image */
+.pp-grid.pp-layout-masonry .pp-card.pp-selected .pp-card-img-wrap {
+    outline: 3px solid var(--pp-color-active, #2271b1);
+    outline-offset: 0;
+}
+/* Footer — nom de fichier ET bouton check sur la même ligne, en bas */
+.pp-grid.pp-layout-masonry .pp-card-footer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 40px 12px 10px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0) 100%);
+    color: #fff;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    z-index: 2;
+    /* Flex pour aligner nom et bouton sur la même ligne */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.pp-grid.pp-layout-masonry .pp-card:hover .pp-card-footer,
+.pp-grid.pp-layout-masonry .pp-card.pp-selected .pp-card-footer {
+    opacity: 1;
+}
+
+.pp-grid.pp-layout-masonry .pp-card-footer .pp-card-name {
+    color: #fff;
+    font-size: 12px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+    min-width: 0; /* Permet à l'ellipsis de fonctionner dans flex */
+}
+
+/* Bouton de sélection — toujours visible en haut à droite, hors du footer */
+.pp-grid.pp-layout-masonry .pp-select-btn {
+    position: static;       /* Plus absolute, flex prend le relais */
+    flex-shrink: 0;
+    opacity: 1;             /* Toujours visible */
+    transition: transform 0.2s ease;
+}
+.pp-grid.pp-layout-masonry .pp-card:hover .pp-select-btn,
+.pp-grid.pp-layout-masonry .pp-card.pp-selected .pp-select-btn {
+    opacity: 1;
+}
+
+.pp-grid.pp-layout-masonry .pp-select-btn:hover {
+    transform: scale(1.3);
+    background: color-mix(in srgb, var(--pp-text) 5%, var(--pp-active, #2271b1));
+}   
+
+/* 4 colonnes */
+@media (max-width: 1400px) {
+    .pp-grid.pp-layout-masonry .pp-column-sizer,
+    .pp-grid.pp-layout-masonry .pp-card {
+        width: 24.25%;   /* (100 - 3*1) / 4 */
+    }
+}
+
+/* 3 colonnes */
+@media (max-width: 1100px) {
+    .pp-grid.pp-layout-masonry .pp-column-sizer,
+    .pp-grid.pp-layout-masonry .pp-card {
+        width: 32.666%;   /* (100 - 2*1) / 3 */
+    }
+}
+
+/* 2 colonnes */
+@media (max-width: 700px) {
+    .pp-grid.pp-layout-masonry .pp-gutter-sizer {
+        width: 2%;
+    }
+    .pp-grid.pp-layout-masonry .pp-column-sizer,
+    .pp-grid.pp-layout-masonry .pp-card {
+        width: 49%;   /* (100 - 1*2) / 2 */
+    }
+    .pp-grid.pp-layout-masonry .pp-card {
+        margin-bottom: 2%;
+    }
 }

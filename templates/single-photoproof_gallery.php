@@ -124,7 +124,12 @@ if ( has_post_thumbnail( $post->ID ) ) {
 
     <!-- ── GRILLE ── -->
     <?php if ( $query_images->have_posts() ) : ?>
-    <div class="pp-grid" id="pp-grid">
+<?php $pp_layout = get_option( 'photoproof_gallery_layout', 'grid' ); ?>
+    <div class="pp-grid pp-layout-<?php echo esc_attr( $pp_layout ); ?>" id="pp-grid">
+        <?php if ( 'masonry' === $pp_layout ) : ?>
+                <div class="pp-column-sizer" aria-hidden="true"></div>
+                <div class="pp-gutter-sizer" aria-hidden="true"></div>
+        <?php endif; ?>
         <?php while ( $query_images->have_posts() ) : $query_images->the_post();
             $img_id      = get_the_ID();
             $is_reco     = get_post_meta( $img_id, '_photoproof_recommended', true );
