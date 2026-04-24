@@ -41,7 +41,7 @@ photoproof/
 │   └── js/
 │       ├── admin-gallery.js                ← Drag & drop upload + recommendations
 │       ├── admin-settings.js               ← Settings UI
-│       └── vendor/gsap.min.js
+│       └── vendor/anime.min.js
 ├── includes/
 │   ├── class-photoproof-uploader.php       ← Custom upload + AJAX
 │   ├── class-photoproof-renamer.php        ← Deferred renaming on save
