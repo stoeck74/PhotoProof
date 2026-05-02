@@ -28,12 +28,13 @@ class PhotoProof_Public {
         add_action( 'wp_enqueue_scripts', function () {
             global $wp_scripts, $wp_styles;
 
-            foreach ( $wp_scripts->queue as $handle ) {
+foreach ( $wp_scripts->queue as $handle ) {
                 if (
                     strpos( $handle, 'photoproof-' ) === false &&
                     strpos( $handle, 'jquery' ) === false &&
                     strpos( $handle, 'wp-' ) === false &&
-                    $handle !== 'imagesloaded'
+                    $handle !== 'imagesloaded' &&
+                    $handle !== 'masonry'
                 ) {
                     wp_dequeue_script( $handle );
                 }
@@ -55,8 +56,19 @@ class PhotoProof_Public {
         );
 
         // ── ImagesLoaded — WP le bundle nativement dans wp-includes ──
-        // Pas besoin de Masonry — grille CSS Grid pure
         wp_enqueue_script( 'imagesloaded' );
+
+        // ── Masonry (conditionnel selon le layout configuré) ──
+        if ( 'masonry' === get_option( 'photoproof_gallery_layout', 'grid' ) ) {
+            wp_enqueue_script( 'masonry' );
+            wp_enqueue_script(
+                'photoproof-masonry-init',
+                PHOTOPROOF_URL . 'public/js/photoproof-masonry.js',
+                array( 'jquery', 'masonry', 'imagesloaded' ),
+                PHOTOPROOF_VERSION,
+                true
+            );
+        }
 
         // ── JS public ─────────────────────────────────────────────────
         wp_enqueue_script(

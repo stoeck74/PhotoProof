@@ -36,6 +36,12 @@ class PhotoProof_Settings {
         register_setting( 'photoproof_settings_group', 'photoproof_enable_recommendations', array( 'sanitize_callback' => $bool_sanitize ) );
         register_setting( 'photoproof_settings_group', 'photoproof_photo_rounded',          array( 'sanitize_callback' => $bool_sanitize ) );
         register_setting( 'photoproof_settings_group', 'photoproof_delete_files_on_delete', array( 'sanitize_callback' => $bool_sanitize ) );
+       
+        // ── Layout (grid / masonry) ──
+                register_setting( 'photoproof_settings_group', 'photoproof_gallery_layout', array(
+                    'sanitize_callback' => array( $this, 'sanitize_layout' ),
+                    'default'           => 'grid',
+                ) );
 
         // Texte libre
         register_setting( 'photoproof_settings_group', 'photoproof_rename_pattern', array( 'sanitize_callback' => 'sanitize_text_field' ) );
@@ -79,6 +85,13 @@ class PhotoProof_Settings {
         register_setting( 'photoproof_settings_group', 'photoproof_email_photographer_body',    array( 'sanitize_callback' => 'sanitize_textarea_field' ) );
         register_setting( 'photoproof_settings_group', 'photoproof_email_client_subject',       array( 'sanitize_callback' => 'sanitize_text_field' ) );
         register_setting( 'photoproof_settings_group', 'photoproof_email_client_body',          array( 'sanitize_callback' => 'sanitize_textarea_field' ) );
+    }
+    /**
+     * Sanitize callback pour le layout : accepte uniquement 'grid' ou 'masonry'.
+     */
+    public function sanitize_layout( $value ) {
+        $allowed = array( 'grid', 'masonry' );
+        return in_array( $value, $allowed, true ) ? $value : 'grid';
     }
 
     public function render_settings_page() {
@@ -337,7 +350,25 @@ class PhotoProof_Settings {
                                 </div>
 
                                 <hr class="pp-separator">
+<h3><?php esc_html_e( 'Gallery Layout', 'photoproof' ); ?></h3>
+                                <div class="pp-option-row">
+                                    <label class="pp-switch">
+                                        <input type="checkbox" name="photoproof_gallery_layout" id="photoproof_gallery_layout" value="masonry"
+                                            <?php checked( 'masonry', get_option( 'photoproof_gallery_layout', 'grid' ), true ); ?>>
+                                        <span class="pp-slider"></span>
+                                    </label>
+                                    <span class="pp-label-text">
+                                        <?php esc_html_e( 'Masonry layout', 'photoproof' ); ?>
+                                    </span>
+                                </div>
+                                <p class="pp-explanation">
+                                    <?php esc_html_e( 'By default, photos are displayed in a uniform grid (all same height).', 'photoproof' ); ?>
+                                    <br>
+                                    <?php esc_html_e( 'Enable this option for a Pinterest-style masonry layout that preserves each photo\'s original aspect ratio.', 'photoproof' ); ?>
+                                </p>
 
+                                <hr class="pp-separator">
+                                
                                 <h3><?php esc_html_e( 'Photo Format (Client Gallery)', 'photoproof' ); ?></h3>
                                 <div class="pp-option-row">
                                     <label class="pp-switch">
