@@ -1,8 +1,37 @@
 /**
- * PhotoProof — photoproof-public.css
- * Hero header + 5 colonnes, cards aérées, object-fit: contain
+ * PhotoProof — Public stylesheet
+ * Standalone client gallery — fully isolated from theme
+ *
+ * ┌─────────────────────────────────────────────────┐
+ * │ TABLE OF CONTENTS                                │
+ * ├─────────────────────────────────────────────────┤
+ * │ 1.  Reset & base                                 │
+ * │ 2.  Hero header                                  │
+ * │ 3.  Photo grid — default (5 cols)                │
+ * │ 4.  Photo card                                   │
+ * │     4.1  Card container                          │
+ * │     4.2  Image wrap & image                      │
+ * │     4.3  Reco badge                              │
+ * │     4.4  Footer (filename + buttons)             │
+ * │     4.5  Select button                           │
+ * │     4.6  Comment button                          │
+ * │ 5.  Card flip 3D — comment editor                │
+ * │ 6.  States (locked, dimmed, empty)               │
+ * │ 7.  Selection bar (sticky bottom)                │
+ * │ 8.  Confirm modal                                │
+ * │ 9.  Lightbox                                     │
+ * │ 10. Tray — visual cart                           │
+ * │ 11. Recap view (in-flow grid)                    │
+ * │ 12. Recap bar (expanded footer)                  │
+ * │ 13. End-of-selection modal                       │
+ * │ 14. Masonry layout                               │
+ * │ 15. Responsive breakpoints                       │
+ * └─────────────────────────────────────────────────┘
  */
 
+/* ═══════════════════════════════════════════════════════════════
+   1. RESET & BASE
+   ═══════════════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; }
 
 html, body {
@@ -15,9 +44,10 @@ html, body {
 
 .pp-page { width: 100%; min-height: 100vh; }
 
-/* ============================================================
-   HERO HEADER
-   ============================================================ */
+
+/* ═══════════════════════════════════════════════════════════════
+   2. HERO HEADER
+   ═══════════════════════════════════════════════════════════════ */
 .pp-hero {
     position: relative;
     width: 100%;
@@ -115,9 +145,10 @@ html, body {
     line-height: 1.7;
 }
 
-/* ============================================================
-   GRILLE 5 COLONNES
-   ============================================================ */
+
+/* ═══════════════════════════════════════════════════════════════
+   3. PHOTO GRID — default layout (5 cols, CSS Grid)
+   ═══════════════════════════════════════════════════════════════ */
 .pp-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -125,7 +156,12 @@ html, body {
     padding: 16px 20px 120px;
 }
 
-/* ── Card ── */
+
+/* ═══════════════════════════════════════════════════════════════
+   4. PHOTO CARD
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── 4.1 Card container ─────────────────────────────────────── */
 .pp-card {
     background: color-mix(in srgb, var(--pp-text) 5%, var(--pp-bg));
     border: 2px solid transparent;
@@ -134,6 +170,7 @@ html, body {
     display: flex;
     flex-direction: column;
     transition: border-color .3s, background .3s;
+    perspective: 1200px; /* enables 3D flip for comment editor */
 }
 
 .pp-card:hover {
@@ -144,7 +181,7 @@ html, body {
     filter: brightness(1.08);
 }
 
-/* ── Card sélectionnée — couleurs inversées ── */
+/* Card sélectionnée — couleurs inversées */
 .pp-card.pp-selected {
     border-color: var(--pp-active, #2271b1);
     background: var(--pp-active, #2271b1);
@@ -164,7 +201,7 @@ html, body {
     background: color-mix(in srgb, var(--pp-active) 80%, transparent);
 }
 
-/* ── Zone image ── */
+/* ── 4.2 Image wrap & image ─────────────────────────────────── */
 .pp-card-img-wrap {
     width: 100%;
     aspect-ratio: 5 / 4;
@@ -190,7 +227,7 @@ html, body {
     cursor: pointer;
 }
 
-/* Badge recommandation */
+/* ── 4.3 Reco badge ─────────────────────────────────────────── */
 .pp-reco-badge {
     position: absolute; top: 0; left: 0;
     padding: 8px 10px 10px 8px;
@@ -202,7 +239,7 @@ html, body {
     background: color-mix(in srgb, var(--pp-text) 6%, var(--pp-bg));
 }
 
-/* ── Footer card ── */
+/* ── 4.4 Footer (filename + buttons) ────────────────────────── */
 .pp-card-footer {
     display: flex;
     align-items: center;
@@ -215,7 +252,7 @@ html, body {
 .pp-card-name {
     font-size: 13px;
     color: var(--pp-text);
-    opacity: .7;
+    opacity: 1;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -223,11 +260,11 @@ html, body {
     letter-spacing: .03em;
 }
 
-/* ── Bouton sélection ── */
+/* ── 4.5 Select button ──────────────────────────────────────── */
 .pp-select-btn {
     width: 22px; height: 22px;
     border-radius: 50%;
-    border: 1.5px solid color-mix(in srgb, var(--pp-text) 40%, transparent);
+    border: 2px solid #fff;
     background: transparent;
     flex-shrink: 0;
     display: flex;
@@ -238,6 +275,7 @@ html, body {
     position: relative;
     z-index: 2;
     transition: background .15s, border-color .15s;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
 }
 
 .pp-check-dot {
@@ -249,7 +287,7 @@ html, body {
     pointer-events: none;
 }
 
-/* Bouton inversé sur card sélectionnée */
+/* Selected — inverted */
 .pp-card.pp-selected .pp-select-btn {
     background: var(--pp-bg, #f5f4f2);
     border-color: var(--pp-bg, #f5f4f2);
@@ -259,8 +297,199 @@ html, body {
     opacity: 1;
 }
 
-/* ── États ── */
-.pp-photo-dimmed { opacity: 0.2; pointer-events: none; }
+/* ── 4.6 Comment button (SVG bubble icon) ───────────────────── */
+.pp-comment-btn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1px;
+    flex-shrink: 0;
+    line-height: 0;
+}
+
+.pp-comment-btn svg {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: #fff;
+    transition: fill 0.2s ease, stroke 0.2s ease, transform 0.2s ease;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+}
+
+/* Hover — filled white */
+.pp-comment-btn:hover svg {
+    fill: #fff;
+    transform: scale(1.1);
+}
+
+/* Has comment — filled with active color */
+.pp-comment-btn.pp-has-comment svg {
+    fill: var(--pp-active);
+    stroke: var(--pp-active);
+}
+
+/* On selected card — adapt to inverted theme (text → bg) */
+.pp-card.pp-selected .pp-comment-btn svg {
+    stroke: var(--pp-bg);
+}
+.pp-card.pp-selected .pp-comment-btn:hover svg {
+    fill: var(--pp-bg);
+}
+.pp-card.pp-selected .pp-comment-btn.pp-has-comment svg {
+    fill: var(--pp-bg);
+    stroke: var(--pp-bg);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   5. CARD FLIP 3D — comment editor on the back
+   ═══════════════════════════════════════════════════════════════ */
+.pp-card-flipper {
+    position: relative;
+    width: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Front in flow — gives the flipper its height */
+.pp-card-front {
+    position: relative;
+    width: 100%;
+    z-index: 2;
+}
+
+.pp-card-front .pp-card-img-wrap {
+    width: 100%;
+    height: 100%;
+}
+
+/* Back absolute, sized like the front */
+.pp-card-back {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transform: rotateY(180deg);
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: stretch;
+    justify-content: stretch;
+}
+
+/* Both faces hide their back */
+.pp-card-front,
+.pp-card-back {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: var(--pp-img-radius, 0px);
+    overflow: hidden;
+}
+
+.pp-card-back-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 1;
+}
+
+.pp-card-back-content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    color: #fff;
+}
+
+.pp-back-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.7;
+    font-weight: 600;
+}
+
+.pp-card-comment-input {
+    flex: 1;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    padding: 10px;
+    color: #fff;
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1.5;
+    resize: none;
+    min-height: 80px;
+}
+
+.pp-card-comment-input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.pp-card-comment-input:focus {
+    outline: none;
+    border-color: var(--pp-active, #2271b1);
+    background: rgba(0, 0, 0, 0.55);
+}
+
+.pp-back-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.pp-back-counter {
+    font-size: 11px;
+    opacity: 0.6;
+}
+
+.pp-back-done {
+    background: var(--pp-active, #2271b1);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.pp-back-done:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
+
+/* Flipped state — when card is being edited */
+.pp-card.pp-flipped {
+    z-index: 100;
+}
+
+.pp-card.pp-flipped .pp-card-flipper {
+    transform: rotateY(180deg);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   6. STATES (locked, dimmed, empty)
+   ═══════════════════════════════════════════════════════════════ */
+.pp-photo-dimmed {
+    opacity: 0.2;
+    pointer-events: none;
+}
 
 .pp-locked-banner {
     display: flex; align-items: center; gap: 10px;
@@ -269,11 +498,18 @@ html, body {
     border-radius: 10px; font-size: 13px; color: #166534;
 }
 .pp-locked-icon { font-size: 14px; color: #22c55e; flex-shrink: 0; }
-.pp-empty { padding: 80px 24px; text-align: center; font-size: 14px; opacity: .4; }
 
-/* ============================================================
-   BARRE DE SÉLECTION
-   ============================================================ */
+.pp-empty {
+    padding: 80px 24px;
+    text-align: center;
+    font-size: 14px;
+    opacity: .4;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   7. SELECTION BAR (sticky bottom)
+   ═══════════════════════════════════════════════════════════════ */
 .pp-selection-bar {
     position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
     background: var(--pp-bg, #f5f4f2);
@@ -284,6 +520,10 @@ html, body {
     padding-bottom: env(safe-area-inset-bottom);
 }
 .pp-selection-bar.pp-bar-visible { transform: translateY(0); }
+.pp-selection-bar.pp-bar-hidden {
+    transform: translateY(100%) !important;
+    pointer-events: none;
+}
 
 .pp-bar-inner {
     padding: 24px;
@@ -291,7 +531,14 @@ html, body {
 }
 
 .pp-bar-info { font-size: 16px; opacity: .7; white-space: nowrap; }
-.pp-bar-info strong { font-size: 26px; font-weight: 500; opacity: 1; margin-right: 6px; line-height: 1; color: var(--pp-text); }
+.pp-bar-info strong {
+    font-size: 26px;
+    font-weight: 500;
+    opacity: 1;
+    margin-right: 6px;
+    line-height: 1;
+    color: var(--pp-text);
+}
 .pp-bar-right { display: flex; align-items: center; gap: 14px; }
 .pp-save-status { font-size: 14px; opacity: 1; letter-spacing: .04em; display: none; }
 
@@ -302,12 +549,23 @@ html, body {
     transition: opacity .2s, transform .15s;
 }
 .pp-btn-validate:active { transform: scale(.98); }
-.pp-btn-validate:disabled { background: rgba(0,0,0,.1); color: rgba(255,255,255,0.3); cursor: default; transform: none; opacity: 1; }
-.pp-btn-validate.pp-btn-confirmed { background: #22c55e; cursor: default; transform: none; }
+.pp-btn-validate:disabled {
+    background: rgba(0,0,0,.1);
+    color: rgba(255,255,255,0.3);
+    cursor: default;
+    transform: none;
+    opacity: 1;
+}
+.pp-btn-validate.pp-btn-confirmed {
+    background: #22c55e;
+    cursor: default;
+    transform: none;
+}
 
-/* ============================================================
-   MODAL
-   ============================================================ */
+
+/* ═══════════════════════════════════════════════════════════════
+   8. CONFIRM MODAL
+   ═══════════════════════════════════════════════════════════════ */
 .pp-confirm-overlay {
     position: fixed; inset: 0; z-index: 500;
     background: rgba(0,0,0,.5);
@@ -320,18 +578,46 @@ html, body {
     max-width: 400px; width: 100%;
     border-top: 3px solid var(--pp-active, #2271b1);
 }
-.pp-confirm-eyebrow { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--pp-active, #2271b1); margin-bottom: 14px; }
-.pp-confirm-box h2 { font-size: 22px; font-weight: 300; color: var(--pp-text); margin: 0 0 10px; }
-.pp-confirm-box p { font-size: 13px; color: var(--pp-text); opacity: .55; line-height: 1.7; margin: 0 0 28px; }
+.pp-confirm-eyebrow {
+    font-size: 9px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--pp-active, #2271b1);
+    margin-bottom: 14px;
+}
+.pp-confirm-box h2 {
+    font-size: 22px;
+    font-weight: 300;
+    color: var(--pp-text);
+    margin: 0 0 10px;
+}
+.pp-confirm-box p {
+    font-size: 13px;
+    color: var(--pp-text);
+    opacity: .55;
+    line-height: 1.7;
+    margin: 0 0 28px;
+}
 .pp-confirm-actions { display: flex; gap: 10px; justify-content: flex-end; }
-.pp-btn-cancel { font-size: 12px; padding: 9px 18px; border-radius: 8px; border: 1px solid rgba(0,0,0,.12); background: transparent; color: var(--pp-text); opacity: .6; cursor: pointer; transition: opacity .2s; }
+.pp-btn-cancel {
+    font-size: 12px; padding: 9px 18px; border-radius: 8px;
+    border: 1px solid rgba(0,0,0,.12);
+    background: transparent; color: var(--pp-text);
+    opacity: .6; cursor: pointer; transition: opacity .2s;
+}
 .pp-btn-cancel:hover { opacity: 1; }
-.pp-btn-confirm { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; padding: 9px 24px; border-radius: 8px; border: none; background: var(--pp-active, #2271b1); color: #fff; cursor: pointer; transition: opacity .2s; }
+.pp-btn-confirm {
+    font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+    padding: 9px 24px; border-radius: 8px; border: none;
+    background: var(--pp-active, #2271b1); color: #fff;
+    cursor: pointer; transition: opacity .2s;
+}
 .pp-btn-confirm:hover { opacity: .88; }
 
-/* ============================================================
-   LIGHTBOX
-   ============================================================ */
+
+/* ═══════════════════════════════════════════════════════════════
+   9. LIGHTBOX
+   ═══════════════════════════════════════════════════════════════ */
 .pp-lightbox {
     position: fixed; inset: 0; z-index: 1000;
     background: rgba(0,0,0,.95);
@@ -341,7 +627,11 @@ html, body {
     flex: 1; display: flex; align-items: center; justify-content: center;
     padding: 60px 80px 20px; width: 100%; min-height: 0;
 }
-.pp-lb-img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; user-select: none; }
+.pp-lb-img {
+    max-width: 100%; max-height: 100%;
+    object-fit: contain; display: block;
+    user-select: none;
+}
 
 .pp-lb-close, .pp-lb-prev, .pp-lb-next {
     position: absolute; background: transparent; border: none;
@@ -349,7 +639,10 @@ html, body {
     transition: color .2s;
 }
 .pp-lb-close { top: 20px; right: 24px; font-size: 32px; font-weight: 300; }
-.pp-lb-prev, .pp-lb-next { top: 50%; transform: translateY(-50%); font-size: 52px; font-weight: 200; padding: 0 20px; }
+.pp-lb-prev, .pp-lb-next {
+    top: 50%; transform: translateY(-50%);
+    font-size: 52px; font-weight: 200; padding: 0 20px;
+}
 .pp-lb-prev { left: 0; }
 .pp-lb-next { right: 0; }
 .pp-lb-close:hover, .pp-lb-prev:hover, .pp-lb-next:hover { color: #fff; }
@@ -359,35 +652,33 @@ html, body {
     display: flex; align-items: center; justify-content: space-between;
     border-top: 1px solid rgba(255,255,255,.07);
 }
-#pp-lb-counter { font-size: 12px; color: rgba(255,255,255,.3); letter-spacing: .08em; }
-.pp-lb-select { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; padding: 9px 22px; border-radius: 7px; border: 1px solid rgba(255,255,255,.2); background: transparent; color: rgba(255,255,255,.6); cursor: pointer; transition: all .2s; }
-.pp-lb-select:hover { background: rgba(255,255,255,.08); color: #fff; border-color: rgba(255,255,255,.4); }
-.pp-lb-select.pp-lb-selected { background: var(--pp-active, #2271b1); border-color: var(--pp-active, #2271b1); color: #fff; }
-
-/* ============================================================
-   RESPONSIVE
-   ============================================================ */
-@media (max-width: 1400px) {
-    .pp-grid { grid-template-columns: repeat(4, 1fr); }
+#pp-lb-counter {
+    font-size: 12px;
+    color: rgba(255,255,255,.3);
+    letter-spacing: .08em;
 }
-@media (max-width: 1024px) {
-    .pp-grid { grid-template-columns: repeat(3, 1fr); }
-    .pp-hero { height: 40vh; }
-    .pp-gallery-title { font-size: 28px; }
+.pp-lb-select {
+    font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+    padding: 9px 22px; border-radius: 7px;
+    border: 1px solid rgba(255,255,255,.2);
+    background: transparent; color: rgba(255,255,255,.6);
+    cursor: pointer; transition: all .2s;
 }
-@media (max-width: 700px) {
-    .pp-hero { height: 35vh; min-height: 220px; }
-    .pp-hero-content { padding: 0 16px 24px; }
-    .pp-gallery-title { font-size: 22px; }
-    .pp-hero-right { display: none; }
-    .pp-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 10px 12px 100px; }
-    .pp-lb-img-wrap { padding: 50px 40px 16px; }
-    .pp-confirm-box { padding: 28px 24px; }
+.pp-lb-select:hover {
+    background: rgba(255,255,255,.08);
+    color: #fff;
+    border-color: rgba(255,255,255,.4);
+}
+.pp-lb-select.pp-lb-selected {
+    background: var(--pp-active, #2271b1);
+    border-color: var(--pp-active, #2271b1);
+    color: #fff;
 }
 
-/* ============================================================
-   TRAY — PANIER VISUEL (chargé uniquement si animations activées)
-   ============================================================ */
+
+/* ═══════════════════════════════════════════════════════════════
+   10. TRAY — visual cart (loaded only if animations enabled)
+   ═══════════════════════════════════════════════════════════════ */
 .pp-tray {
     display: flex;
     align-items: center;
@@ -469,23 +760,15 @@ html, body {
 }
 
 
-/* ============================================================
-   RÉCAP — vue dans le flow (remplace la grille)
-   ============================================================ */
-
-/* Barre sticky cachée pendant le récap */
-.pp-selection-bar.pp-bar-hidden {
-    transform: translateY(100%) !important;
-    pointer-events: none;
-}
-
+/* ═══════════════════════════════════════════════════════════════
+   11. RECAP VIEW — in-flow grid (replaces gallery grid)
+   ═══════════════════════════════════════════════════════════════ */
 .pp-recap-view {
     display: none;
     min-height: 100vh;
     background: var(--pp-bg);
 }
 
-/* Header récap — fort, pleine largeur */
 .pp-recap-header {
     display: flex;
     align-items: center;
@@ -543,7 +826,6 @@ html, body {
 }
 .pp-btn-recap-confirm-top:hover { opacity: .88; }
 
-/* Grille récap */
 .pp-recap-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -598,15 +880,10 @@ html, body {
     text-overflow: ellipsis;
 }
 
-@media (max-width: 1400px) { .pp-recap-grid { grid-template-columns: repeat(4, 1fr); } }
-@media (max-width: 1024px) { .pp-recap-grid { grid-template-columns: repeat(3, 1fr); } }
-@media (max-width: 700px)  { .pp-recap-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 0 12px 60px; } }
 
-/* ============================================================
-   RÉCAP ANIMÉ — footer expanded
-   ============================================================ */
-
-/* Footer en mode expanded — position fixed gérée par GSAP */
+/* ═══════════════════════════════════════════════════════════════
+   12. RECAP BAR — expanded footer animation
+   ═══════════════════════════════════════════════════════════════ */
 #pp-selection-bar.pp-recap-expanded {
     overflow-y: auto;
 }
@@ -615,138 +892,19 @@ html, body {
     display: flex;
     flex-direction: column;
     height: 100%;
-    padding: 0;
+    overflow: hidden;
 }
 
-/* Header sticky en haut du récap */
 .pp-recap-bar-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 24px 28px;
+    padding: 20px 28px 16px;
     border-bottom: 1px solid rgba(0,0,0,.08);
     flex-shrink: 0;
     gap: 20px;
 }
 
-.pp-recap-eyebrow {
-    font-size: 9px;
-    letter-spacing: .2em;
-    text-transform: uppercase;
-    color: var(--pp-active, #2271b1);
-    margin: 0 0 4px;
-}
-
-.pp-recap-title {
-    font-size: 20px;
-    font-weight: 300;
-    color: var(--pp-text);
-    margin: 0;
-    letter-spacing: -.01em;
-}
-
-.pp-btn-recap-back {
-    font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
-    padding: 10px 18px; border-radius: 8px;
-    border: 1px solid rgba(0,0,0,.12); background: transparent;
-    color: var(--pp-text); opacity: .6; cursor: pointer;
-    white-space: nowrap; flex-shrink: 0;
-    transition: opacity .2s;
-}
-.pp-btn-recap-back:hover { opacity: 1; }
-
-.pp-btn-recap-confirm {
-    font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
-    padding: 12px 28px; border-radius: 8px; border: none;
-    background: var(--pp-active, #2271b1); color: #fff;
-    cursor: pointer; white-space: nowrap; flex-shrink: 0;
-    transition: opacity .2s;
-}
-.pp-btn-recap-confirm:hover { opacity: .88; }
-
-/* Grille photos */
-.pp-recap-bar-grid {
-    flex: 1;
-    overflow-y: auto;
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 16px;
-    padding: 24px 28px;
-    align-content: start;
-}
-
-.pp-recap-bar-item {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.pp-recap-bar-img-wrap {
-    position: relative;
-    aspect-ratio: 4 / 3;
-    overflow: hidden;
-    border-radius: var(--pp-img-radius, 0px);
-    background: color-mix(in srgb, var(--pp-text) 6%, var(--pp-bg));
-}
-
-.pp-recap-bar-img {
-    width: 100%; height: 100%;
-    object-fit: cover; display: block;
-}
-
-.pp-recap-bar-remove {
-    position: absolute; top: 6px; right: 6px;
-    width: 26px; height: 26px; border-radius: 50%;
-    background: rgba(0,0,0,.55); color: #fff;
-    border: none; font-size: 14px; line-height: 1;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    padding: 0; opacity: 0; transition: opacity .15s;
-    backdrop-filter: blur(4px);
-}
-.pp-recap-bar-img-wrap:hover .pp-recap-bar-remove { opacity: 1; }
-
-.pp-recap-bar-name {
-    font-size: 10px; color: var(--pp-text); opacity: .4;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-
-@media (max-width: 1400px) { .pp-recap-bar-grid { grid-template-columns: repeat(4, 1fr); } }
-@media (max-width: 1024px) { .pp-recap-bar-grid { grid-template-columns: repeat(3, 1fr); } }
-@media (max-width: 700px)  { .pp-recap-bar-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 16px; } }
-
-/* ============================================================
-   RÉCAP ANIMÉ — footer expanded
-   ============================================================ */
-.pp-recap-content {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    overflow: hidden;
-}
-
-.pp-recap-bar-header {
-    padding: 20px 28px 16px;
-    border-bottom: 1px solid rgba(0,0,0,.08);
-    flex-shrink: 0;
-}
-
-.pp-recap-eyebrow {
-    font-size: 9px;
-    letter-spacing: .2em;
-    text-transform: uppercase;
-    color: var(--pp-active, #2271b1);
-    margin: 0 0 4px;
-}
-
-.pp-recap-title {
-    font-size: 20px;
-    font-weight: 300;
-    color: var(--pp-text);
-    margin: 0;
-    letter-spacing: -.01em;
-}
-
-/* Grille photos — 4 colonnes */
 .pp-recap-bar-grid {
     flex: 1;
     overflow-y: auto;
@@ -779,22 +937,33 @@ html, body {
 }
 
 .pp-recap-bar-remove {
-    position: absolute; top: 6px; right: 6px;
-    width: 26px; height: 26px; border-radius: 50%;
-    background: rgba(0,0,0,.55); color: #fff;
-    border: none; font-size: 14px; line-height: 1;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    padding: 0; opacity: 0; transition: opacity .15s;
+    position: absolute;
+    top: 6px; right: 6px;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: rgba(0,0,0,.55);
+    color: #fff;
+    border: none;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0;
+    opacity: 0;
+    transition: opacity .15s;
     backdrop-filter: blur(4px);
 }
 .pp-recap-bar-img-wrap:hover .pp-recap-bar-remove { opacity: 1; }
 
 .pp-recap-bar-name {
-    font-size: 10px; color: var(--pp-text); opacity: .4;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font-size: 10px;
+    color: var(--pp-text);
+    opacity: .4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-/* Footer récap — boutons ensemble en bas */
 .pp-recap-bar-footer {
     display: flex;
     align-items: center;
@@ -822,12 +991,10 @@ html, body {
 }
 .pp-btn-recap-confirm:hover { opacity: .88; }
 
-@media (max-width: 1024px) { .pp-recap-bar-grid { grid-template-columns: repeat(3, 1fr); } }
-@media (max-width: 700px)  { .pp-recap-bar-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 16px; } }
 
-/* ============================================================
-   MODAL DE FIN — confirmation sélection
-   ============================================================ */
+/* ═══════════════════════════════════════════════════════════════
+   13. END-OF-SELECTION MODAL
+   ═══════════════════════════════════════════════════════════════ */
 .pp-end-overlay {
     position: fixed;
     inset: 0;
@@ -909,30 +1076,29 @@ html, body {
     font-size: 11px;
 }
 
+
 /* ═══════════════════════════════════════════════════════════════
-   MASONRY LAYOUT
+   14. MASONRY LAYOUT
    Activated when #pp-grid has the .pp-layout-masonry class.
    Uses Masonry.js with column-sizer + gutter-sizer pattern.
    ═══════════════════════════════════════════════════════════════ */
 
-/* Container */
+/* ── Container ──────────────────────────────────────────────── */
 .pp-grid.pp-layout-masonry {
     display: block;
     padding: 0;
     margin: 16px 20px 120px;
 }
 
-/* Sizers fantômes lus par Masonry.js */
-.pp-grid.pp-layout-masonry .pp-column-sizer {
-}
+/* ── Sizers (read by Masonry.js) ────────────────────────────── */
 .pp-grid.pp-layout-masonry .pp-gutter-sizer {
     width: 1.2%;
 }
 
-/* Card — 5 colonnes par défaut (> 1400px) */
+/* ── Card width — 5 cols default ────────────────────────────── */
 .pp-grid.pp-layout-masonry .pp-column-sizer,
 .pp-grid.pp-layout-masonry .pp-card {
-    width: 19.04%;   /* (100 - 4*1) / 5 */
+    width: 19.04%;   /* (100 - 4*1.2) / 5 */
 }
 
 .pp-grid.pp-layout-masonry .pp-card {
@@ -945,7 +1111,7 @@ html, body {
     box-shadow: none;
 }
 
-/* Image wrap — garde le ratio naturel de chaque photo */
+/* ── Image — natural aspect ratio ───────────────────────────── */
 .pp-grid.pp-layout-masonry .pp-card-img-wrap {
     aspect-ratio: auto;
     height: auto;
@@ -963,13 +1129,13 @@ html, body {
     display: block;
 }
 
-/* État sélectionné — outline directement sur l'image */
+/* ── Selected — outline directly on image ──────────────────── */
 .pp-grid.pp-layout-masonry .pp-card.pp-selected .pp-card-img-wrap {
     outline: 3px solid var(--pp-active, #2271b1);
     outline-offset: 0;
 }
 
-/* Footer — nom de fichier ET bouton check sur la même ligne, en bas */
+/* ── Footer — absolute, appears on hover ────────────────────── */
 .pp-grid.pp-layout-masonry .pp-card-footer {
     position: absolute;
     left: 0;
@@ -1003,47 +1169,49 @@ html, body {
     min-width: 0;
 }
 
-/* Card sélectionnée en mode masonry — bouton plein blanc */
-.pp-grid.pp-layout-masonry .pp-card.pp-selected .pp-select-btn {
-    background: #fff;
-    border-color: #fff;
-}
-.pp-grid.pp-layout-masonry .pp-card.pp-selected .pp-check-dot {
-    background: var(--pp-active, #2271b1);
-    opacity: 1;
-}
-
-.pp-grid.pp-layout-masonry .pp-card:hover .pp-select-btn,
-.pp-grid.pp-layout-masonry .pp-card.pp-selected .pp-select-btn {
-    opacity: 1;
-}
-
-/* Bouton de sélection en mode masonry — état par défaut visible
-   (sur fond sombre du gradient footer, donc bordure blanche) */
+/* ── Select button — base + hover + selected ───────────────── */
 .pp-grid.pp-layout-masonry .pp-select-btn {
     position: static;
     flex-shrink: 0;
     opacity: 1;
-    transition: transform 0.2s ease, background 0.2s ease;
-    border: 1.5px solid rgba(255, 255, 255, 0.4);
+    transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+    border: 2px solid rgba(255, 255, 255, 1);
     background: rgba(0, 0, 0, 0.15);
 }
 
 .pp-grid.pp-layout-masonry .pp-select-btn:hover {
     transform: scale(1.3);
     background: color-mix(in srgb, var(--pp-text) 5%, var(--pp-active, #2271b1));
+    border-color: var(--pp-active, #2271b1);
 }
 
-/* 4 colonnes */
-/* 4 colonnes */
+.pp-grid.pp-layout-masonry .pp-card.pp-selected .pp-select-btn {
+    background: #fff;
+    border: 1.5px solid #fff;
+}
+
+.pp-grid.pp-layout-masonry .pp-card.pp-selected .pp-check-dot {
+    background: var(--pp-active, #2271b1);
+    opacity: 1;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   15. RESPONSIVE BREAKPOINTS
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── 1400px : 4 cols ─────────────────────────────────────────── */
 @media (max-width: 1400px) {
+    .pp-grid { grid-template-columns: repeat(4, 1fr); }
+    .pp-recap-grid { grid-template-columns: repeat(4, 1fr); }
+
     .pp-grid.pp-layout-masonry .pp-column-sizer,
     .pp-grid.pp-layout-masonry .pp-card {
         width: 24.1%;   /* (100 - 3*1.2) / 4 */
     }
 }
 
-/* 3 colonnes */
+/* ── 1100px : masonry passe à 3 cols ─────────────────────────── */
 @media (max-width: 1100px) {
     .pp-grid.pp-layout-masonry .pp-column-sizer,
     .pp-grid.pp-layout-masonry .pp-card {
@@ -1051,9 +1219,38 @@ html, body {
     }
 }
 
+/* ── 1024px : grilles classiques passent à 3 cols ────────────── */
+@media (max-width: 1024px) {
+    .pp-grid { grid-template-columns: repeat(3, 1fr); }
+    .pp-recap-grid { grid-template-columns: repeat(3, 1fr); }
+    .pp-recap-bar-grid { grid-template-columns: repeat(3, 1fr); }
+    .pp-hero { height: 40vh; }
+    .pp-gallery-title { font-size: 28px; }
+}
 
-/* 2 colonnes */
+/* ── 700px : 2 cols partout, ajustements mobile ──────────────── */
 @media (max-width: 700px) {
+    .pp-hero { height: 35vh; min-height: 220px; }
+    .pp-hero-content { padding: 0 16px 24px; }
+    .pp-gallery-title { font-size: 22px; }
+    .pp-hero-right { display: none; }
+
+    .pp-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        padding: 10px 12px 100px;
+    }
+    .pp-recap-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        padding: 0 12px 60px;
+    }
+    .pp-recap-bar-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        padding: 16px;
+    }
+
     .pp-grid.pp-layout-masonry .pp-gutter-sizer {
         width: 2%;
     }
@@ -1064,4 +1261,7 @@ html, body {
     .pp-grid.pp-layout-masonry .pp-card {
         margin-bottom: 2%;
     }
+
+    .pp-lb-img-wrap { padding: 50px 40px 16px; }
+    .pp-confirm-box { padding: 28px 24px; }
 }

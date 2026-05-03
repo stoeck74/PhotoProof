@@ -127,6 +127,8 @@ if ( has_post_thumbnail( $post->ID ) ) {
     <?php
         // Watermark actif pour CETTE galerie ? (lu une seule fois avant la boucle)
         $watermark_active = PhotoProof_Watermark::is_watermark_active_for_gallery( $post->ID );
+         $comments_enabled = (bool) get_option( 'photoproof_enable_comments' );
+
     ?>
 <?php $pp_layout = get_option( 'photoproof_gallery_layout', 'grid' ); ?>
     <div class="pp-grid pp-layout-<?php echo esc_attr( $pp_layout ); ?>" id="pp-grid">
@@ -149,36 +151,82 @@ if ( has_post_thumbnail( $post->ID ) ) {
             $img_title     = get_the_title();
             $filename      = get_post_meta( $img_id, '_photoproof_target_filename', true ) ?: basename( get_attached_file( $img_id ) );
             ?>
+
+
+<?php
+                $existing_comment = $comments_enabled
+                    ? trim( (string) get_post_meta( $img_id, '_photoproof_comment', true ) )
+                    : '';
+            ?>
             <div class="pp-card <?php echo esc_attr( $is_selected ? 'pp-selected' : '' ); ?>"
                  data-id="<?php echo esc_attr( $img_id ); ?>">
 
-                <div class="pp-card-img-wrap"
-                     data-full="<?php echo esc_url( $img_full ); ?>">
-                    <img
-                        class="pp-card-img"
-                        src="<?php echo esc_url( $img_src ); ?>"
-                        <?php if ( $img_srcset ) : ?>
-                        srcset="<?php echo esc_attr( $img_srcset ); ?>"
-                        sizes="20vw"
-                        <?php endif; ?>
-                        alt="<?php echo esc_attr( $img_title ); ?>"
-                        loading="lazy"
-                        decoding="async">
+                <div class="pp-card-flipper">
 
-                    <?php if ( $reco_enabled && $is_reco ) : ?>
-                        <div class="pp-reco-badge"><?php echo esc_html( $icon ); ?></div>
+                    <!-- ─── RECTO ─── -->
+                    <div class="pp-card-front">
+                        <div class="pp-card-img-wrap"
+                             data-full="<?php echo esc_url( $img_full ); ?>">
+                            <img
+                                class="pp-card-img"
+                                src="<?php echo esc_url( $img_src ); ?>"
+                                <?php if ( $img_srcset ) : ?>
+                                srcset="<?php echo esc_attr( $img_srcset ); ?>"
+                                sizes="20vw"
+                                <?php endif; ?>
+                                alt="<?php echo esc_attr( $img_title ); ?>"
+                                loading="lazy"
+                                decoding="async">
+
+                            <?php if ( $reco_enabled && $is_reco ) : ?>
+                                <div class="pp-reco-badge"><?php echo esc_html( $icon ); ?></div>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="pp-card-footer">
+                            <span class="pp-card-name"><?php echo esc_html( $filename ); ?></span>
+
+<?php if ( $comments_enabled ) : ?>
+                                <button class="pp-comment-btn <?php echo $existing_comment ? 'pp-has-comment' : ''; ?>" type="button"
+                                    data-id="<?php echo esc_attr( $img_id ); ?>"
+                                    aria-label="<?php esc_attr_e( 'Add a comment', 'photoproof' ); ?>">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
+                            <?php endif; ?>
+
+                            <button class="pp-select-btn" type="button"
+                                data-id="<?php echo esc_attr( $img_id ); ?>"
+                                aria-pressed="<?php echo esc_attr( $is_selected ? 'true' : 'false' ); ?>"
+                                aria-label="<?php esc_attr_e( 'Select this photo', 'photoproof' ); ?>">
+                                <span class="pp-check-dot"></span>
+                            </button>
+                        </div>
+                    </div><!-- /.pp-card-front -->
+
+                    <!-- ─── VERSO (éditeur de commentaire) ─── -->
+                    <?php if ( $comments_enabled ) : ?>
+                    <div class="pp-card-back" style="background-image: url('<?php echo esc_url( $img_src ); ?>');">
+                        <div class="pp-card-back-overlay"></div>
+                        <div class="pp-card-back-content">
+                            <label class="pp-back-label"><?php esc_html_e( 'Your note', 'photoproof' ); ?></label>
+                            <textarea
+                                class="pp-card-comment-input"
+                                data-id="<?php echo esc_attr( $img_id ); ?>"
+                                maxlength="500"
+                                rows="5"
+                                placeholder="<?php esc_attr_e( 'Anything to add about this photo?', 'photoproof' ); ?>"
+                            ><?php echo esc_textarea( $existing_comment ); ?></textarea>
+                            <div class="pp-back-footer">
+                                <span class="pp-back-counter"><?php echo strlen( $existing_comment ); ?>/500</span>
+                                <button type="button" class="pp-back-done"><?php esc_html_e( 'Done', 'photoproof' ); ?></button>
+                            </div>
+                        </div>
+                    </div>
                     <?php endif; ?>
-                </div>
 
-                <div class="pp-card-footer">
-                    <span class="pp-card-name"><?php echo esc_html( $filename ); ?></span>
-                    <button class="pp-select-btn" type="button"
-                        data-id="<?php echo esc_attr( $img_id ); ?>"
-                        aria-pressed="<?php echo esc_attr( $is_selected ? 'true' : 'false' ); ?>"
-                        aria-label="<?php esc_attr_e( 'Select this photo', 'photoproof' ); ?>">
-                        <span class="pp-check-dot"></span>
-                    </button>
-                </div>
+                </div><!-- /.pp-card-flipper -->
 
             </div>
         <?php endwhile; wp_reset_postdata(); ?>

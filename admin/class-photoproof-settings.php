@@ -36,7 +36,8 @@ class PhotoProof_Settings {
         register_setting( 'photoproof_settings_group', 'photoproof_enable_recommendations', array( 'sanitize_callback' => $bool_sanitize ) );
         register_setting( 'photoproof_settings_group', 'photoproof_photo_rounded',          array( 'sanitize_callback' => $bool_sanitize ) );
         register_setting( 'photoproof_settings_group', 'photoproof_delete_files_on_delete', array( 'sanitize_callback' => $bool_sanitize ) );
-       
+       register_setting( 'photoproof_settings_group', 'photoproof_enable_comments',        array( 'sanitize_callback' => $bool_sanitize ) );
+
         // ── Layout (grid / masonry) ──
                 register_setting( 'photoproof_settings_group', 'photoproof_gallery_layout', array(
                     'sanitize_callback' => array( $this, 'sanitize_layout' ),
@@ -281,6 +282,25 @@ class PhotoProof_Settings {
                                         <br><small><i><?php esc_html_e( 'You can still reactivate a gallery manually if needed.', 'photoproof' ); ?></i></small>
                                     </p>
                                 </div>
+
+</div><!-- /.pp-card -->
+
+                            <div class="pp-card">
+
+                                <h3><?php esc_html_e( 'Client Comments', 'photoproof' ); ?></h3>
+                                <div class="pp-option-row">
+                                    <label class="pp-switch">
+                                        <input type="checkbox" name="photoproof_enable_comments" id="photoproof_enable_comments" value="1"
+                                            <?php checked( 1, get_option( 'photoproof_enable_comments' ), true ); ?>>
+                                        <span class="pp-slider"></span>
+                                    </label>
+                                    <span class="pp-label-text">
+                                        <?php esc_html_e( 'Allow clients to comment on photos', 'photoproof' ); ?>
+                                    </span>
+                                </div>
+                                <p class="pp-explanation">
+                                    <?php esc_html_e( 'When enabled, clients can leave a short note on each photo (max 500 characters). Comments are included in the validation email and the CSV export.', 'photoproof' ); ?>
+                                </p>
 
                             </div><!-- /.pp-card -->
                         </div><!-- /#section-general -->

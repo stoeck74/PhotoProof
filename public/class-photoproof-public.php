@@ -17,6 +17,8 @@ class PhotoProof_Public {
         add_action( 'wp_ajax_nopriv_photoproof_get_selection',  array( $this, 'get_client_selection' ) );
 
         add_action( 'wp_ajax_photoproof_reopen_gallery', array( $this, 'reopen_gallery' ) );
+        add_action( 'wp_ajax_photoproof_save_comment',        array( $this, 'save_photo_comment' ) );
+        add_action( 'wp_ajax_nopriv_photoproof_save_comment', array( $this, 'save_photo_comment' ) );
     }
 
     public function enqueue_public_assets() {
@@ -325,5 +327,71 @@ foreach ( $wp_scripts->queue as $handle ) {
         }
 
         return true;
+    }
+    /**
+     * AJAX : Sauvegarde du commentaire client sur une photo.
+     * Appelé par photoproof-public.js quand le client tape un commentaire.
+     *
+     * Requiert :
+     *  - photoproof_enable_comments activé en Settings
+     *  - nonce 'photoproof_client_selection_{gallery_id}' (même que la sélection)
+     *  - galerie non verrouillée (status != valide / ferme)
+     *  - attachment_id appartient bien à cette galerie
+     */
+    public function save_photo_comment() {
+        // 0. Feature must be enabled in settings
+        if ( ! get_option( 'photoproof_enable_comments' ) ) {
+            wp_send_json_error( array( 'message' => __( 'Comments are disabled.', 'photoproof' ) ), 403 );
+        }
+
+        // 1. Validate parameters
+        $gallery_id    = isset( $_POST['gallery_id'] ) ? absint( $_POST['gallery_id'] ) : 0;
+        $attachment_id = isset( $_POST['attachment_id'] ) ? absint( $_POST['attachment_id'] ) : 0;
+        $comment       = isset( $_POST['comment'] ) ? wp_unslash( $_POST['comment'] ) : '';
+
+        if ( ! $gallery_id || ! $attachment_id ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid parameters.', 'photoproof' ) ), 400 );
+        }
+
+        // 2. Nonce check (per-gallery, same family as selection nonce)
+        $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+        if ( ! wp_verify_nonce( $nonce, 'photoproof_client_selection_' . $gallery_id ) ) {
+            wp_send_json_error( array( 'message' => __( 'Security check failed.', 'photoproof' ) ), 403 );
+        }
+
+        // 3. Gallery must exist and not be locked
+        $gallery = get_post( $gallery_id );
+        if ( ! $gallery || 'photoproof_gallery' !== $gallery->post_type ) {
+            wp_send_json_error( array( 'message' => __( 'Gallery not found.', 'photoproof' ) ), 404 );
+        }
+
+        global $wpdb;
+        $row = $wpdb->get_row( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            "SELECT status FROM {$wpdb->prefix}photoproof_galleries WHERE post_id = %d",
+            $gallery_id
+        ) );
+
+        if ( $row && in_array( $row->status, array( 'valide', 'ferme' ), true ) ) {
+            wp_send_json_error( array( 'message' => __( 'Gallery is locked, comments cannot be edited.', 'photoproof' ) ), 403 );
+        }
+
+        // 4. Attachment must belong to this gallery
+        $parent_id = wp_get_post_parent_id( $attachment_id );
+        if ( $parent_id !== $gallery_id ) {
+            wp_send_json_error( array( 'message' => __( 'Attachment does not belong to this gallery.', 'photoproof' ) ), 403 );
+        }
+
+        // 5. Sanitize comment, length cap 500 chars
+        $comment = sanitize_textarea_field( $comment );
+        $comment = mb_substr( $comment, 0, 500 );
+
+        // 6. Save (or delete if empty)
+        if ( '' === trim( $comment ) ) {
+            delete_post_meta( $attachment_id, '_photoproof_comment' );
+            wp_send_json_success( array( 'comment' => '', 'deleted' => true ) );
+        } else {
+            update_post_meta( $attachment_id, '_photoproof_comment', $comment );
+            wp_send_json_success( array( 'comment' => $comment, 'deleted' => false ) );
+        }
     }
 }
