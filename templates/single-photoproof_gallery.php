@@ -189,9 +189,10 @@ if ( has_post_thumbnail( $post->ID ) ) {
 <?php if ( $comments_enabled ) : ?>
                                 <button class="pp-comment-btn <?php echo $existing_comment ? 'pp-has-comment' : ''; ?>" type="button"
                                     data-id="<?php echo esc_attr( $img_id ); ?>"
+                                    data-comment="<?php echo esc_attr( $existing_comment ); ?>"
                                     aria-label="<?php esc_attr_e( 'Add a comment', 'photoproof' ); ?>">
-                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M7.9 20L12 16H17C18.6569 16 20 14.6569 20 13V7C20 5.34315 18.6569 4 17 4H7C5.34315 4 4 5.34315 4 7V13C4 14.6569 5.34315 16 7 16V20Z"/>
                                     </svg>
                                 </button>
                             <?php endif; ?>

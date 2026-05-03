@@ -341,4 +341,96 @@
         if (idx !== -1) openLightbox(idx);
     });
 
+ // ═══════════════════════════════════════════════════════════════
+    //  COMMENTS — card flip & save on Done / outside click
+    // ═══════════════════════════════════════════════════════════════
+    var $flippedCard = null;
+
+    // Open: click the bubble button → flip the card
+    $(document).on('click', '.pp-comment-btn', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var $card = $(this).closest('.pp-card');
+
+        // If gallery is locked, do nothing
+        if (isLocked) return;
+
+
+        // If another card is already flipped, close it first
+        if ($flippedCard && $flippedCard[0] !== $card[0]) {
+            saveAndFlipBack($flippedCard);
+        }
+
+        $card.addClass('pp-flipped');
+        $flippedCard = $card;
+        setTimeout(function () {
+            $card.find('.pp-card-comment-input').focus();
+        }, 300);
+    });
+
+    // Counter update on input
+    $(document).on('input', '.pp-card-comment-input', function () {
+        var len = $(this).val().length;
+        $(this).closest('.pp-card-back').find('.pp-back-counter').text(len + '/500');
+    });
+
+    // Done button → save & flip back
+    $(document).on('click', '.pp-back-done', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var $card = $(this).closest('.pp-card');
+        saveAndFlipBack($card);
+    });
+
+    // Click outside flipped card → save & flip back
+    $(document).on('click', function (e) {
+        if (!$flippedCard) return;
+        if ($(e.target).closest('.pp-card.pp-flipped').length === 0
+            && $(e.target).closest('.pp-comment-btn').length === 0) {
+            saveAndFlipBack($flippedCard);
+        }
+    });
+
+    // Escape key → save & flip back
+    $(document).on('keydown', function (e) {
+        if (e.key === 'Escape' && $flippedCard) {
+            saveAndFlipBack($flippedCard);
+        }
+    });
+
+    // Save the comment & flip back
+    function saveAndFlipBack($card) {
+        var attId    = $card.data('id');
+        var $input   = $card.find('.pp-card-comment-input');
+        var $btn     = $card.find('.pp-comment-btn');
+        var newValue = $input.val().trim();
+        var oldValue = ($btn.attr('data-comment') || '').trim();
+
+        // Flip back immediately for snappy feel
+        $card.removeClass('pp-flipped');
+        $flippedCard = null;
+
+        // Save in background only if changed
+        if (newValue === oldValue) return;
+
+        $.post(photoproof_public.ajax_url, {
+            action       : 'photoproof_save_comment',
+            gallery_id   : photoproof_public.post_id,
+            attachment_id: attId,
+            comment      : newValue,
+            nonce        : photoproof_public.nonce
+        })
+        .done(function (response) {
+            if (response.success) {
+                $btn.attr('data-comment', response.data.comment);
+                if (response.data.comment) {
+                    $btn.addClass('pp-has-comment');
+                } else {
+                    $btn.removeClass('pp-has-comment');
+                }
+            }
+        });
+    }
+
 })(jQuery);

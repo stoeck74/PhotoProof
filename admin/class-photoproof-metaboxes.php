@@ -318,19 +318,117 @@ class PhotoProof_Metaboxes {
                             </div>
                         </div>
 
-                        <?php if ( ! empty( $selected_ids ) ) : ?>
+<?php if ( ! empty( $selected_ids ) ) : ?>
                         <div class="pp-selection-recap">
                             <?php foreach ( $selected_ids as $att_id ) :
                                 $target   = get_post_meta( $att_id, '_photoproof_target_filename', true );
                                 $filename = $target ?: basename( get_attached_file( $att_id ) );
+                                $comment  = trim( (string) get_post_meta( $att_id, '_photoproof_comment', true ) );
                                 ?>
                                 <div class="pp-recap-thumb">
                                     <?php echo wp_get_attachment_image( $att_id, 'thumbnail', false, array( 'class' => 'pp-recap-img' ) ); ?>
                                     <span class="pp-recap-name"><?php echo esc_html( $filename ); ?></span>
+                                    <?php if ( get_option( 'photoproof_enable_comments' ) && '' !== $comment ) : ?>
+                                        <span class="pp-recap-comment-bubble" title="<?php echo esc_attr( $comment ); ?>">💬</span>
+                                    <?php endif; ?>
                                 </div>
                             <?php endforeach; ?>
                         </div>
                         <?php endif; ?>
+
+                        <?php
+                        // ── COMMENTAIRES CLIENT (selected + commented_only) ──
+                        if ( get_option( 'photoproof_enable_comments' ) ) :
+
+                            // Commentaires sur photos sélectionnées
+                            $selected_with_comments = array();
+                            foreach ( $selected_ids as $att_id ) {
+                                $c = trim( (string) get_post_meta( $att_id, '_photoproof_comment', true ) );
+                                if ( '' !== $c ) {
+                                    $selected_with_comments[ $att_id ] = $c;
+                                }
+                            }
+
+                            // Commentaires sur photos NON sélectionnées
+                            $all_photos = get_post_meta( $post->ID, '_photoproof_gallery_photos', true );
+                            $all_photos = is_array( $all_photos ) ? array_map( 'intval', $all_photos ) : array();
+                            $commented_only = array();
+                            foreach ( $all_photos as $att_id ) {
+                                if ( in_array( $att_id, $selected_ids, true ) ) {
+                                    continue;
+                                }
+                                $c = trim( (string) get_post_meta( $att_id, '_photoproof_comment', true ) );
+                                if ( '' !== $c ) {
+                                    $commented_only[ $att_id ] = $c;
+                                }
+                            }
+
+                            $has_any_comment = ! empty( $selected_with_comments ) || ! empty( $commented_only );
+
+                            if ( $has_any_comment ) :
+                            ?>
+                            <div class="pp-comments-recap">
+                                <p class="pp-meta-section-title" style="margin-top: 24px; margin-bottom: 10px;">
+                                    <?php esc_html_e( 'CLIENT COMMENTS', 'photoproof' ); ?>
+                                </p>
+
+                                <?php if ( ! empty( $selected_with_comments ) ) : ?>
+                                    <div class="pp-comments-section">
+                                        <p class="pp-comments-subtitle">
+                                            <?php
+                                            printf(
+                                                /* translators: %d: number of comments on selected photos */
+                                                esc_html( _n( 'On selected photos (%d)', 'On selected photos (%d)', count( $selected_with_comments ), 'photoproof' ) ),
+                                                count( $selected_with_comments )
+                                            );
+                                            ?>
+                                        </p>
+                                        <ul class="pp-comments-list">
+                                            <?php foreach ( $selected_with_comments as $att_id => $comment ) :
+                                                $target   = get_post_meta( $att_id, '_photoproof_target_filename', true );
+                                                $filename = $target ?: basename( get_attached_file( $att_id ) );
+                                            ?>
+                                                <li>
+                                                    <code class="pp-comment-filename"><?php echo esc_html( $filename ); ?></code>
+                                                    <span class="pp-comment-sep">:</span>
+                                                    <span class="pp-comment-text"><?php echo esc_html( $comment ); ?></span>
+                                                </li>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                    </div>
+                                <?php endif; ?>
+
+                                <?php if ( ! empty( $commented_only ) ) : ?>
+                                    <div class="pp-comments-section pp-comments-warning">
+                                        <p class="pp-comments-subtitle">
+                                            <?php
+                                            printf(
+                                                /* translators: %d: number of comments on photos NOT selected */
+                                                esc_html( _n( 'On non-selected photos (%d) — client may want your input', 'On non-selected photos (%d) — client may want your input', count( $commented_only ), 'photoproof' ) ),
+                                                count( $commented_only )
+                                            );
+                                            ?>
+                                        </p>
+                                        <ul class="pp-comments-list">
+                                            <?php foreach ( $commented_only as $att_id => $comment ) :
+                                                $target   = get_post_meta( $att_id, '_photoproof_target_filename', true );
+                                                $filename = $target ?: basename( get_attached_file( $att_id ) );
+                                            ?>
+                                                <li>
+                                                    <code class="pp-comment-filename"><?php echo esc_html( $filename ); ?></code>
+                                                    <span class="pp-comment-sep">:</span>
+                                                    <span class="pp-comment-text"><?php echo esc_html( $comment ); ?></span>
+                                                </li>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                    </div>
+                                <?php endif; ?>
+
+                            </div>
+                            <?php
+                            endif; // has_any_comment
+                        endif; // comments enabled
+                        ?>
 
                         <div class="pp-reopen-actions">
                             <p class="pp-meta-section-title" style="margin-bottom:10px;">

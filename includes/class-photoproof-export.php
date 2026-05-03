@@ -33,13 +33,34 @@ class PhotoProof_Export {
             wp_die( esc_html__( 'Invalid content type.', 'photoproof' ), esc_html__( 'Error', 'photoproof' ), array( 'response' => 400 ) );
         }
 
-        // ── 2. RÉCUPÉRATION DES PHOTOS SÉLECTIONNÉES ─────────────────
+       // ── 2. RÉCUPÉRATION DES PHOTOS ────────────────────────────────
 
         $selected_ids = get_post_meta( $post_id, '_photoproof_selected_photos', true );
+        $selected_ids = is_array( $selected_ids ) ? array_map( 'intval', $selected_ids ) : array();
 
-        if ( empty( $selected_ids ) || ! is_array( $selected_ids ) ) {
+        $comments_enabled = (bool) get_option( 'photoproof_enable_comments' );
+
+        // Photos commentées mais NON sélectionnées (uniquement si comments activés)
+        $commented_only_ids = array();
+        if ( $comments_enabled ) {
+            $all_photos = get_post_meta( $post_id, '_photoproof_gallery_photos', true );
+            $all_photos = is_array( $all_photos ) ? array_map( 'intval', $all_photos ) : array();
+
+            foreach ( $all_photos as $att_id ) {
+                if ( in_array( $att_id, $selected_ids, true ) ) {
+                    continue; // déjà dans la sélection, on l'aura plus bas
+                }
+                $comment = trim( (string) get_post_meta( $att_id, '_photoproof_comment', true ) );
+                if ( '' !== $comment ) {
+                    $commented_only_ids[] = $att_id;
+                }
+            }
+        }
+
+        // Si rien à exporter (ni sélection ni commentaires)
+        if ( empty( $selected_ids ) && empty( $commented_only_ids ) ) {
             wp_die(
-                esc_html__( 'No photos have been selected by the client yet.', 'photoproof' ),
+                esc_html__( 'No photos have been selected or commented yet.', 'photoproof' ),
                 esc_html__( 'Empty selection', 'photoproof' ),
                 array( 'response' => 200 )
             );
@@ -49,30 +70,43 @@ class PhotoProof_Export {
 
         $rows = array();
 
+        // 3a. Photos sélectionnées
         foreach ( $selected_ids as $attachment_id ) {
-            $attachment_id = intval( $attachment_id );
-            $file_path     = get_attached_file( $attachment_id );
-
-            if ( ! $file_path ) {
-                continue;
-            }
+            $file_path = get_attached_file( $attachment_id );
+            if ( ! $file_path ) continue;
 
             $filename = basename( $file_path );
             $title    = get_the_title( $attachment_id );
             $file_url = wp_get_attachment_url( $attachment_id );
+            $comment  = $comments_enabled
+                ? trim( (string) get_post_meta( $attachment_id, '_photoproof_comment', true ) )
+                : '';
 
             $rows[] = array(
                 'filename' => $filename,
                 'title'    => $title ?: $filename,
+                'status'   => 'selected',
+                'comment'  => $comment,
                 'url'      => $file_url ?: '',
             );
         }
 
-        if ( empty( $rows ) ) {
-            wp_die(
-                esc_html__( 'Unable to retrieve the selected files.', 'photoproof' ),
-                esc_html__( 'Error', 'photoproof' ),
-                array( 'response' => 500 )
+        // 3b. Photos commentées non sélectionnées
+        foreach ( $commented_only_ids as $attachment_id ) {
+            $file_path = get_attached_file( $attachment_id );
+            if ( ! $file_path ) continue;
+
+            $filename = basename( $file_path );
+            $title    = get_the_title( $attachment_id );
+            $file_url = wp_get_attachment_url( $attachment_id );
+            $comment  = trim( (string) get_post_meta( $attachment_id, '_photoproof_comment', true ) );
+
+            $rows[] = array(
+                'filename' => $filename,
+                'title'    => $title ?: $filename,
+                'status'   => 'commented_only',
+                'comment'  => $comment,
+                'url'      => $file_url ?: '',
             );
         }
 
@@ -112,16 +146,34 @@ class PhotoProof_Export {
 
         // En-tête CSV
         // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fputcsv
-        fputcsv( $output, array( 'Nom du fichier', 'Titre', 'URL' ) );
+// En-tête CSV — adapté selon que les commentaires sont actifs ou pas
+        if ( $comments_enabled ) {
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fputcsv
+            fputcsv( $output, array( 'Filename', 'Title', 'Status', 'Comment', 'URL' ) );
+        } else {
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fputcsv
+            fputcsv( $output, array( 'Filename', 'Title', 'URL' ) );
+        }
 
         // Lignes de données
         foreach ( $rows as $row ) {
-            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fputcsv
-            fputcsv( $output, array(
-                $row['filename'],
-                $row['title'],
-                $row['url'],
-            ) );
+            if ( $comments_enabled ) {
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fputcsv
+                fputcsv( $output, array(
+                    $row['filename'],
+                    $row['title'],
+                    $row['status'],
+                    $row['comment'],
+                    $row['url'],
+                ) );
+            } else {
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fputcsv
+                fputcsv( $output, array(
+                    $row['filename'],
+                    $row['title'],
+                    $row['url'],
+                ) );
+            }
         }
 
         // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose

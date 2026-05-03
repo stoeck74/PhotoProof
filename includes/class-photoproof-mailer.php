@@ -77,31 +77,73 @@ class PhotoProof_Mailer {
 </html>';
     }
 
-    /**
-     * Génère la liste des fichiers en HTML
+/**
+     * Génère la liste des fichiers en HTML (avec commentaire éventuel sous le filename)
      */
-    private function build_file_list_html( $selected_ids ) {
+    private function build_file_list_html( $att_ids ) {
+        $comments_enabled = (bool) get_option( 'photoproof_enable_comments' );
         $lines = '';
-        foreach ( $selected_ids as $att_id ) {
+        foreach ( $att_ids as $att_id ) {
             $target   = get_post_meta( $att_id, '_photoproof_target_filename', true );
             $filename = $target ?: basename( get_attached_file( $att_id ) );
-            $lines   .= '<tr><td style="font-size:13px; color:#475569; font-family:monospace; padding:4px 0;">' . esc_html( $filename ) . '</td></tr>';
+            $comment  = $comments_enabled ? trim( (string) get_post_meta( $att_id, '_photoproof_comment', true ) ) : '';
+
+            $lines .= '<tr><td style="font-size:13px; color:#475569; font-family:monospace; padding:4px 0;">' . esc_html( $filename );
+            if ( '' !== $comment ) {
+                $lines .= '<div style="font-family:inherit; font-size:12px; color:#1e293b; margin-top:4px; padding:6px 10px; background:#fff; border-left:3px solid #2271b1; border-radius:2px;">' . esc_html( $comment ) . '</div>';
+            }
+            $lines .= '</td></tr>';
         }
         return $lines;
     }
 
-    /**
+/**
      * Génère la liste des fichiers en texte brut (pour {file_list})
      */
-    private function build_file_list_text( $selected_ids ) {
+    private function build_file_list_text( $att_ids ) {
+        $comments_enabled = (bool) get_option( 'photoproof_enable_comments' );
         $list = '';
-        foreach ( $selected_ids as $att_id ) {
+        foreach ( $att_ids as $att_id ) {
             $target   = get_post_meta( $att_id, '_photoproof_target_filename', true );
             $filename = $target ?: basename( get_attached_file( $att_id ) );
-            $list    .= '- ' . $filename . "
-";
+            $comment  = $comments_enabled ? trim( (string) get_post_meta( $att_id, '_photoproof_comment', true ) ) : '';
+
+            $list .= '- ' . $filename;
+            if ( '' !== $comment ) {
+                $list .= "\n  → " . $comment;
+            }
+            $list .= "\n";
         }
         return $list;
+    }
+
+    /**
+     * Récupère les IDs des photos commentées MAIS NON sélectionnées.
+     *
+     * @param int   $gallery_id   ID de la galerie
+     * @param array $selected_ids IDs des photos sélectionnées
+     * @return array
+     */
+    private function get_commented_not_selected( $gallery_id, $selected_ids ) {
+        if ( ! get_option( 'photoproof_enable_comments' ) ) {
+            return array();
+        }
+
+        $all_photos = get_post_meta( $gallery_id, '_photoproof_gallery_photos', true );
+        $all_photos = is_array( $all_photos ) ? array_map( 'intval', $all_photos ) : array();
+        $selected   = array_map( 'intval', $selected_ids );
+
+        $result = array();
+        foreach ( $all_photos as $att_id ) {
+            if ( in_array( $att_id, $selected, true ) ) {
+                continue;
+            }
+            $comment = trim( (string) get_post_meta( $att_id, '_photoproof_comment', true ) );
+            if ( '' !== $comment ) {
+                $result[] = $att_id;
+            }
+        }
+        return $result;
     }
 
     /**
@@ -132,17 +174,26 @@ class PhotoProof_Mailer {
             }
         }
 
-        $file_list_text = $this->build_file_list_text( $selected_ids );
+$file_list_text = $this->build_file_list_text( $selected_ids );
         $file_list_html = $this->build_file_list_html( $selected_ids );
         $gallery_url    = get_permalink( $post_id );
 
+        // Photos commentées mais non sélectionnées (le client a un doute)
+        $commented_unselected_ids = $this->get_commented_not_selected( $post_id, $selected_ids );
+        $commented_text = '';
+        if ( ! empty( $commented_unselected_ids ) ) {
+            $commented_text  = "\n" . __( 'Photos with comments but not selected:', 'photoproof' ) . "\n";
+            $commented_text .= $this->build_file_list_text( $commented_unselected_ids );
+        }
+
         $vars = array(
-            'client_name'   => esc_html( $client_name ),
-            'gallery_title' => esc_html( $gallery_title ),
-            'count'         => $count,
-            'file_list'     => $file_list_text,
-            'gallery_url'   => esc_url( $gallery_url ),
-            'studio_name'   => esc_html( $studio_name ),
+            'client_name'            => esc_html( $client_name ),
+            'gallery_title'          => esc_html( $gallery_title ),
+            'count'                  => $count,
+            'file_list'              => $file_list_text,
+            'commented_not_selected' => $commented_text,
+            'gallery_url'            => esc_url( $gallery_url ),
+            'studio_name'            => esc_html( $studio_name ),
         );
 
         // ── MAIL PHOTOGRAPHE ──────────────────────────────────────────
@@ -162,10 +213,33 @@ class PhotoProof_Mailer {
                 esc_html( _n( '%d photo selected:', '%d photos selected:', $count, 'photoproof' ) ),
                 $count
             ) .
-            '</strong></p>' .
+'</strong></p>' .
             '<table width="100%" cellpadding="12" cellspacing="0" style="background:#f8fafc; border-radius:8px; border:1px solid #e2e8f0; margin-bottom:28px;">' .
             $file_list_html .
-            '</table>' .
+            '</table>';
+
+        // Section optionnelle : photos commentées non sélectionnées
+        if ( ! empty( $commented_unselected_ids ) ) {
+            $commented_unselected_count = count( $commented_unselected_ids );
+            $commented_unselected_html  = $this->build_file_list_html( $commented_unselected_ids );
+
+            $body_photo_html .=
+                '<p style="margin:0 0 12px; font-size:15px; color:#1e293b;"><strong>' .
+                sprintf(
+                    /* translators: %d: number of photos with comments but not selected */
+                    esc_html( _n( '%d photo with a comment but not selected:', '%d photos with comments but not selected:', $commented_unselected_count, 'photoproof' ) ),
+                    $commented_unselected_count
+                ) .
+                '</strong></p>' .
+                '<p style="margin:0 0 12px; font-size:13px; color:#64748b; font-style:italic;">' .
+                esc_html__( 'The client left a note on these photos but did not include them in the final selection — they may want your input.', 'photoproof' ) .
+                '</p>' .
+                '<table width="100%" cellpadding="12" cellspacing="0" style="background:#fef3c7; border-radius:8px; border:1px solid #fde68a; margin-bottom:28px;">' .
+                $commented_unselected_html .
+                '</table>';
+        }
+
+        $body_photo_html .=
             '<p style="text-align:center;">' .
             '<a href="' . esc_url( $gallery_url ) . '" style="display:inline-block; background:' . esc_attr( $accent_color ) . '; color:#ffffff; text-decoration:none; padding:14px 32px; border-radius:8px; font-size:13px; font-weight:600; letter-spacing:.06em; text-transform:uppercase;">' .
             esc_html__( 'View gallery', 'photoproof' ) .

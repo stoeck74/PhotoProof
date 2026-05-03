@@ -304,3 +304,68 @@ input:checked + .pp-slider:before { transform: translateX(17px); }
 /* PhotoProof — Anti-flash lors du chargement initial */
 .pp-settings-page.pp-loading .pp-settings-content { visibility: hidden; }
 
+/* ═══════════════════════════════════════════════════════════════
+   Comments recap (metabox admin)
+   ═══════════════════════════════════════════════════════════════ */
+.pp-recap-comment-bubble {
+    font-size: 14px;
+    margin-top: 2px;
+    cursor: help;
+    line-height: 1;
+}
+
+.pp-comments-recap {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.pp-comments-subtitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #475569;
+    margin: 16px 0 4px;
+}
+
+.pp-comments-subtitle::before {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #2271b1;
+    flex-shrink: 0;
+}
+
+.pp-comments-warning .pp-comments-subtitle::before { background: #f59e0b; }
+.pp-comments-warning .pp-comments-subtitle { color: #92400e; }
+
+.pp-comments-list { margin: 0; padding: 0; list-style: none; }
+.pp-comments-list li {
+    display: grid;
+    grid-template-columns: minmax(140px, auto) 1fr;
+    gap: 16px;
+    padding: 10px 0;
+    font-size: 13px;
+    line-height: 1.55;
+    border-bottom: 1px solid #f1f5f9;
+}
+.pp-comments-list li:last-child { border-bottom: none; }
+
+.pp-comment-filename {
+    font-family: ui-monospace, SFMono-Regular, Monaco, monospace;
+    font-size: 11px;
+    color: #64748b;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    align-self: start;
+    padding-top: 1px;
+}
+.pp-comment-sep { display: none; }
+.pp-comment-text { color: #1e293b; word-break: break-word; }
