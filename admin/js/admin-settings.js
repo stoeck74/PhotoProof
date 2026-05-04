@@ -32,13 +32,53 @@ jQuery(document).ready(function ($) {
     $('.pp-settings-page').removeClass('pp-loading');
 
     // ════════════════════════════════════════════════════════════════
-    // 1. COLOR PICKER (avec hook dirty pour la save bar)
+    // 1. COLOR PICKER (custom swatches over wpColorPicker)
     // ════════════════════════════════════════════════════════════════
     if ($.fn.wpColorPicker) {
-        $('.pp-color-picker').wpColorPicker({
-            change: function () {
-                // setDirty est défini en section 8 mais le code y arrive avant l'event change
-                if (typeof setDirty === 'function') setDirty();
+
+        // Helper : met à jour visuellement un swatch + son hex
+        function updateSwatchVisual(targetId, color) {
+            var $swatch = $('.pp-swatch-circle[data-target="' + targetId + '"]');
+            var $hex    = $('.pp-swatch-hex[data-source="' + targetId + '"]');
+            if ($swatch.length) $swatch.css('background-color', color);
+            if ($hex.length)    $hex.text(color.toUpperCase());
+        }
+
+        // Init wpColorPicker sur chaque input avec callback custom
+        $('.pp-color-picker').each(function () {
+            var $input = $(this);
+            var id     = $input.attr('id');
+
+            // Sync initial du swatch avec la valeur courante
+            updateSwatchVisual(id, $input.val() || '#cccccc');
+
+            $input.wpColorPicker({
+                change: function (event, ui) {
+                    var color = ui.color.toString();
+                    updateSwatchVisual(id, color);
+                    if (typeof setDirty === 'function') setDirty();
+                },
+                clear: function () {
+                    updateSwatchVisual(id, '#ffffff');
+                    if (typeof setDirty === 'function') setDirty();
+                }
+            });
+        });
+
+        // Clic sur un swatch → ouvrir le wpColorPicker correspondant
+        $(document).on('click', '.pp-swatch-circle', function (e) {
+            e.preventDefault();
+            var targetId = $(this).data('target');
+            var $input   = $('#' + targetId);
+            // Le wrapper créé par wpColorPicker contient un bouton .wp-color-result
+            // qui ouvre le picker au clic. On le déclenche via le wrapper parent.
+            var $wrapper = $input.closest('.wp-picker-container');
+            if ($wrapper.length) {
+                // Toggler manuellement : le picker WP a un bouton .wp-color-result
+                var $resultBtn = $wrapper.find('.wp-color-result');
+                if ($resultBtn.length) {
+                    $resultBtn.trigger('click');
+                }
             }
         });
     }

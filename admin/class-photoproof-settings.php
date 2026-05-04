@@ -678,31 +678,32 @@ class PhotoProof_Settings {
                             </p>
 
                             <div class="pp-card-content">
-                                <div class="pp-color-list">
-                                    <div class="pp-color-row">
-                                        <label class="pp-color-row-label" for="photoproof_color_bg">
-                                            <span class="pp-color-row-name"><?php esc_html_e( 'Background', 'photoproof' ); ?></span>
-                                            <span class="pp-color-row-hint"><?php esc_html_e( 'Gallery background color', 'photoproof' ); ?></span>
-                                        </label>
-                                        <input type="text" id="photoproof_color_bg" name="photoproof_color_bg" class="pp-color-picker"
+                                <div class="pp-swatches">
+
+                                    <div class="pp-swatch">
+                                        <span class="pp-swatch-label"><?php esc_html_e( 'Background', 'photoproof' ); ?></span>
+                                        <button type="button" class="pp-swatch-circle" data-target="photoproof_color_bg" aria-label="<?php esc_attr_e( 'Change background color', 'photoproof' ); ?>"></button>
+                                        <span class="pp-swatch-hex" data-source="photoproof_color_bg"></span>
+                                        <input type="text" id="photoproof_color_bg" name="photoproof_color_bg" class="pp-color-picker pp-color-picker-hidden"
                                             value="<?php echo esc_attr( get_option( 'photoproof_color_bg', '#ffffff' ) ); ?>">
                                     </div>
-                                    <div class="pp-color-row">
-                                        <label class="pp-color-row-label" for="photoproof_color_active">
-                                            <span class="pp-color-row-name"><?php esc_html_e( 'Active', 'photoproof' ); ?></span>
-                                            <span class="pp-color-row-hint"><?php esc_html_e( 'Selection & accent color', 'photoproof' ); ?></span>
-                                        </label>
-                                        <input type="text" id="photoproof_color_active" name="photoproof_color_active" class="pp-color-picker"
+
+                                    <div class="pp-swatch">
+                                        <span class="pp-swatch-label"><?php esc_html_e( 'Active', 'photoproof' ); ?></span>
+                                        <button type="button" class="pp-swatch-circle" data-target="photoproof_color_active" aria-label="<?php esc_attr_e( 'Change active color', 'photoproof' ); ?>"></button>
+                                        <span class="pp-swatch-hex" data-source="photoproof_color_active"></span>
+                                        <input type="text" id="photoproof_color_active" name="photoproof_color_active" class="pp-color-picker pp-color-picker-hidden"
                                             value="<?php echo esc_attr( get_option( 'photoproof_color_active', '#2271b1' ) ); ?>">
                                     </div>
-                                    <div class="pp-color-row">
-                                        <label class="pp-color-row-label" for="photoproof_color_text">
-                                            <span class="pp-color-row-name"><?php esc_html_e( 'Text', 'photoproof' ); ?></span>
-                                            <span class="pp-color-row-hint"><?php esc_html_e( 'Main text color', 'photoproof' ); ?></span>
-                                        </label>
-                                        <input type="text" id="photoproof_color_text" name="photoproof_color_text" class="pp-color-picker"
+
+                                    <div class="pp-swatch">
+                                        <span class="pp-swatch-label"><?php esc_html_e( 'Text', 'photoproof' ); ?></span>
+                                        <button type="button" class="pp-swatch-circle" data-target="photoproof_color_text" aria-label="<?php esc_attr_e( 'Change text color', 'photoproof' ); ?>"></button>
+                                        <span class="pp-swatch-hex" data-source="photoproof_color_text"></span>
+                                        <input type="text" id="photoproof_color_text" name="photoproof_color_text" class="pp-color-picker pp-color-picker-hidden"
                                             value="<?php echo esc_attr( get_option( 'photoproof_color_text', '#1e293b' ) ); ?>">
                                     </div>
+
                                 </div>
                             </div>
 
