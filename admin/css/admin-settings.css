@@ -1,6 +1,6 @@
 /**
  * PhotoProof — Admin CSS
- * Page de réglages + Metabox galerie redesignée
+ * Page de réglages (refonte cards) + Metabox galerie
  */
 
 /* ============================================================
@@ -10,77 +10,1074 @@
 .pp-meta * { box-sizing: border-box; }
 
 /* ============================================================
-   2. PAGE DE RÉGLAGES — LAYOUT
+   2. PAGE DE RÉGLAGES — PALETTE & BASE
    ============================================================ */
-.pp-settings-page .pp-settings-container {
-    display: flex;
-    margin-top: 20px;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 24px rgba(0,0,0,.07);
-    overflow: hidden;
-    min-height: 600px;
-    max-width: 1100px;
+.pp-settings-page {
+    --pp-platinum:        #ECECEC;
+    --pp-mauve:           #7C6C77;
+    --pp-chartreuse:      #CEFF1A;
+    --pp-jet:             #1B2D2A;
+    --pp-bronze:          #C89933;
+
+    --pp-card-bg:         rgba(255, 255, 255, 0.7);
+    --pp-card-border:     rgba(27, 45, 42, 0.08);
+    --pp-text:            var(--pp-jet);
+    --pp-text-muted:      var(--pp-mauve);
+    --pp-text-on-active:  #000;
+    --pp-accent:          var(--pp-chartreuse);
 }
 
-.pp-settings-page .pp-settings-sidebar {
-    width: 220px;
-    background: #f8f9fa;
-    border-right: 1px solid #e8ecef;
-    padding: 24px 0;
+/* Bleed the gradient background to the edges of the WP content area */
+body.photoproof_gallery_page_photoproof-settings #wpcontent,
+body.toplevel_page_photoproof-settings #wpcontent {
+    background:
+        radial-gradient(1200px 800px at 10% -10%, rgba(206, 255, 26, 0.18), transparent 60%),
+        radial-gradient(1000px 700px at 110% 110%, rgba(124, 108, 119, 0.18), transparent 55%),
+        var(--pp-platinum);
+}
+
+/* The wrap itself stays within the WP content frame (no negative margins) */
+.pp-settings-page {
+    background: transparent;
+    min-height: calc(100vh - 32px);
+    padding: 32px 24px 100px;
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    color: var(--pp-text);
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    box-sizing: border-box;
+}
+
+@media (max-width: 782px) {
+    .pp-settings-page {
+        padding: 24px 16px 100px;
+    }
+}
+
+.pp-settings-page .pp-settings-title {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--pp-text);
+    margin: 0 0 12px;
+    padding: 0;
+}
+
+/* Intro paragraph below the title — explains the toggle conventions */
+.pp-settings-page .pp-settings-intro {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--pp-text-muted);
+    margin: 0 0 28px;
+    padding: 0;
+    max-width: 720px;
+}
+
+.pp-settings-page .pp-intro-icon {
+    display: inline-flex;
+    width: 18px;
+    height: 18px;
+    background: var(--pp-jet);
+    color: var(--pp-platinum);
+    border-radius: 50%;
+    padding: 3px;
+    margin: 0 2px;
+    vertical-align: -4px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3;
+    stroke-linecap: round;
+    flex-shrink: 0;
+    box-sizing: border-box;
+}
+
+.pp-settings-page .pp-intro-icon-infinity {
+    stroke-width: 2;
+    padding: 2px;
+}
+
+.pp-settings-page .pp-settings-form {
+    margin: 0;
+    padding: 0;
+}
+
+/* Anti-flash on initial load (kept from previous) */
+.pp-settings-page.pp-loading .pp-tab-panel,
+.pp-settings-page.pp-loading .pp-tabs,
+.pp-settings-page.pp-loading .pp-save-bar { visibility: hidden; }
+
+/* ============================================================
+   3. TABS HORIZONTAUX
+   ============================================================ */
+.pp-settings-page .pp-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 28px;
+    padding: 6px;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 14px;
+    border: 1px solid var(--pp-card-border);
+    overflow-x: auto;
+    flex-wrap: wrap;
+}
+
+.pp-settings-page .pp-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--pp-text-muted);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s ease, color 0.2s ease;
+    font-family: inherit;
+}
+
+.pp-settings-page .pp-tab:hover {
+    background: rgba(255, 255, 255, 0.5);
+    color: var(--pp-text);
+}
+
+.pp-settings-page .pp-tab.is-active {
+    background: var(--pp-jet);
+    color: var(--pp-platinum);
+    font-weight: 600;
+}
+
+.pp-settings-page .pp-tab-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* ============================================================
+   4. TAB PANELS
+   ============================================================ */
+.pp-settings-page .pp-tab-panel { display: none; }
+.pp-settings-page .pp-tab-panel.is-active { display: block; }
+
+/* ============================================================
+   5. CARDS GRID — 12 columns bento system
+   ============================================================ */
+.pp-settings-page .pp-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 28px 20px;
+    align-items: stretch;
+    max-width: 1400px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Each card lives in a wrap that holds title + bar + card */
+.pp-settings-page .pp-card-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    grid-column: span 4;
+    min-width: 0;
+}
+.pp-settings-page .pp-card-wrap.is-half { grid-column: span 6; }
+.pp-settings-page .pp-card-wrap.is-wide { grid-column: span 12; }
+
+.pp-settings-page .pp-card-wrap > .pp-card { flex: 1; }
+
+@media (max-width: 1100px) {
+    .pp-settings-page .pp-card-wrap,
+    .pp-settings-page .pp-card-wrap.is-half { grid-column: span 6; }
+    .pp-settings-page .pp-card-wrap.is-wide { grid-column: span 12; }
+}
+@media (max-width: 700px) {
+    .pp-settings-page .pp-card-wrap,
+    .pp-settings-page .pp-card-wrap.is-half,
+    .pp-settings-page .pp-card-wrap.is-wide { grid-column: span 12; }
+}
+
+/* Outside heading + animated bar (above each card) */
+.pp-settings-page .pp-card-heading {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--pp-text);
+    margin: 0;
+    padding: 0;
+    letter-spacing: -0.005em;
+    line-height: 1;
+}
+
+.pp-settings-page .pp-card-bar {
+    display: block;
+    height: 2px;
+    width: 24px;
+    background: rgba(27, 45, 42, 0.18);
+    border-radius: 2px;
+    transition: background 0.3s cubic-bezier(0.32, 0.72, 0, 1),
+                width 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.pp-settings-page .pp-card-wrap:has(.pp-card.is-active) .pp-card-bar {
+    background: var(--pp-jet);
+    width: 40px;
+}
+
+/* ============================================================
+   6. CARD
+   ============================================================ */
+.pp-settings-page .pp-card {
+    position: relative;
+    background: var(--pp-card-bg);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 20px;
+    padding: 48px 32px 28px;
+    margin: 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    transition:
+        opacity 0.3s ease,
+        background 0.3s ease 0s,
+        transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.pp-settings-page .pp-card:not(.is-active) { opacity: 0.55; }
+.pp-settings-page .pp-card:not(.is-active):hover { opacity: 0.75; }
+
+.pp-settings-page .pp-card.is-active {
+    background: var(--pp-chartreuse);
+    transition:
+        opacity 0.3s ease,
+        background 0.3s ease 0.6s;
+}
+
+/* Static border (visible when inactive) */
+.pp-settings-page .pp-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    border: 1px solid var(--pp-card-border);
+    pointer-events: none;
+    z-index: 1;
+    transition: opacity 0.3s ease;
+}
+.pp-settings-page .pp-card.is-active::before { opacity: 0; }
+
+/* Card content sits above bg/border layers */
+.pp-settings-page .pp-card > * { position: relative; z-index: 3; }
+
+/* Active state — text/icons in pure black for max contrast */
+.pp-settings-page .pp-card.is-active .pp-card-icon,
+.pp-settings-page .pp-card.is-active .pp-card-title,
+.pp-settings-page .pp-card.is-active .pp-card-desc,
+.pp-settings-page .pp-card.is-active .pp-field-label,
+.pp-settings-page .pp-card.is-active .pp-slider-value,
+.pp-settings-page .pp-card.is-active .pp-card-help,
+.pp-settings-page .pp-card.is-active .pp-card-example {
+    color: var(--pp-text-on-active);
+    transition: color 0.3s ease 0.6s;
+}
+
+/* Neutral variant — used for Email cards. Looks like the inactive chassis
+   (translucent white, no chartreuse, visible static border) BUT content stays
+   at full opacity (no 0.55 dim). Keeps the toggle locked with ∞. */
+.pp-settings-page .pp-card.pp-card-neutral { opacity: 1; }
+.pp-settings-page .pp-card.pp-card-neutral:not(.is-active) {
+    background: var(--pp-card-bg);
+}
+/* Override the locked toggle look on neutral cards: keep jet bg/light icon
+   (consistent with the rest of the inactive UI, no chartreuse). */
+.pp-settings-page .pp-card.pp-card-neutral .pp-card-toggle.is-locked {
+    background: var(--pp-jet);
+    color: var(--pp-platinum);
+}
+
+/* Animated SVG border */
+.pp-settings-page .pp-card-stroke {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+}
+.pp-settings-page .pp-card-stroke rect {
+    fill: none;
+    stroke: var(--pp-accent);
+    stroke-width: 2;
+    rx: 20;
+    ry: 20;
+    stroke-dasharray: 0;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* ============================================================
+   7. CARD TOGGLE (sceau SVG)
+   ============================================================ */
+.pp-settings-page .pp-card-toggle {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    background: var(--pp-jet);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 4;
+    color: var(--pp-platinum);
+    padding: 0;
+    transition:
+        background 0.3s ease 0s,
+        color 0.3s ease 0s;
+}
+
+.pp-settings-page .pp-card-toggle svg {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3;
+    stroke-linecap: round;
+    transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.pp-settings-page .pp-card-toggle .icon-plus  { opacity: 1; }
+.pp-settings-page .pp-card-toggle .icon-minus { opacity: 0; transform: scale(0.5); }
+
+.pp-settings-page .pp-card-toggle .icon-infinity {
+    width: 24px;
+    height: 24px;
+    stroke-width: 2;
+    opacity: 0;
+}
+
+.pp-settings-page .pp-card.is-active .pp-card-toggle {
+    background: var(--pp-chartreuse);
+    color: var(--pp-text-on-active);
+    transition:
+        background 0.3s ease 0.6s,
+        color 0.3s ease 0.6s;
+}
+
+.pp-settings-page .pp-card.is-active .pp-card-toggle .icon-plus  { opacity: 0; transform: scale(0.5); }
+.pp-settings-page .pp-card.is-active .pp-card-toggle .icon-minus { opacity: 1; transform: scale(1); }
+
+/* Locked variant — always-active cards */
+.pp-settings-page .pp-card-toggle.is-locked {
+    cursor: default;
+    background: var(--pp-jet);
+    color: var(--pp-platinum);
+}
+.pp-settings-page .pp-card-toggle.is-locked .icon-plus,
+.pp-settings-page .pp-card-toggle.is-locked .icon-minus {
+    opacity: 0;
+}
+.pp-settings-page .pp-card-toggle.is-locked .icon-infinity {
+    opacity: 1;
+}
+
+/* ============================================================
+   8. CARD HEADER & CONTENT
+   ============================================================ */
+.pp-settings-page .pp-card-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.pp-settings-page .pp-card-icon {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    color: var(--pp-text);
+}
+.pp-settings-page .pp-card-icon svg {
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.pp-settings-page .pp-card-title {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--pp-text);
+}
+
+.pp-settings-page .pp-card-desc {
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--pp-text-muted);
+    margin: 0 0 18px;
+}
+
+.pp-settings-page .pp-card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    text-align: left;
+}
+
+.pp-settings-page .pp-card-help {
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--pp-text-muted);
+    margin: 0;
+}
+
+.pp-settings-page .pp-card-help code {
+    background: rgba(27, 45, 42, 0.08);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 11px;
+}
+
+.pp-settings-page .pp-card.is-active .pp-card-help code {
+    background: rgba(0, 0, 0, 0.12);
+}
+
+.pp-settings-page .pp-card-example {
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--pp-text-muted);
+    margin: 0;
+    text-align: left;
+}
+.pp-settings-page .pp-card-example code {
+    background: rgba(27, 45, 42, 0.08);
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 11px;
+    display: inline-block;
+}
+.pp-settings-page .pp-card.is-active .pp-card-example code {
+    background: rgba(0, 0, 0, 0.12);
+}
+.pp-settings-page .pp-card-example .pp-arrow {
+    display: inline-block;
+    margin: 4px 0;
+    opacity: 0.5;
+}
+
+/* ============================================================
+   9. CARD FORM CONTROLS
+   ============================================================ */
+.pp-settings-page .pp-field-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--pp-text-muted);
+    font-weight: 600;
+    margin: 0 0 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.pp-settings-page .pp-input,
+.pp-settings-page .pp-select,
+.pp-settings-page .pp-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--pp-card-border);
+    border-radius: 10px;
+    background: #fff;
+    font-size: 13px;
+    color: var(--pp-text);
+    font-family: inherit;
+    transition: border-color 0.2s ease;
+    box-shadow: none;
+}
+
+.pp-settings-page .pp-textarea {
+    font-family: ui-monospace, SFMono-Regular, Monaco, monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    resize: vertical;
+}
+
+.pp-settings-page .pp-input:focus,
+.pp-settings-page .pp-select:focus,
+.pp-settings-page .pp-textarea:focus {
+    outline: none;
+    border-color: rgba(27, 45, 42, 0.35);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(27, 45, 42, 0.08);
+}
+
+/* Active card → keep inputs pure white but darken the border slightly so
+   they read clearly against the chartreuse background */
+.pp-settings-page .pp-card.is-active .pp-input,
+.pp-settings-page .pp-card.is-active .pp-select,
+.pp-settings-page .pp-card.is-active .pp-textarea {
+    background: #fff;
+    border-color: rgba(0, 0, 0, 0.2);
+    color: var(--pp-text-on-active);
+}
+
+.pp-settings-page .pp-card.is-active .pp-input:focus,
+.pp-settings-page .pp-card.is-active .pp-select:focus,
+.pp-settings-page .pp-card.is-active .pp-textarea:focus {
+    border-color: rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
+}
+
+/* Slider */
+.pp-settings-page .pp-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    background: rgba(27, 45, 42, 0.18);
+    border-radius: 2px;
+    outline: none;
+    margin: 4px 0 0;
+}
+.pp-settings-page .pp-card.is-active .pp-slider {
+    background: rgba(0, 0, 0, 0.25);
+}
+.pp-settings-page .pp-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--pp-jet);
+    cursor: pointer;
+    border: 2px solid var(--pp-platinum);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+.pp-settings-page .pp-slider::-moz-range-thumb {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--pp-jet);
+    cursor: pointer;
+    border: 2px solid var(--pp-platinum);
+}
+.pp-settings-page .pp-slider:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.pp-settings-page .pp-slider-value {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--pp-text);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+/* Color list (Theme Design tab) — wrapped in a white container, one row per color */
+.pp-settings-page .pp-color-list {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.pp-settings-page .pp-color-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+.pp-settings-page .pp-color-row:last-child {
+    border-bottom: none;
+}
+
+.pp-settings-page .pp-color-row-label {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    cursor: pointer;
+    margin: 0;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.pp-settings-page .pp-color-row-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--pp-jet);
+    letter-spacing: -0.005em;
+}
+
+.pp-settings-page .pp-color-row-hint {
+    font-size: 11px;
+    color: var(--pp-mauve);
+    letter-spacing: 0;
+    text-transform: none;
+    font-weight: 400;
+}
+
+/* Legacy color-grid (kept for safety; no longer used) */
+.pp-settings-page .pp-color-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 14px;
+}
+.pp-settings-page .pp-color-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* Watermark / logo preview */
+.pp-settings-page .pp-watermark-preview {
+    width: 100%;
+    min-height: 100px;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px dashed rgba(27, 45, 42, 0.2);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.pp-settings-page .pp-card.is-active .pp-watermark-preview {
+    background: rgba(255, 255, 255, 0.7);
+    border-color: rgba(0, 0, 0, 0.2);
+}
+.pp-settings-page .pp-watermark-preview img { max-width: 150px; height: auto; }
+
+/* Dark variant — used for watermark preview because watermarks are often white */
+.pp-settings-page .pp-watermark-preview.pp-preview-dark {
+    background: #2a2a2a;
+    background-image:
+        linear-gradient(45deg, #1f1f1f 25%, transparent 25%),
+        linear-gradient(-45deg, #1f1f1f 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #1f1f1f 75%),
+        linear-gradient(-45deg, transparent 75%, #1f1f1f 75%);
+    background-size: 12px 12px;
+    background-position: 0 0, 0 6px, 6px -6px, -6px 0;
+    border-color: rgba(0, 0, 0, 0.4);
+}
+.pp-settings-page .pp-watermark-preview.pp-preview-dark p {
+    color: rgba(255, 255, 255, 0.5);
+}
+/* On active card, keep the dark variant dark — don't lighten it */
+.pp-settings-page .pp-card.is-active .pp-watermark-preview.pp-preview-dark {
+    background-color: #2a2a2a;
+    border-color: rgba(0, 0, 0, 0.5);
+}
+.pp-settings-page .pp-watermark-preview p {
+    color: var(--pp-text-muted);
+    font-size: 12px;
+    font-style: italic;
+    margin: 0;
+}
+
+/* Button row (upload / remove) */
+.pp-settings-page .pp-button-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.pp-settings-page .pp-button-row .button {
+    border-radius: 8px;
+}
+
+/* Variables list (Email tab) */
+.pp-settings-page .pp-vars-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.pp-settings-page .pp-vars-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--pp-text-muted);
+    line-height: 1.5;
+}
+.pp-settings-page .pp-vars-list li > span {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+}
+.pp-settings-page .pp-vars-list code {
+    background: rgba(27, 45, 42, 0.08);
+    padding: 3px 7px;
+    border-radius: 4px;
+    font-size: 11px;
+    color: var(--pp-text);
+    flex-shrink: 0;
+    min-width: 120px;
+    align-self: flex-start;
+    margin-top: 1px;
+}
+.pp-settings-page .pp-card.is-active .pp-vars-list li { color: var(--pp-text-on-active); }
+.pp-settings-page .pp-card.is-active .pp-vars-list code {
+    background: rgba(0, 0, 0, 0.12);
+    color: var(--pp-text-on-active);
+}
+
+/* Inline note under a variable description */
+.pp-settings-page .pp-vars-note {
+    display: inline-block;
+    font-style: normal;
+    font-size: 11px;
+    color: rgba(27, 45, 42, 0.55);
+    line-height: 1.45;
+}
+.pp-settings-page .pp-card.is-active .pp-vars-note {
+    color: rgba(0, 0, 0, 0.6);
+}
+
+/* "Required" note — visually flagged with a chartreuse dot prefix */
+.pp-settings-page .pp-vars-note-required {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    color: var(--pp-jet);
+}
+.pp-settings-page .pp-vars-note-required::before {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--pp-chartreuse);
+    border: 1px solid rgba(27, 45, 42, 0.4);
     flex-shrink: 0;
 }
-
-.pp-settings-page .pp-nav-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 13px 22px; cursor: pointer;
-    color: #64748b; font-size: 13px; font-weight: 500;
-    border-left: 2px solid transparent;
-    transition: background .2s, color .2s, border-color .2s;
+.pp-settings-page .pp-card.is-active .pp-vars-note-required {
+    color: var(--pp-jet);
 }
-.pp-settings-page .pp-nav-item:hover { background: #f1f5f9; color: #2271b1; }
-.pp-settings-page .pp-nav-item.active { background: #fff; color: #2271b1; border-left-color: #2271b1; font-weight: 600; }
-.pp-settings-page .pp-nav-item .dashicons { font-size: 16px; width: 16px; height: 16px; }
-
-.pp-settings-page .pp-settings-content { flex: 1; padding: 36px 40px; background: #fff; position: relative; }
-.pp-settings-page .pp-section-content { display: none; }
-.pp-settings-page .pp-section-content.active { display: block; }
+.pp-settings-page .pp-card.is-active .pp-vars-note-required::before {
+    background: var(--pp-jet);
+    border-color: rgba(0, 0, 0, 0.5);
+}
 
 /* ============================================================
-   3. PAGE DE RÉGLAGES — COMPOSANTS
+   10. CARD FOOTER (status)
    ============================================================ */
-.pp-settings-page .pp-card { background: #fafafa; border: 1px solid #e8ecef; border-radius: 10px; padding: 24px 28px; margin-bottom: 24px; }
-.pp-settings-page .pp-card h3 { margin: 0 0 18px; font-size: 15px; font-weight: 600; color: #1e293b; padding-bottom: 14px; border-bottom: 1px solid #eef0f3; }
-.pp-settings-page .pp-separator { border: none; border-top: 1px solid #eef0f3; margin: 22px 0; }
-.pp-settings-page .pp-option-row { display: flex; align-items: center; gap: 12px; }
-.pp-settings-page .pp-label-text { font-size: 13px; font-weight: 600; color: #334155; }
-.pp-settings-page .pp-explanation { font-size: 12px; color: #64748b; margin: 8px 0 0 52px; line-height: 1.6; }
-.pp-settings-page .pp-sub-panel { margin: 14px 0 0 52px; padding: 18px 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
-.pp-settings-page .pp-main-label { display: block; margin-bottom: 10px; font-size: 13px; font-weight: 600; color: #1e293b; }
-.pp-settings-page .pp-branding-grid { display: flex; gap: 32px; align-items: center; }
-.pp-settings-page .pp-branding-controls { flex: 1; }
-.pp-settings-page .pp-branding-preview { flex: 1; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 10px; padding: 24px; text-align: center; min-height: 100px; display: flex; align-items: center; justify-content: center; }
-#wm-preview-container { width: 100%; min-height: 100px; display: flex; align-items: center; justify-content: center; background: #f0f0f0; border: 1px dashed #ccc; padding: 10px; border-radius: 6px; }
-#wm-placeholder { color: #94a3b8; font-style: italic; font-size: 13px; }
-#wm-live-preview { max-width: 200px; height: auto; }
-.pp-settings-page .pp-range-group { margin-top: 20px; }
-.pp-settings-page .pp-range-group label { display: block; font-size: 12px; color: #64748b; margin-bottom: 8px; }
-.pp-settings-page .pp-color-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 24px; margin-top: 16px; }
-.pp-settings-page .pp-color-item label { display: block; margin-bottom: 8px; font-size: 12px; font-weight: 600; color: #1e293b; }
-.pp-settings-page .pp-save-bar { margin-top: 24px; padding-top: 20px; border-top: 1px solid #eef0f3; display: flex; justify-content: flex-end; }
+.pp-settings-page .pp-card-footer {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--pp-card-border);
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    transition: border-color 0.3s ease 0s;
+}
+
+.pp-settings-page .pp-card.is-active .pp-card-footer {
+    border-top-color: rgba(0, 0, 0, 0.15);
+    transition: border-color 0.3s ease 0.6s;
+}
+
+/* Neutral variant footer */
+.pp-settings-page .pp-card.pp-card-neutral .pp-card-footer {
+    border-top-color: rgba(27, 45, 42, 0.15);
+}
+
+.pp-settings-page .pp-card-status {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    color: var(--pp-text-muted);
+    transition: color 0.3s ease 0s;
+}
+
+.pp-settings-page .pp-card.is-active .pp-card-status {
+    color: var(--pp-text-on-active);
+    transition: color 0.3s ease 0.6s;
+}
+
+.pp-settings-page .pp-card-status.is-locked {
+    color: var(--pp-text-on-active);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.pp-settings-page .pp-card-status.is-locked svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
 
 /* ============================================================
-   4. TOGGLE SWITCH iOS
+   11. SAVE BAR — fixed bottom, clean/dirty states
+   ============================================================ */
+.pp-settings-page .pp-save-bar {
+    position: fixed;
+    bottom: 0;
+    left: 160px;          /* WP admin sidebar width */
+    right: 0;
+    z-index: 9000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 32px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border-top: 1px solid var(--pp-card-border);
+    transition:
+        background 0.3s cubic-bezier(0.32, 0.72, 0, 1),
+        color 0.3s cubic-bezier(0.32, 0.72, 0, 1),
+        border-color 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Folded WP sidebar */
+body.folded .pp-settings-page .pp-save-bar { left: 36px; }
+
+@media (max-width: 782px) {
+    .pp-settings-page .pp-save-bar {
+        left: 0;
+        padding: 12px 16px;
+    }
+}
+
+/* ── State : CLEAN (no unsaved changes) ─── */
+.pp-save-bar.is-clean {
+    background: rgba(255, 255, 255, 0.85);
+    color: var(--pp-text-muted);
+}
+.pp-save-bar.is-clean .pp-save-bar-icon {
+    background: rgba(27, 45, 42, 0.25);
+}
+.pp-save-bar.is-clean .pp-save-bar-actions {
+    display: none;
+}
+
+/* ── State : DIRTY (unsaved changes) ─── */
+.pp-save-bar.is-dirty {
+    background: var(--pp-jet);
+    color: var(--pp-platinum);
+    border-top-color: var(--pp-jet);
+}
+.pp-save-bar.is-dirty .pp-save-bar-icon {
+    background: var(--pp-chartreuse);
+    box-shadow: 0 0 0 4px rgba(206, 255, 26, 0.18);
+    animation: pp-savebar-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes pp-savebar-pulse {
+    0%, 100% { box-shadow: 0 0 0 4px rgba(206, 255, 26, 0.18); }
+    50%      { box-shadow: 0 0 0 7px rgba(206, 255, 26, 0.32); }
+}
+
+/* ── Internals ─── */
+.pp-save-bar-msg {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+}
+
+.pp-save-bar-icon {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: background 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.pp-save-bar-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Discard button — visible only on dirty state */
+.pp-save-bar-discard {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    letter-spacing: -0.005em;
+    font-family: inherit;
+}
+.pp-save-bar-discard:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--pp-platinum);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Save button — chartreuse on dirty state */
+.pp-save-bar .pp-save-btn.button-primary {
+    background: var(--pp-chartreuse) !important;
+    color: var(--pp-text-on-active) !important;
+    border: none !important;
+    padding: 9px 22px !important;
+    border-radius: 10px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.2s ease !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    letter-spacing: -0.005em;
+    height: auto;
+    line-height: 1.4;
+}
+.pp-save-bar .pp-save-btn.button-primary:hover,
+.pp-save-bar .pp-save-btn.button-primary:focus {
+    background: var(--pp-chartreuse) !important;
+    color: var(--pp-text-on-active) !important;
+    opacity: 0.92;
+    transform: translateY(-1px);
+}
+
+/* Push the page bottom enough so content isn't hidden under the bar */
+/* (handled directly in .pp-settings-page padding) */
+
+.pp-settings-page .pp-save-btn.button-primary {
+    background: var(--pp-jet);
+    border-color: var(--pp-jet);
+    color: var(--pp-platinum);
+    border-radius: 10px;
+    padding: 8px 24px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    height: auto;
+    line-height: 1.4;
+    box-shadow: none;
+    text-shadow: none;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+.pp-settings-page .pp-save-btn.button-primary:hover,
+.pp-settings-page .pp-save-btn.button-primary:focus {
+    background: #000;
+    border-color: #000;
+    color: var(--pp-platinum);
+}
+
+/* ============================================================
+   12. WP CORE OVERRIDES (color picker, generic .button)
+   ============================================================ */
+.pp-settings-page .wp-picker-container { margin-top: 4px; }
+.pp-settings-page .wp-color-result.button { border-radius: 8px; }
+
+.pp-settings-page .button:not(.button-primary):not(.pp-btn-action):not(.pp-btn-invert) {
+    border-radius: 8px;
+    border-color: var(--pp-card-border);
+    background: rgba(255, 255, 255, 0.7);
+    color: var(--pp-text);
+}
+.pp-settings-page .button:not(.button-primary):not(.pp-btn-action):not(.pp-btn-invert):hover {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(27, 45, 42, 0.2);
+    color: var(--pp-text);
+}
+
+/* ─── Action button (chartreuse + black) — for upload on neutral/inactive cards ─── */
+.pp-settings-page .button.pp-btn-action {
+    background: var(--pp-chartreuse) !important;
+    color: var(--pp-text-on-active) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 7px 16px !important;
+    font-size: 12px;
+    font-weight: 600;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.pp-settings-page .button.pp-btn-action:hover,
+.pp-settings-page .button.pp-btn-action:focus {
+    background: var(--pp-chartreuse) !important;
+    color: var(--pp-text-on-active) !important;
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+/* ─── Inverted button (jet + white) — for upload on active (chartreuse) cards ─── */
+.pp-settings-page .button.pp-btn-invert {
+    background: var(--pp-jet) !important;
+    color: var(--pp-platinum) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 7px 16px !important;
+    font-size: 12px;
+    font-weight: 600;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    margin-top:12px;
+}
+.pp-settings-page .button.pp-btn-invert:hover,
+.pp-settings-page .button.pp-btn-invert:focus {
+    background: var(--pp-jet) !important;
+    color: var(--pp-platinum) !important;
+    opacity: 0.92;
+    transform: translateY(-1px);
+}
+
+/* ============================================================
+   13. RESPONSIVE
+   ============================================================ */
+@media (max-width: 900px) {
+    .pp-settings-page .pp-cards-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    .pp-settings-page .pp-tabs { flex-wrap: wrap; }
+}
+
+/* ============================================================
+   14. TOGGLE SWITCH iOS (kept for legacy/metabox use)
    ============================================================ */
 .pp-switch { position: relative; display: inline-block; width: 38px; height: 21px; flex-shrink: 0; vertical-align: middle; }
 .pp-switch input { opacity: 0; width: 0; height: 0; }
-.pp-slider { position: absolute; cursor: pointer; inset: 0; background-color: #cbd5e1; transition: background-color .3s; border-radius: 21px; }
-.pp-slider:before { position: absolute; content: ""; height: 15px; width: 15px; left: 3px; bottom: 3px; background-color: #fff; transition: transform .3s; border-radius: 50%; }
-input:checked + .pp-slider { background-color: #2271b1; }
-input:checked + .pp-slider:before { transform: translateX(17px); }
+.pp-switch .pp-slider { position: absolute; cursor: pointer; inset: 0; background-color: #cbd5e1; transition: background-color .3s; border-radius: 21px; height: auto; margin: 0; }
+.pp-switch .pp-slider:before { position: absolute; content: ""; height: 15px; width: 15px; left: 3px; bottom: 3px; background-color: #fff; transition: transform .3s; border-radius: 50%; }
+.pp-switch input:checked + .pp-slider { background-color: #2271b1; }
+.pp-switch input:checked + .pp-slider:before { transform: translateX(17px); }
 
 /* ============================================================
-   5. METABOX — LAYOUT GÉNÉRAL
+   15. METABOX — LAYOUT GÉNÉRAL
    ============================================================ */
 .pp-meta {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -102,7 +1099,7 @@ input:checked + .pp-slider:before { transform: translateX(17px); }
 }
 
 /* ============================================================
-   6. METABOX — BANDE STATUT
+   16. METABOX — BANDE STATUT
    ============================================================ */
 .pp-state-bar {
     display: flex; align-items: center; justify-content: space-between;
@@ -145,7 +1142,7 @@ input:checked + .pp-slider:before { transform: translateX(17px); }
 .pp-state-publie    .pp-btn-state-action { border: 1px solid #3b82f6; color: #1d4ed8; background: transparent; }
 
 /* ============================================================
-   7. METABOX — URL ROW
+   17. METABOX — URL ROW
    ============================================================ */
 .pp-url-row {
     display: flex; align-items: center; gap: 10px;
@@ -156,7 +1153,7 @@ input:checked + .pp-slider:before { transform: translateX(17px); }
 .pp-url-value { flex: 1; font-family: monospace; font-size: 11px; color: #475569; background: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 5px; padding: 6px 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ============================================================
-   8. METABOX — BOUTONS
+   18. METABOX — BOUTONS
    ============================================================ */
 .pp-btn {
     font-size: 12px; padding: 7px 14px; border-radius: 6px;
@@ -176,7 +1173,7 @@ input:checked + .pp-slider:before { transform: translateX(17px); }
 .pp-btn-danger:hover { background: #fef2f2; border-color: #f87171; }
 
 /* ============================================================
-   9. METABOX — GRILLE DE CHAMPS
+   19. METABOX — GRILLE DE CHAMPS
    ============================================================ */
 .pp-fields-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
 .pp-field { display: flex; flex-direction: column; gap: 6px; }
@@ -187,7 +1184,7 @@ input:checked + .pp-slider:before { transform: translateX(17px); }
 .pp-field input[type="text"]:focus { border-color: #2271b1; box-shadow: 0 0 0 2px rgba(34,113,177,.15); outline: none; }
 
 /* ============================================================
-   10. METABOX — CARTE SÉLECTION
+   20. METABOX — CARTE SÉLECTION
    ============================================================ */
 .pp-sel-card {
     display: flex; align-items: center; justify-content: space-between;
@@ -199,7 +1196,7 @@ input:checked + .pp-slider:before { transform: translateX(17px); }
 .pp-sel-count span { font-size: 12px; color: #3b82f6; }
 
 /* ============================================================
-   11. METABOX — ÉTAT VALIDÉ
+   21. METABOX — ÉTAT VALIDÉ
    ============================================================ */
 .pp-validated-banner {
     display: flex; align-items: center; gap: 14px;
@@ -227,7 +1224,7 @@ input:checked + .pp-slider:before { transform: translateX(17px); }
 .pp-reopen-btns { display: flex; gap: 8px; flex-wrap: wrap; }
 
 /* ============================================================
-   12. METABOX — TOGGLE ROW
+   22. METABOX — TOGGLE ROW
    ============================================================ */
 .pp-toggle-row {
     display: flex; align-items: center; gap: 14px;
@@ -238,7 +1235,7 @@ input:checked + .pp-slider:before { transform: translateX(17px); }
 .pp-toggle-sub { font-size: 11px; color: #94a3b8; }
 
 /* ============================================================
-   13. METABOX — ZONE D'UPLOAD
+   23. METABOX — ZONE D'UPLOAD
    ============================================================ */
 .pp-upload-zone {
     border: 1.5px dashed #dde1e6; border-radius: 10px; padding: 28px 20px;
@@ -253,7 +1250,7 @@ input:checked + .pp-slider:before { transform: translateX(17px); }
 .pp-upload-sub { font-size: 11px; color: #94a3b8; }
 
 /* ============================================================
-   14. METABOX — GRILLE PHOTOS
+   24. METABOX — GRILLE PHOTOS
    ============================================================ */
 .pp-gallery-grid {
     display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
@@ -277,36 +1274,23 @@ input:checked + .pp-slider:before { transform: translateX(17px); }
 .pp-progress-label { font-size: 11px; color: #64748b; letter-spacing: .02em; }
 
 /* ============================================================
-   15. METABOX — ALERTE
+   25. METABOX — ALERTE
    ============================================================ */
 .pp-alert { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; background: #fffbeb; border: 1px solid #fcd34d; border-radius: 6px; }
 .pp-alert-dot { width: 6px; height: 6px; border-radius: 50%; background: #d97706; margin-top: 5px; flex-shrink: 0; }
 .pp-alert-text { font-size: 12px; color: #92400e; line-height: 1.6; }
 
 /* ============================================================
-   16. RESPONSIVE
-   ============================================================ */
-@media (max-width: 900px) {
-    .pp-fields-row { grid-template-columns: 1fr; }
-    .pp-settings-page .pp-settings-container { flex-direction: column; }
-    .pp-settings-page .pp-settings-sidebar { width: 100%; border-right: none; border-bottom: 1px solid #e8ecef; display: flex; overflow-x: auto; padding: 0; }
-    .pp-settings-page .pp-nav-item { flex-shrink: 0; border-left: none; border-bottom: 2px solid transparent; }
-    .pp-settings-page .pp-nav-item.active { border-left-color: transparent; border-bottom-color: #2271b1; }
-}
-
-/* ============================================================
-   17. FRONT-END — ÉTAT VERROUILLÉ
+   26. FRONT-END — ÉTAT VERROUILLÉ
    ============================================================ */
 .pp-photo-dimmed { opacity: 0.35; pointer-events: none; }
 .pp-locked-banner { display: flex; align-items: center; gap: 10px; padding: 12px 18px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; margin-bottom: 20px; font-size: 13px; color: #166534; }
 .pp-locked-icon { font-size: 16px; color: #22c55e; flex-shrink: 0; }
 .pp-bar-locked .pp-btn-validate.pp-btn-confirmed { background: #22c55e; cursor: default; }
-/* PhotoProof — Anti-flash lors du chargement initial */
-.pp-settings-page.pp-loading .pp-settings-content { visibility: hidden; }
 
-/* ═══════════════════════════════════════════════════════════════
-   Comments recap (metabox admin)
-   ═══════════════════════════════════════════════════════════════ */
+/* ============================================================
+   27. COMMENTS RECAP (metabox admin)
+   ============================================================ */
 .pp-recap-comment-bubble {
     font-size: 14px;
     margin-top: 2px;
